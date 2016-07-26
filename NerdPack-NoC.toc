@@ -1,0 +1,8 @@
+## Title: |r[|cff0070deNoC|r] Combat Routines
+## Notes: Custom Combat Routines for NerdPack.
+## Interface: 70000
+## Dependencies: NerdPack
+## Dependencies: NerdPack-Routines
+## Author: NO CARRIER
+
+NerdPack-NoC.xml
