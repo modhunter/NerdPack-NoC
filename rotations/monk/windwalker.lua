@@ -1,7 +1,3 @@
---local dynEval = NePCR.dynEval
---local PeFetch = NeP.Interface.fetchKey
---local addonColor = '|cff'..NeP.Interface.addonColor
-
 local config = {
 	key = 'NoC_Monk_WW',
 	profiles = true,
@@ -29,14 +25,13 @@ local config = {
 NeP.Interface.buildGUI(config)
 
 local exeOnLoad = function()
-	NePCR.Splash()
 	NeP.Interface.CreateSetting('Class Settings', function() NeP.Interface.ShowGUI('NoC_Monk_WW') end)
 end
 
 local SEF_Fixate_Casted = false
 
 local _SEF = function()
-	if NePCR.dynEval('player.buff(Storm, Earth, and Fire)') then
+	if NOC.dynEval('player.buff(Storm, Earth, and Fire)') then
 		if SEF_Fixate_Casted then
 			return false
 		else

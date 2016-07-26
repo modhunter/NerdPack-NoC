@@ -22,7 +22,7 @@ local config = {
 NeP.Interface.buildGUI(config)
 
 local exeOnLoad = function()
-	NePCR.Splash()
+	NOC.Splash()
 	NeP.Interface.CreateSetting('Class Settings', function() NeP.Interface.ShowGUI('NoC_DH_Vengeance') end)
 end
 
@@ -127,7 +127,7 @@ local _Melee = {
 local _AoE = {
 }
 
-NeP.Engine.registerRotation(581, '[|cff'..NeP.Interface.addonColor..'[NoC]|r] Demon Hunter - Vengeance',
+NeP.Engine.registerRotation(581, '[|cff'..NeP.Interface.addonColor..'NoC|r] Demon Hunter - Vengeance',
 	{ -- In-Combat
 		{_All},
 		{_Survival, 'player.health < 100'},

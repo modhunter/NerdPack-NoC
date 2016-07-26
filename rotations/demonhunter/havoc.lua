@@ -22,7 +22,7 @@ local config = {
 NeP.Interface.buildGUI(config)
 
 local exeOnLoad = function()
-	NePCR.Splash()
+	NOC.Splash()
 	NeP.Interface.CreateSetting('Class Settings', function() NeP.Interface.ShowGUI('NoC_DH_Havoc') end)
 end
 
@@ -193,7 +193,7 @@ local _Melee = {
 local _AoE = {
 }
 
-NeP.Engine.registerRotation(577, '[|cff'..NeP.Interface.addonColor..'[NoC]|r] Demon Hunter - Havoc',
+NeP.Engine.registerRotation(577, '[|cff'..NeP.Interface.addonColor..'NoC|r] Demon Hunter - Havoc',
 	{ -- In-Combat
 		{_All},
 		{_Survival, 'player.health < 100'},
