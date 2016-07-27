@@ -1,5 +1,5 @@
 NOC = {
-	Version = '1.0',
+	Version = '1.2',
 	Branch = 'master',
 	Interface = {
 		addonColor = 'A330C9',
@@ -22,11 +22,11 @@ function NOC.dynEval(condition, spell)
 	return Parse(condition, spell or '')
 end
 
-function NoC.Splash()
+function NOC.Splash()
 	return true
 end
 
-NeP.library.register('NoC', {
+NeP.library.register('NOC', {
 
 -- Place custom functions here???
 

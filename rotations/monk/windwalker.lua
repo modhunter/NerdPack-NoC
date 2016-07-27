@@ -10,15 +10,16 @@ local config = {
 		-- General
 		{type = 'header',text = 'General', align = 'center'},
 			{type = 'checkbox', text = 'SEF', key = 'SEF', default = true},
+			{type = 'checkbox', text = 'Opener', key = 'opener', default = true},
+			{type = 'checkbox', text = 'Automatic CJL', key = 'auto_cjl', default = true},
 			{type = 'checkbox', text = '5 min DPS test', key = 'dsptest', default = false},
-      -- TODO: add toggle for auto CJL
-      -- TODO: add %-selectable health amount to trigger Effuse usage
       -- TODO: cast % (or randomized range) to use for interrupts
 
 		-- Survival
 		{type = 'spacer'},{type = 'rule'},
 		{type = 'header', text = 'Survival', align = 'center'},
-			{type = 'spinner', text = 'Healthstone', key = 'Healthstone', default = 75},
+		{type = 'spinner', text = 'Healthstone & Healing Tonic', key = 'Healthstone', default = 45},
+		{type = 'spinner', text = 'Effuse', key = 'effuse', default = 40},
 	}
 }
 
@@ -44,6 +45,14 @@ local _SEF = function()
 	return false
 end
 
+local healthstn = function()
+	return NOC.dynEval('player.health <= ' .. NeP.Interface.fetchKey('NoC_Monk_WW', 'Healthstone'))
+end
+
+local effuse = function()
+	return NOC.dynEval('player.health <= ' .. NeP.Interface.fetchKey('NoC_Monk_WW', 'effuse'))
+end
+
 local _All = {
 	-- Keybinds
 	{ 'pause', 'modifier.shift' },
@@ -57,6 +66,9 @@ local _All = {
 	{ "116841", 'player.state.stun' }, -- Tiger's Lust = 116841
 	{ "116841", 'player.state.root' }, -- Tiger's Lust = 116841
 	{ "116841", 'player.state.snare' }, -- Tiger's Lust = 116841
+
+	-- Use this out of combat
+	{ "Effuse", { "player.health < 100", "!player.moving", "!player.combat" }, "player" },
 }
 
 local _Cooldowns = {
@@ -69,9 +81,9 @@ local _Cooldowns = {
 }
 
 local _Survival = {
-	{ "Effuse", { "player.health <= 40", "player.energy >= 60" }, "player" },
-	{ "#109223", "player.health < 40" }, -- Healing Tonic
-	{ '#5512', 'player.health < 40' }, -- Healthstone
+	{ "Effuse", { "player.energy >= 60", "!player.moving", effuse }, "player" },
+	{ "#109223", healthstn, "player" }, -- Healing Tonic
+	{ '#5512', healthstn, "player" }, -- Healthstone
 	{ "Detox", "player.dispellable(Detox)", "player" },
 }
 
@@ -103,7 +115,7 @@ local _SEF = {
 
 local _Ranged = {
 	{ "116841", { "player.movingfor > 0.5", "target.alive" }},
-	{ "Crackling Jade Lightning", "!player.moving" },
+	{ "Crackling Jade Lightning", { "!player.moving", (function() return NeP.Interface.fetchKey('NoC_Monk_WW', 'auto_cjl') end) }},
 }
 
 local _Openner = {
@@ -118,6 +130,10 @@ local _Openner = {
 	}, { "player.chidiff <= 1", "player.spell(Blackout Kick).casted = 0" }},
 	{ 'Serenity', "player.chidiff >= 2" },
 	{ "Tiger Palm", { "player.chidiff >= 2", "!player.buff(Serenity)", "!lastcast(Tiger Palm)", "player.spell(Blackout Kick).casted = 0" }},
+}
+
+local _AoE = {
+	{ 'Spinning Crane Kick', { '!talent(6,1)', '!lastcast(Spinning Crane Kick)' }},
 }
 
 local _Melee = {
@@ -152,9 +168,7 @@ local _Melee = {
 	}, 'target.infront' },
 }
 
-local _AoE = {
-	{ 'Spinning Crane Kick', { '!talent(6,1)', '!lastcast(Spinning Crane Kick)' }},
-}
+
 
 NeP.Engine.registerRotation(269, '[|cff'..NeP.Interface.addonColor..'NoC|r] Monk - Windwalker',
 	{ -- In-Combat
@@ -166,7 +180,7 @@ NeP.Engine.registerRotation(269, '[|cff'..NeP.Interface.addonColor..'NoC|r] Monk
 			-- Melee
 			{{
 				{_SEF, (function() return NeP.Interface.fetchKey('NoC_Monk_WW', 'SEF') end) },
-				{_Openner, "player.time < 16"},
+				{_Openner, { "player.time < 16", (function() return NeP.Interface.fetchKey('NoC_Monk_WW', 'opener') end) }},
 				{_Melee },
 			}, "target.range <= 5" },
 			{_Ranged, { "target.range > 8", "target.range <= 40" }},
