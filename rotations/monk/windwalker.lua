@@ -45,6 +45,29 @@ local _SEF = function()
 	return false
 end
 
+-- List of spells that can benefit Mastery
+local MasterySpells = {
+	[100784] = '', -- Blackout Kick
+	[113656] = '', -- Fists of Fury
+	[101545] = '', -- Flying Serpent Kick
+	[107428] = '', -- Rising Sun Kick
+	[101546] = '', -- Spinning Crane Kick
+	[205320] = '', -- Strike of the Windlord
+	[100780] = '', -- Tiger Palm
+	[115080] = '', -- Touch of Death
+	[115098] = '', -- Chi Wave
+	[123986] = '', -- Chi Burst
+	[116847] = '', -- Rushing Jade Wind
+	[152175] = '', -- Whirling Dragon Punch
+}
+
+local _GoodLastCast = function()
+	--local spellID = GetSpellID(NeP.Engine.lastCast)
+	local _, _, _, _, _, _, spellID = GetSpellInfo(NeP.Engine.lastCast)
+	--print("goodLastCast: checking ", spellID);
+	return MasterySpells[spellID] ~= nil
+end
+
 local healthstn = function()
 	return NOC.dynEval('player.health <= ' .. NeP.Interface.fetchKey('NoC_Monk_WW', 'Healthstone'))
 end
@@ -129,11 +152,11 @@ local _Openner = {
 		{ "Blackout Kick", "player.spell(Chi Brew).charges = 2" },
 	}, { "player.chidiff <= 1", "player.spell(Blackout Kick).casted = 0" }},
 	{ 'Serenity', "player.chidiff >= 2" },
-	{ "Tiger Palm", { "player.chidiff >= 2", "!player.buff(Serenity)", "!lastcast(Tiger Palm)", "player.spell(Blackout Kick).casted = 0" }},
+	{ "Tiger Palm", { "player.chidiff >= 2", "!player.buff(Serenity)", "!lastcast(Tiger Palm)", "player.spell(Blackout Kick).casted = 0", (function() return _GoodLastCast() end) }},
 }
 
 local _AoE = {
-	{ 'Spinning Crane Kick', { '!talent(6,1)', '!lastcast(Spinning Crane Kick)' }},
+	{ 'Spinning Crane Kick', { '!talent(6,1)', '!lastcast(Spinning Crane Kick)', (function() return _GoodLastCast() end) }},
 }
 
 local _Melee = {
@@ -143,7 +166,7 @@ local _Melee = {
 	{{ -- infront
 		{ 'Serenity', { "player.spell(Rising Sun Kick).cooldown < 8", "player.spell(Fists of Fury).cooldown <= 3" }},
 		{ "Energizing Elixir", { "player.energy < 100", "player.chi <= 1", "!player.buff(Serenity)" }},
-		{ "Rushing Jade Wind", { "player.buff(Serenity)", "!lastcast(Rushing Jade Wind)" }},
+		{ "Rushing Jade Wind", { "player.buff(Serenity)", "!lastcast(Rushing Jade Wind)", (function() return _GoodLastCast() end) }},
 		{ "Strike Of The Windlord" },
 		{ "Whirling Dragon Punch" },
 		{ "Fists of Fury" },
@@ -152,7 +175,7 @@ local _Melee = {
 
   	{ "Rising Sun Kick" },
 		{ "Strike Of The Windlord" },
-		{ "Rushing Jade Wind", { "player.chi > 1", "!lastcast(Rushing Jade Wind)" }},
+		{ "Rushing Jade Wind", { "player.chi > 1", "!lastcast(Rushing Jade Wind)", (function() return _GoodLastCast() end) }},
 		{{
 			{ "Chi Wave" }, -- 40 yard range 0 energy, 0 chi
 			{ "Chi Burst", "!player.moving" },
@@ -160,11 +183,11 @@ local _Melee = {
 		{{
     	{ "Blackout Kick", "player.buff(Blackout Kick!)" },
     	{ "Blackout Kick", "player.chi > 1" },
-  	}, { "!player.buff(Serenity)", "!lastcast(Blackout Kick)" }},
-		{ "Tiger Palm", { "!player.buff(Serenity)", "player.chi <= 2", "!lastcast(Tiger Palm)" }},
-		{ "Blackout Kick", "!lastcast(Blackout Kick)", "!lastcast(Storm, Earth, and Fire)" },
-		{ "Tiger Palm", "!lastcast(Tiger Palm)" },
-		{ "Tiger Palm", { "player.chi = 0", "lastcast(Tiger Palm)" }},
+  	}, { "!player.buff(Serenity)", "!lastcast(Blackout Kick)", (function() return _GoodLastCast() end) }},
+		{ "Tiger Palm", { "!player.buff(Serenity)", "player.chi <= 2", "!lastcast(Tiger Palm)", (function() return _GoodLastCast() end) }},
+		{ "Blackout Kick", { "!lastcast(Blackout Kick)", (function() return _GoodLastCast() end) }},
+		{ "Tiger Palm", { "!lastcast(Tiger Palm)", (function() return _GoodLastCast() end) }},
+		--{ "Tiger Palm", { "player.chi = 0", "lastcast(Tiger Palm)" }},
 	}, 'target.infront' },
 }
 

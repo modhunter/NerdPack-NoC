@@ -1,5 +1,5 @@
 NOC = {
-	Version = '1.2',
+	Version = '1.3',
 	Branch = 'master',
 	Interface = {
 		addonColor = 'A330C9',
@@ -7,7 +7,7 @@ NOC = {
 	},
 }
 
--- NeP.Core.DebugMode = false
+--NeP.Core.DebugMode = true
 
 local Parse = NeP.DSL.parse
 local Fetch = NeP.Interface.fetchKey
