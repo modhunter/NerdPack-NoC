@@ -9,13 +9,12 @@ local config = {
 	config = {
 		-- General
 		{type = 'header',text = 'General', align = 'center'},
-			{type = 'checkbox', text = '5 min DPS test', key = 'dsptest', default = false},
-      -- TODO: add toggle for auto CJL
+		{type = 'checkbox', text = '5 min DPS test', key = 'dsptest', default = false},
 
 		-- Survival
 		{type = 'spacer'},{type = 'rule'},
 		{type = 'header', text = 'Survival', align = 'center'},
-			{type = 'spinner', text = 'Healthstone', key = 'Healthstone', default = 75},
+		{type = 'spinner', text = 'Healthstone & Healing Tonic', key = 'Healthstone', default = 45},
 	}
 }
 
@@ -26,6 +25,10 @@ local exeOnLoad = function()
 	NeP.Interface.CreateSetting('Class Settings', function() NeP.Interface.ShowGUI('NoC_DH_Havoc') end)
 end
 
+local healthstn = function()
+	return NOC.dynEval('player.health <= ' .. NeP.Interface.fetchKey('NoC_Monk_WW', 'Healthstone'))
+end
+
 local _All = {
 	-- Keybinds
 	{ 'pause', 'modifier.shift' },
@@ -34,31 +37,18 @@ local _All = {
 
 	{ "/stopcasting\n/stopattack\n/cleartarget\n/stopattack\n/cleartarget", { "player.time >= 300", (function() return NeP.Interface.fetchKey('NoC_DH_Havoc', 'dsptest') end) }},
 
-	-- AutoTarget
-	--{ "/targetenemy [noexists]", "!target.exists" },
-	--{ "/targetenemy [dead]", { "target.exists", "target.dead" } },
+	-- Vengeful Retreat backwards through the target to minimize downtime.
+  --vengeful_retreat,if=(talent.prepared.enabled|talent.momentum.enabled)&buff.prepared.down&buff.momentum.down
+  -- Fel Rush for Momentum and for fury from Fel Mastery.
+  --fel_rush,animation_cancel=1,if=(talent.momentum.enabled|talent.fel_mastery.enabled)&(!talent.momentum.enabled|(charges=2|cooldown.vengeful_retreat.remains>4)&buff.momentum.down)&(!talent.fel_mastery.enabled|fury.deficit>=25)&raid_event.movement.in>charges*10
 
-  {{
-    { "Eye Beam", "!talent(3,2)" },
-    { "Eye Beam", "player.fury >= 80" },
-    { "Eye Beam", "player.furydiff < 30" },
-  }, { "talent(7,3)", "!player.buff(Momentum)" }},
-
-  { "Demon's Bite", { "player.spell(Metamorphosis).cooldown < 1.5", "player.furydiff >= 25", "target.range <= 5" }},
-
-  --{ "Eye Beam", { "!talent(5,1)", "toggle.multitarget", "modifier.enemies >= 2", "target.range <= 20" }},
-
-  { "Nemsis" },
-
-  { "Chaos Blades", { "player.spell(Metamorphosis).cooldown > 100" }},
-  { "Chaos Blades", "player.buff(Metamorphosis)" },
 }
 
 local _Cooldowns = {
   { "Lifeblood" },
   { "Berserking" },
   { "Blood Fury" },
-  --metamorphosis,if=buff.metamorphosis.down&(!talent.demonic.enabled|!cooldown.eye_beam.ready)&(!talent.chaos_blades.enabled|cooldown.chaos_blades.ready)&(!talent.nemesis.enabled|debuff.nemesis.up|cooldown.nemesis.ready)
+
 	-- Look at this example for ideas:
 	--function Rubim.DnD()
 	--  CastSpellByName(GetSpellInfo(43265))
@@ -74,7 +64,14 @@ local _Cooldowns = {
 	-- 		return true
 	-- 	end
 	-- end
+  -- Idea from MTS to 'pool' for conditions to cast the spell
+  -- {spell, {'toggle.tell', (function() return SomeCheckingFunc() end), 'modifer.lalt'},' mouseover.ground'}
 
+	-- TODO: figure out how to write conditions to meet all of this junk
+	--buff.metamorphosis.down&
+	--(!talent.demonic.enabled|!cooldown.eye_beam.ready)&
+	--(!talent.chaos_blades.enabled|cooldown.chaos_blades.ready)&
+	--(!talent.nemesis.enabled|debuff.nemesis.up|cooldown.nemesis.ready)
 
   --{{
     --{ "Metamorphosis", { "player.spell(Chaos Blades).cooldown < 1" }, "ground" },
@@ -89,12 +86,15 @@ local _Survival = {
   { "Desperate Instincts", { "player.health <= 70" }},
   { "Netherwalk", { "player.health <= 70" }},
 
-  { "#109223", "player.health < 40" }, -- Healing Tonic
-  { "#5512", "player.health < 40" }, -- Healthstone
+	{ "#109223", healthstn, "player" }, -- Healing Tonic
+	{ '#5512', healthstn, "player" }, -- Healthstone
 }
 
 local _Interrupts = {
 	{ "Consume Magic" },
+}
+
+local _AoE = {
 }
 
 local _Ranged = {
@@ -127,13 +127,22 @@ local _Ranged = {
 local _Melee = {
 	-- Rotation
 	{{ -- infront
+
+		--{ "Eye Beam", { "!talent(5,1)", "toggle.multitarget", "modifier.enemies >= 2", "target.range <= 20" }},
+
     { "Fury of the Illidari" }, -- Fury of the Illidari
 
     --death_sweep,if=death_sweep_worth_using ?????
+		--demons_bite_per_dance = blade_dance_cost / demons_bite_fury
+		--demons_bite_per_chaos_strike = ( chaos_strike_cost - 20 * crit_chance ) / demons_bite_fury
+		--( blade_dance_damage + demons_bite_per_dance * demons_bite_damage ) / ( 1 + demons_bite_per_dance ) > ( chaos_strike_damage + demons_bite_per_chaos_strike * demons_bite_damage ) / ( 1 + demons_bite_per_chaos_strike )
+
+		-- These three also have a check about 'worth using'
     { "Death Sweep" },
-    { "Death Sweep", { "talent(1,2)", "toggle.multitarget", "modifier.enemies >= 2" }},
     { "Demon's Bite", { "player.buff(Metamorphosis).duration > 1.5", "player.spell(Blade Dance).cooldown < 1.5", "player.fury < 70" }},
     { "Blade Dance" },
+
+		--actions+=/fel_barrage,if=charges>=5&(buff.momentum.up|!talent.momentum.enabled)&(active_enemies>desired_targets|raid_event.adds.in>30)
 
     {{
       { "Fel Barrage", "player.buff(Momentum)" },
@@ -190,7 +199,27 @@ local _Melee = {
 	}, 'target.infront' },
 }
 
-local _AoE = {
+local _Rotation = {
+	{{
+		{ "Eye Beam", "!talent(3,2)" },
+		{ "Eye Beam", "player.fury >= 80" },
+		{ "Eye Beam", "player.furydiff < 30" },
+	}, { "talent(7,3)", "!player.buff(Metamorphosis)", "target.range <= 20" }},
+
+	{ "Demon's Bite", { "player.spell(Metamorphosis).cooldown < 0.5", "player.furydiff >= 25", "target.range <= 5" }},
+
+	{ "Nemesis", { "player.area(8).enemies >= 3", "!target.debuff(Nemesis)", "target.range <= 5" }},
+	{ "Nemesis", { "player.area(8).enemies = 1", "player.spell(Metamorphosis).cooldown > 100", "target.range <= 5" }},
+	{ "Nemesis", { "player.area(8).enemies = 1", "target.ttd < 70", "target.range <= 5" }},
+	{ "Nemesis", { "player.spell(Metamorphosis).cooldown < 0.5", "target.range <= 5", "player.area(8).enemies = 1" }},
+
+	{ "Chaos Blades", "player.spell(Metamorphosis).cooldown > 100" },
+	{ "Chaos Blades", "player.buff(Metamorphosis)" },
+	{ "Chaos Blades", "target.ttd < 20" },
+
+	{_Cooldowns, 'modifier.cooldowns'},
+
+
 }
 
 NeP.Engine.registerRotation(577, '[|cff'..NeP.Interface.addonColor..'NoC|r] Demon Hunter - Havoc',
@@ -198,9 +227,10 @@ NeP.Engine.registerRotation(577, '[|cff'..NeP.Interface.addonColor..'NoC|r] Demo
 		{_All},
 		{_Survival, 'player.health < 100'},
 		{_Interrupts, 'target.interruptAt(40)'},
-		{_Cooldowns, 'modifier.cooldowns'},
+
 		{{ -- Conditions
+			{_Rotation},
 			{_Melee, "target.range <= 5" },
 			{_Ranged, { "target.range > 8", "target.range <= 40" }},
-		}, {'target.range <= 40', 'target.exists'} }
+		}, { 'target.exists' }}
 	}, _All, exeOnLoad)

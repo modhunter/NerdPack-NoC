@@ -62,9 +62,7 @@ local MasterySpells = {
 }
 
 local _GoodLastCast = function()
-	--local spellID = GetSpellID(NeP.Engine.lastCast)
 	local _, _, _, _, _, _, spellID = GetSpellInfo(NeP.Engine.lastCast)
-	--print("goodLastCast: checking ", spellID);
 	return MasterySpells[spellID] ~= nil
 end
 
