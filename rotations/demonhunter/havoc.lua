@@ -31,7 +31,7 @@ end
 
 local _All = {
 	-- Keybinds
-	{ 'pause', 'modifier.shift' },
+	--{ 'pause', 'modifier.shift' },
   { "Chaos Nova", "modifier.lcontrol" },
   { "Darkness", "modifier.lalt" },
 
@@ -224,6 +224,7 @@ local _Rotation = {
 
 NeP.Engine.registerRotation(577, '[|cff'..NeP.Interface.addonColor..'NoC|r] Demon Hunter - Havoc',
 	{ -- In-Combat
+		{'pause', 'modifier.shift'},
 		{_All},
 		{_Survival, 'player.health < 100'},
 		{_Interrupts, 'target.interruptAt(40)'},

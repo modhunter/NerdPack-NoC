@@ -52,7 +52,7 @@ end
 local All = {
 -- Keybinds
 	-- Pause
-	{'pause', 'modifier.alt'},
+	--{'pause', 'modifier.alt'},
 	-- Summon Black Ox Statue
 	{'115315', 'modifier.control', 'mouseover.ground'},
 
@@ -151,6 +151,7 @@ local AoE = {
 
 NeP.Engine.registerRotation(268, '[|cff'..NeP.Interface.addonColor..'NeP|r] Monk - Brewmaster',
 	{-- In-Combat
+		{'pause', 'modifier.shift'},
 		{All},
 		{Survival, 'player.health < 100'},
 		{Interrupts, 'target.interruptAt(80)'},
