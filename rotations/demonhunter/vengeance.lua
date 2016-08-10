@@ -1,5 +1,6 @@
+local mKey = 'NoC_DH_Vengeance'
 local config = {
-	key = 'NoC_DH_Vengeance',
+	key = mKey,
 	profiles = true,
 	title = '|T'..NeP.Interface.Logo..':10:10|t'..NeP.Info.Nick..' Config',
 	subtitle = 'Demon Hunter Vengeance Settings',
@@ -9,7 +10,7 @@ local config = {
 	config = {
 		-- General
 		{type = 'header',text = 'General', align = 'center'},
-			{type = 'checkbox', text = '5 min DPS test', key = 'dsptest', default = false},
+			{type = 'checkbox', text = '5 min DPS test', key = 'dpstest', default = false},
       -- TODO: add toggle for auto CJL
 
 		-- Survival
@@ -19,11 +20,12 @@ local config = {
 	}
 }
 
-NeP.Interface.buildGUI(config)
+local E = NOC.dynEval
+local F = function(key) return NeP.Interface.fetchKey(mKey, key, 100) end
 
 local exeOnLoad = function()
-	NOC.Splash()
-	NeP.Interface.CreateSetting('Class Settings', function() NeP.Interface.ShowGUI('NoC_DH_Vengeance') end)
+	NeP.Interface.buildGUI(config)
+	NOC.ClassSetting(mKey)
 end
 
 local _All = {
@@ -32,11 +34,7 @@ local _All = {
   { "Chaos Nova", "modifier.lcontrol" },
   { "Darkness", "modifier.lalt" },
 
-	{ "/stopcasting\n/stopattack\n/cleartarget\n/stopattack\n/cleartarget", { "player.time >= 300", (function() return NeP.Interface.fetchKey('NoC_DH_Vengeance', 'dsptest') end) }},
-
-	-- AutoTarget
-	--{ "/targetenemy [noexists]", "!target.exists" },
-	--{ "/targetenemy [dead]", { "target.exists", "target.dead" } },
+	{ "/stopcasting\n/stopattack\n/cleartarget\n/stopattack\n/cleartarget", { "player.time >= 300", (function() return F('dpstest') end) }},
 
   {{
     { "Eye Beam", "!talent(3,2)" },
@@ -85,6 +83,34 @@ local _Ranged = {
 local _Melee = {
 	-- Rotation
 	{{ -- infront
+		{ "Fiery Brand", { "!player.buff(Demon Spikes)", "!player.buff(Metamorphosis)" }},
+
+		{{
+			{ "Demon Spikes", "player.spell(Demon Spikes).charges >= 2" },
+			{ "Demon Spikes", "!player.buff(Demon Spikes)" },
+		}, { "!target.debuff(Fiery Brand)", "!player.buff(Metamorphosis)" }},
+
+
+	-- actions+=/empower_wards,if=debuff.casting.up
+	--
+	--
+	-- actions+=/infernal_strike,if=!sigil_placed&!in_flight&remains-travel_time-delay<0.3*duration&artifact.fiery_demise.enabled&dot.fiery_brand.ticking
+	-- actions+=/infernal_strike,if=!sigil_placed&!in_flight&remains-travel_time-delay<0.3*duration&(!artifact.fiery_demise.enabled|(max_charges-charges_fractional)*recharge_time<cooldown.fiery_brand.remains+5)&(cooldown.sigil_of_flame.remains>7|charges=2)
+	-- actions+=/spirit_bomb,if=debuff.frailty.down
+	-- actions+=/soul_carver,if=dot.fiery_brand.ticking
+	-- actions+=/immolation_aura,if=pain<=80
+	-- actions+=/felblade,if=pain<=70
+	-- actions+=/soul_barrier
+	-- actions+=/soul_cleave,if=soul_fragments=5
+	-- actions+=/metamorphosis,if=buff.demon_spikes.down&!dot.fiery_brand.ticking&buff.metamorphosis.down&incoming_damage_5s>health.max*0.70
+	-- actions+=/fel_devastation,if=incoming_damage_5s>health.max*0.70
+	-- actions+=/soul_cleave,if=incoming_damage_5s>=health.max*0.70
+	-- actions+=/fel_eruption
+	-- actions+=/sigil_of_flame,if=remains-delay<=0.3*duration
+	-- actions+=/fracture,if=pain>=80&soul_fragments<4&incoming_damage_4s<=health.max*0.20
+	-- actions+=/soul_cleave,if=pain>=80
+	-- actions+=/shear
+
   { "Chaos Blades", { "!player.buff(Chaos Blades)", "player.spell(Metamorphosis).cooldown > 100" }},
   { "Chaos Blades", "player.buff(Metamorphosis)" },
 
