@@ -11,7 +11,7 @@ local config = {
 		-- General
 		{type = 'header',text = 'General', align = 'center'},
 		{type = 'checkbox', text = 'Automatic Throw Glaive', key = 'auto_glaive', default = true},
-		{type = 'checkbox', text = '5 min DPS test', key = 'dsptest', default = false},
+		{type = 'checkbox', text = '5 min DPS test', key = 'dpstest', default = false},
 
 		-- Survival
 		{type = 'spacer'},{type = 'rule'},
@@ -65,7 +65,7 @@ local _All = {
   { "Chaos Nova", "modifier.lcontrol" },
   --{ "Darkness", "modifier.lalt" }, -- reserve alt for Metamorphosis instead
 
-	{ "/stopcasting\n/stopattack\n/cleartarget\n/stopattack\n/cleartarget", { "player.time >= 300", (function() return F('dsptest') end) }},
+	{ "/stopcasting\n/stopattack\n/cleartarget\n/stopattack\n/cleartarget", { "player.time >= 300", (function() return F('dpstest') end) }},
 
 	-- Vengeful Retreat backwards through the target to minimize downtime.
   --vengeful_retreat,if=(talent.prepared.enabled|talent.momentum.enabled)&buff.prepared.down&buff.momentum.down
