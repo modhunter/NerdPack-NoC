@@ -76,7 +76,7 @@ end
 
 local _All = {
 	-- Keybinds
-	{ 'pause', 'modifier.shift' },
+	--{ 'pause', 'modifier.shift' },
 	{ "Leg Sweep", "modifier.lcontrol" },
   { "Touch of Karma", "modifier.lalt" },
 
@@ -193,6 +193,7 @@ local _Melee = {
 
 NeP.Engine.registerRotation(269, '[|cff'..NeP.Interface.addonColor..'NoC|r] Monk - Windwalker',
 	{ -- In-Combat
+		{'pause', 'modifier.shift'},
 		{_All},
 		{_Survival, 'player.health < 100'},
 		{_Interrupts, 'target.interruptAt(40)'},

@@ -9,12 +9,16 @@ local config = {
 	config = {
 		-- General
 		{type = 'header',text = 'General', align = 'center'},
+		{type = 'checkbox', text = 'Automatic Throw Glaive', key = 'auto_glaive', default = true},
 		{type = 'checkbox', text = '5 min DPS test', key = 'dsptest', default = false},
 
 		-- Survival
 		{type = 'spacer'},{type = 'rule'},
 		{type = 'header', text = 'Survival', align = 'center'},
 		{type = 'spinner', text = 'Healthstone & Healing Tonic', key = 'Healthstone', default = 45},
+		{type = 'spinner', text = 'Blur', key = 'blur', default = 70},
+		{type = 'spinner', text = 'Desperate Instincts', key = 'desperate', default = 40},
+		{type = 'spinner', text = 'Netherwalk', key = 'netherwalk', default = 70},
 	}
 }
 
@@ -26,14 +30,38 @@ local exeOnLoad = function()
 end
 
 local healthstn = function()
-	return NOC.dynEval('player.health <= ' .. NeP.Interface.fetchKey('NoC_Monk_WW', 'Healthstone'))
+	return NOC.dynEval('player.health <= ' .. NeP.Interface.fetchKey('NoC_DH_Havoc', 'Healthstone'))
+end
+
+local blur_check = function()
+	return NOC.dynEval('player.health <= ' .. NeP.Interface.fetchKey('NoC_DH_Havoc', 'blur'))
+end
+
+local desperate_check = function()
+	return NOC.dynEval('player.health <= ' .. NeP.Interface.fetchKey('NoC_DH_Havoc', 'desperate'))
+end
+
+local netherwalk_check = function()
+	return NOC.dynEval('player.health <= ' .. NeP.Interface.fetchKey('NoC_DH_Havoc', 'netherwalk'))
+end
+
+local _meta = function()
+	local result = false
+	--buff.metamorphosis.down&
+	--(!talent.demonic.enabled|!cooldown.eye_beam.ready)&
+	--(!talent.chaos_blades.enabled|cooldown.chaos_blades.ready)&
+	--(!talent.nemesis.enabled|debuff.nemesis.up|cooldown.nemesis.ready)
+	if NOC.dynEval('!player.buff(Metamorphosis)') and (NOC.dynEval('!talent(7,3)') or NOC.dynEval('player.spell(Eye Beam).cooldown < 0.5')) and (NOC.dynEval('!talent(7,1)') or NOC.dynEval('player.spell(Chaos Blades).cooldown < 0.5')) and (NOC.dynEval('!talent(5,3)') or NOC.dynEval('target.debuff(Nemesis)') or NOC.dynEval('player.spell(Nemesis).cooldown < 0.5')) then
+		result = true
+	end
+	return result
 end
 
 local _All = {
 	-- Keybinds
-	{ 'pause', 'modifier.shift' },
+	--{ 'pause', 'modifier.shift' },
   { "Chaos Nova", "modifier.lcontrol" },
-  { "Darkness", "modifier.lalt" },
+  --{ "Darkness", "modifier.lalt" }, -- reserve alt for Metamorphosis instead
 
 	{ "/stopcasting\n/stopattack\n/cleartarget\n/stopattack\n/cleartarget", { "player.time >= 300", (function() return NeP.Interface.fetchKey('NoC_DH_Havoc', 'dsptest') end) }},
 
@@ -49,6 +77,8 @@ local _Cooldowns = {
   { "Berserking" },
   { "Blood Fury" },
 
+
+	-- NOTES:
 	-- Look at this example for ideas:
 	--function Rubim.DnD()
 	--  CastSpellByName(GetSpellInfo(43265))
@@ -67,24 +97,24 @@ local _Cooldowns = {
   -- Idea from MTS to 'pool' for conditions to cast the spell
   -- {spell, {'toggle.tell', (function() return SomeCheckingFunc() end), 'modifer.lalt'},' mouseover.ground'}
 
-	-- TODO: figure out how to write conditions to meet all of this junk
-	--buff.metamorphosis.down&
-	--(!talent.demonic.enabled|!cooldown.eye_beam.ready)&
-	--(!talent.chaos_blades.enabled|cooldown.chaos_blades.ready)&
-	--(!talent.nemesis.enabled|debuff.nemesis.up|cooldown.nemesis.ready)
+--	{spell, {con1_1, con1_2, 'or', con2}}
+--	, = and
+--	'or' = or
+--{'spell', {'player.buff(metamorphosis)', '!talent(WHATERVER IT IS)',  {'!talent(WHATERVER IT IS)', 'or', 'player.spell(chaos blade).cooldown = 0'}, {'talent(WHATEVER)', 'or', 'target.debuff(nemesis)', 'or', 'player.spell(nemesis).cooldown = 0'}}, 'target'}
+-- {spell, {cond1, {cond2_1, 'or', cond2_2}, cond3}, target}
+-- wich would translate to cond1 and (cond2_1 or cond2_2) and  cond3
 
-  --{{
-    --{ "Metamorphosis", { "player.spell(Chaos Blades).cooldown < 1" }, "ground" },
-    --{ "Metamorphosis", { "player.buff(Chaos Blades)" }, "ground" },
-    --{ "Metamorphosis", { "!talent(6,3)" }, "ground" },
-    -- TODO: Handle demonic talent and eye beam
-  --}, { "!player.buff(Metamorphosis)" }},
+	-- Try to be smart about how to check for Metamorphosis
+	{ "Metamorphosis", { "modified.lalt", (function() return _meta() end) }, "mouseover.ground" },
+
+	-- Just cast it #YOLO
+	--{ "Metamorphosis", { "modified.lalt" }, "mouseover.ground" },
 }
 
 local _Survival = {
-  { "Blur", { "player.health <= 70" }},
-  { "Desperate Instincts", { "player.health <= 70" }},
-  { "Netherwalk", { "player.health <= 70" }},
+  { "Blur", { blur_check }},
+  { "Desperate Instincts", { desperate_check }},
+  { "Netherwalk", { netherwalk_check }},
 
 	{ "#109223", healthstn, "player" }, -- Healing Tonic
 	{ '#5512', healthstn, "player" }, -- Healthstone
@@ -98,51 +128,26 @@ local _AoE = {
 }
 
 local _Ranged = {
-	--{ "Throw Glaive" },
+	-- Throw Glaive range: 30
+	-- Fel Barrage range: 30
+	-- Eye Beam range: 20
+	-- Felblade: 15
+	-- Fel Erruption: 20
 
-  {{
-    { "Fel Barrage", "player.buff(Momentum)" },
-    { "Fel Barrage", "!talent(5,1)" },
-  }, { "player.spell(Fel Barrage).charges >= 5" }},
-
-  {{
-    { "Throw Glaive", "!talent(6,1)" },
-    { "Throw Glaive", "!talent(5,1)" },
-    { "Throw Glaive", "player.buff(Momentum)" },
-  }, { "talent(3,3)", "toggle.multitarget", "modifier.enemies >= 2" }},
-
-  {{
-    { "Throw Glaive", "!talent(6,1)" },
-    { "Throw Glaive", "!talent(5,1)" },
-    { "Throw Glaive", "player.buff(Momentum)" },
-  }, { "talent(3,3)" }},
-
-  {{
-    { "Eye Beam", { "toggle.multitarget", "modifier.enemies >= 2" }},
-    { "Eye Beam", "!player.buff(Metamorphosis)" },
-  }, { "!talent(7,3)" }},
-
+	-- Auto-cast Throw Glaive when outside of range
+	{ "Throw Glaive", (function() return NeP.Interface.fetchKey('NoC_DH_Havoc', 'auto_glaive') end), "target.range <= 30" },
 }
 
 local _Melee = {
 	-- Rotation
 	{{ -- infront
-
-		--{ "Eye Beam", { "!talent(5,1)", "toggle.multitarget", "modifier.enemies >= 2", "target.range <= 20" }},
-
     { "Fury of the Illidari" }, -- Fury of the Illidari
 
-    --death_sweep,if=death_sweep_worth_using ?????
-		--demons_bite_per_dance = blade_dance_cost / demons_bite_fury
-		--demons_bite_per_chaos_strike = ( chaos_strike_cost - 20 * crit_chance ) / demons_bite_fury
-		--( blade_dance_damage + demons_bite_per_dance * demons_bite_damage ) / ( 1 + demons_bite_per_dance ) > ( chaos_strike_damage + demons_bite_per_chaos_strike * demons_bite_damage ) / ( 1 + demons_bite_per_chaos_strike )
-
-		-- These three also have a check about 'worth using'
+		-- TODO: figure out how to handle the wiers 'worth using' crap from the simc APL
+		-- TODO: implement true gcd checking instead of assuming 1.5s
     { "Death Sweep" },
     { "Demon's Bite", { "player.buff(Metamorphosis).duration > 1.5", "player.spell(Blade Dance).cooldown < 1.5", "player.fury < 70" }},
     { "Blade Dance" },
-
-		--actions+=/fel_barrage,if=charges>=5&(buff.momentum.up|!talent.momentum.enabled)&(active_enemies>desired_targets|raid_event.adds.in>30)
 
     {{
       { "Fel Barrage", "player.buff(Momentum)" },
@@ -153,7 +158,7 @@ local _Melee = {
       { "Throw Glaive", "!talent(6,1)" },
       { "Throw Glaive", "!talent(5,1)" },
       { "Throw Glaive", "player.buff(Momentum)" },
-    }, { "talent(3,3)", "toggle.multitarget", "modifier.enemies >= 2" }},
+    }, { "talent(3,3)", "toggle.multitarget", "player.area(10).enemies >= 2" }},
 
     { "Fel Erruption" },
 
@@ -172,18 +177,21 @@ local _Melee = {
       { "Throw Glaive", "player.buff(Momentum)" },
     }, { "talent(3,3)" }},
 
-    {{
-      { "Eye Beam", { "toggle.multitarget", "modifier.enemies >= 2" }},
-      { "Eye Beam", "!player.buff(Metamorphosis)" },
-    }, { "!talent(7,3)" }},
+		{ "Eye Beam", { "!talent(7,3)", "toggle.multitarget", "player.area(15).enemies >= 2", "!player.buff(Metamorphosis)" }},
 
+    --{{
+    --  { "Eye Beam", { "toggle.multitarget", "player.area(15).enemies >= 2" }},
+    --  { "Eye Beam", "!player.buff(Metamorphosis)" },
+    --}, { "!talent(7,3)" }},
+
+		-- TODO: figure out how to handle the wiers 'worth using' crap from the simc APL
     {{
       { "Demon's Bite", { "player.spell(Blade Dance).cooldown < 1.5", "player.fury < 55" }},
       { "Demon's Bite", { "talent(7,3)", "player.spell(Eye Beam).cooldown < 1.5", "player.furydiff >= 20" }},
       { "Demon's Bite", { "talent(7,3)", "player.spell(Eye Beam).cooldown < 3", "player.furydiff >= 45" }},
-    }, { "!player.buff(Metamorphosis)", "player.spell(Blade Dance).cooldown < 1.5", "player.fury < 70" }},
+    }, { "!player.buff(Metamorphosis)" }},
 
-    { "Throw Glaive", { "!player.buff(Metamorphosis)", "toggle.multitarget", "modifier.enemies >= 3" }},
+    { "Throw Glaive", { "!player.buff(Metamorphosis)", "toggle.multitarget", "player.area(10).enemies >= 3" }},
 
     { "Chaos Strike", "talent(5,1)" },
     { "Chaos Strike", "player.buff(Momentum)" },
@@ -206,6 +214,7 @@ local _Rotation = {
 		{ "Eye Beam", "player.furydiff < 30" },
 	}, { "talent(7,3)", "!player.buff(Metamorphosis)", "target.range <= 20" }},
 
+	-- If Metamorphosis is ready, pool fury
 	{ "Demon's Bite", { "player.spell(Metamorphosis).cooldown < 0.5", "player.furydiff >= 25", "target.range <= 5" }},
 
 	{ "Nemesis", { "player.area(8).enemies >= 3", "!target.debuff(Nemesis)", "target.range <= 5" }},
@@ -218,12 +227,11 @@ local _Rotation = {
 	{ "Chaos Blades", "target.ttd < 20" },
 
 	{_Cooldowns, 'modifier.cooldowns'},
-
-
 }
 
 NeP.Engine.registerRotation(577, '[|cff'..NeP.Interface.addonColor..'NoC|r] Demon Hunter - Havoc',
 	{ -- In-Combat
+		{'pause', 'modifier.shift'},
 		{_All},
 		{_Survival, 'player.health < 100'},
 		{_Interrupts, 'target.interruptAt(40)'},
