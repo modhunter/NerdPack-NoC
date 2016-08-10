@@ -1,5 +1,5 @@
 NOC = {
-	Version = '1.3',
+	Version = '1.4',
 	Branch = 'master',
 	Interface = {
 		addonColor = 'A330C9',

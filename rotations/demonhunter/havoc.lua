@@ -1,5 +1,6 @@
+local mKey = 'NoC_DH_Havoc'
 local config = {
-	key = 'NoC_DH_Havoc',
+	key = mKey,
 	profiles = true,
 	title = '|T'..NeP.Interface.Logo..':10:10|t'..NeP.Info.Nick..' Config',
 	subtitle = 'Demon Hunter Havoc Settings',
@@ -22,27 +23,28 @@ local config = {
 	}
 }
 
-NeP.Interface.buildGUI(config)
+local E = NOC.dynEval
+local F = function(key) return NeP.Interface.fetchKey(mKey, key, 100) end
 
 local exeOnLoad = function()
-	NOC.Splash()
-	NeP.Interface.CreateSetting('Class Settings', function() NeP.Interface.ShowGUI('NoC_DH_Havoc') end)
+	NeP.Interface.buildGUI(config)
+	NOC.ClassSetting(mKey)
 end
 
 local healthstn = function()
-	return NOC.dynEval('player.health <= ' .. NeP.Interface.fetchKey('NoC_DH_Havoc', 'Healthstone'))
+	return E('player.health <= ' .. F('Healthstone'))
 end
 
 local blur_check = function()
-	return NOC.dynEval('player.health <= ' .. NeP.Interface.fetchKey('NoC_DH_Havoc', 'blur'))
+	return E('player.health <= ' .. F('blur'))
 end
 
 local desperate_check = function()
-	return NOC.dynEval('player.health <= ' .. NeP.Interface.fetchKey('NoC_DH_Havoc', 'desperate'))
+	return E('player.health <= ' .. F('desperate'))
 end
 
 local netherwalk_check = function()
-	return NOC.dynEval('player.health <= ' .. NeP.Interface.fetchKey('NoC_DH_Havoc', 'netherwalk'))
+	return E('player.health <= ' .. F('netherwalk'))
 end
 
 local _meta = function()
@@ -51,7 +53,7 @@ local _meta = function()
 	--(!talent.demonic.enabled|!cooldown.eye_beam.ready)&
 	--(!talent.chaos_blades.enabled|cooldown.chaos_blades.ready)&
 	--(!talent.nemesis.enabled|debuff.nemesis.up|cooldown.nemesis.ready)
-	if NOC.dynEval('!player.buff(Metamorphosis)') and (NOC.dynEval('!talent(7,3)') or NOC.dynEval('player.spell(Eye Beam).cooldown < 0.5')) and (NOC.dynEval('!talent(7,1)') or NOC.dynEval('player.spell(Chaos Blades).cooldown < 0.5')) and (NOC.dynEval('!talent(5,3)') or NOC.dynEval('target.debuff(Nemesis)') or NOC.dynEval('player.spell(Nemesis).cooldown < 0.5')) then
+	if E('!player.buff(Metamorphosis)') and (E('!talent(7,3)') or E('player.spell(Eye Beam).cooldown < 0.5')) and (E('!talent(7,1)') or E('player.spell(Chaos Blades).cooldown < 0.5')) and (E('!talent(5,3)') or E('target.debuff(Nemesis)') or E('player.spell(Nemesis).cooldown < 0.5')) then
 		result = true
 	end
 	return result
@@ -63,7 +65,7 @@ local _All = {
   { "Chaos Nova", "modifier.lcontrol" },
   --{ "Darkness", "modifier.lalt" }, -- reserve alt for Metamorphosis instead
 
-	{ "/stopcasting\n/stopattack\n/cleartarget\n/stopattack\n/cleartarget", { "player.time >= 300", (function() return NeP.Interface.fetchKey('NoC_DH_Havoc', 'dsptest') end) }},
+	{ "/stopcasting\n/stopattack\n/cleartarget\n/stopattack\n/cleartarget", { "player.time >= 300", (function() return F('dsptest') end) }},
 
 	-- Vengeful Retreat backwards through the target to minimize downtime.
   --vengeful_retreat,if=(talent.prepared.enabled|talent.momentum.enabled)&buff.prepared.down&buff.momentum.down
@@ -135,7 +137,7 @@ local _Ranged = {
 	-- Fel Erruption: 20
 
 	-- Auto-cast Throw Glaive when outside of range
-	{ "Throw Glaive", (function() return NeP.Interface.fetchKey('NoC_DH_Havoc', 'auto_glaive') end), "target.range <= 30" },
+	{ "Throw Glaive", (function() return F('auto_glaive') end), "target.range <= 30" },
 }
 
 local _Melee = {

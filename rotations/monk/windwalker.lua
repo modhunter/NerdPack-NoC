@@ -1,5 +1,6 @@
+local mKey = 'NoC_Monk_WW'
 local config = {
-	key = 'NoC_Monk_WW',
+	key = mKey,
 	profiles = true,
 	title = '|T'..NeP.Interface.Logo..':10:10|t'..NeP.Info.Nick..' Config',
 	subtitle = 'Monk WindWalker Settings',
@@ -8,11 +9,11 @@ local config = {
 	height = 500,
 	config = {
 		-- General
-		{type = 'header',text = 'General', align = 'center'},
+			{type = 'header',text = 'General', align = 'center'},
 			{type = 'checkbox', text = 'SEF', key = 'SEF', default = true},
 			{type = 'checkbox', text = 'Opener', key = 'opener', default = true},
 			{type = 'checkbox', text = 'Automatic CJL', key = 'auto_cjl', default = true},
-			{type = 'checkbox', text = '5 min DPS test', key = 'dsptest', default = false},
+			{type = 'checkbox', text = '5 min DPS test', key = 'dpstest', default = false},
       -- TODO: cast % (or randomized range) to use for interrupts
 
 		-- Survival
@@ -23,10 +24,12 @@ local config = {
 	}
 }
 
-NeP.Interface.buildGUI(config)
+local E = NOC.dynEval
+local F = function(key) return NeP.Interface.fetchKey(mKey, key, 100) end
 
 local exeOnLoad = function()
-	NeP.Interface.CreateSetting('Class Settings', function() NeP.Interface.ShowGUI('NoC_Monk_WW') end)
+	NeP.Interface.buildGUI(config)
+	NOC.ClassSetting(mKey)
 end
 
 local SEF_Fixate_Casted = false
@@ -67,11 +70,11 @@ local _GoodLastCast = function()
 end
 
 local healthstn = function()
-	return NOC.dynEval('player.health <= ' .. NeP.Interface.fetchKey('NoC_Monk_WW', 'Healthstone'))
+	return E('player.health <= ' .. F('Healthstone'))
 end
 
 local effuse = function()
-	return NOC.dynEval('player.health <= ' .. NeP.Interface.fetchKey('NoC_Monk_WW', 'effuse'))
+	return E('player.health <= ' .. F('effuse'))
 end
 
 local _All = {
@@ -80,7 +83,7 @@ local _All = {
 	{ "Leg Sweep", "modifier.lcontrol" },
   { "Touch of Karma", "modifier.lalt" },
 
-	{ "/stopcasting\n/stopattack\n/cleartarget\n/stopattack\n/cleartarget", { "player.time >= 300", (function() return NeP.Interface.fetchKey('NoC_Monk_WW', 'dsptest') end) }},
+	{ "/stopcasting\n/stopattack\n/cleartarget\n/stopattack\n/cleartarget", { "player.time >= 300", (function() return F('dpstest') end) }},
 
 	-- FREEDOOM!
 	{ "116841", 'player.state.disorient' }, -- Tiger's Lust = 116841
@@ -136,7 +139,7 @@ local _SEF = {
 
 local _Ranged = {
 	{ "116841", { "player.movingfor > 0.5", "target.alive" }},
-	{ "Crackling Jade Lightning", { "!player.moving", (function() return NeP.Interface.fetchKey('NoC_Monk_WW', 'auto_cjl') end) }},
+	{ "Crackling Jade Lightning", { "!player.moving", (function() return F('auto_cjl') end) }},
 }
 
 local _Openner = {
@@ -201,8 +204,8 @@ NeP.Engine.registerRotation(269, '[|cff'..NeP.Interface.addonColor..'NoC|r] Monk
 		{{ -- Conditions
 			-- Melee
 			{{
-				{_SEF, (function() return NeP.Interface.fetchKey('NoC_Monk_WW', 'SEF') end) },
-				{_Openner, { "player.time < 16", (function() return NeP.Interface.fetchKey('NoC_Monk_WW', 'opener') end) }},
+				{_SEF, (function() return F('SEF') end) },
+				{_Openner, { "player.time < 16", (function() return F('opener') end) }},
 				{_Melee },
 			}, "target.range <= 5" },
 			{_Ranged, { "target.range > 8", "target.range <= 40" }},

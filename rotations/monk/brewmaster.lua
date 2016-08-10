@@ -42,10 +42,11 @@ local config = {
 	}
 }
 
-NeP.Interface.buildGUI(config)
+
 
 local exeOnLoad = function()
 	NOC.Splash()
+	NeP.Interface.buildGUI(config)
 	NeP.Interface.CreateSetting('Class Settings', function() NeP.Interface.ShowGUI('NePConfigMonkBM') end)
 end
 
