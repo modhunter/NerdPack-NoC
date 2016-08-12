@@ -29,9 +29,8 @@ end
 
 local _All = {
 	-- Keybinds
-	--{ 'pause', 'modifier.shift' },
-  { "Chaos Nova", "modifier.lcontrol" },
-  { "Darkness", "modifier.lalt" },
+  { "Infernal Strike", "modifier.lcontrol" },
+  { "Sigil of Flame", "modifier.lshift" },
 
 	{ "/stopcasting\n/stopattack\n/cleartarget\n/stopattack\n/cleartarget", { "player.time >= 300", (function() return F('dpstest') end) }},
 }
@@ -41,7 +40,7 @@ local _Cooldowns = {
   { "Berserking" },
   { "Blood Fury" },
 
-	{ "Metamorphosis", { "modified.lalt", "!player.buff(Demon Spikes)", "!target.debuff(Fiery Brand)", "!player.buff(Metamorphosis)" }, "mouseover.ground" },
+	{ "Metamorphosis", { "modifier.lalt", "!player.buff(Demon Spikes)", "!target.debuff(Fiery Brand)", "!player.buff(Metamorphosis)" }, "mouseover.ground" },
 }
 
 local _Survival = {
@@ -73,10 +72,6 @@ local _Melee = {
 
 		{ "Empower Wards", "target.casting.time < 2" },
 
-	-- actions+=/infernal_strike,if=!sigil_placed&!in_flight&remains-travel_time-delay<0.3*duration&artifact.fiery_demise.enabled&dot.fiery_brand.ticking
-	-- actions+=/infernal_strike,if=!sigil_placed&!in_flight&remains-travel_time-delay<0.3*duration&(!artifact.fiery_demise.enabled|(max_charges-charges_fractional)*recharge_time<cooldown.fiery_brand.remains+5)&(cooldown.sigil_of_flame.remains>7|charges=2)
-		-- { "Infernal Strike" }, -- When to use?
-
 		{ "Spirit Bomb", "!target.debuff(Frailty)" },
 
 		{ "Soul Carver", "target.debuff(Fiery Brand)" },
@@ -87,17 +82,14 @@ local _Melee = {
 
 		{ "Soul Barrier" },
 
-		-- { "Soul Cleave" }, -- <-- Don't use this automatically
+		{ "Soul Cleave", "player.buff(Soul Fragments).count >= 5" }, -- <-- Don't use this automatically
 
 		-- actions+=/fel_devastation,if=incoming_damage_5s>health.max*0.70
 		{ "Fel Devastation" }, -- <-- Don't use this automatically?
 
 		{ "Fel Erruption" },
 
-		-- TODO: This uses a targetting reticule - need to devise a good way to use this
-		-- actions+=/sigil_of_flame,if=remains-delay<=0.3*duration
-
-		{ "Soul Cleave", "player.pain >= 80" },
+		--{ "Soul Cleave", "player.pain >= 80" },
 
 		{ "Shear" },
 	}, 'target.infront' },
@@ -108,7 +100,7 @@ local _AoE = {
 
 NeP.Engine.registerRotation(581, '[|cff'..NeP.Interface.addonColor..'NoC|r] Demon Hunter - Vengeance',
 	{ -- In-Combat
-		{'pause', 'modifier.shift'},
+		--{'pause', 'modifier.shift'},
 		{_All},
 		{_Survival, 'player.health < 100'},
 		{_Interrupts, 'target.interruptAt(40)'},

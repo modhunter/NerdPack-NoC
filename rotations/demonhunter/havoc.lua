@@ -79,38 +79,10 @@ local _Cooldowns = {
   { "Berserking" },
   { "Blood Fury" },
 
-
-	-- NOTES:
-	-- Look at this example for ideas:
-	--function Rubim.DnD()
-	--  CastSpellByName(GetSpellInfo(43265))
-	--  if SpellIsTargeting() then CameraOrSelectOrMoveStart() CameraOrSelectOrMoveStop() end
-	--  return true
-	--end
-  --{ "Death and Decay" , { "modifier.lalt" , "modifier.lcontrol" , "@Rubim.DnD()"}},
-
-	-- function Rubim.DnD()
-	-- 	if UnitExists("mouseover") == false and UnitCanAttack("player", "mousever") == false and UnitIsDeadOrGhost("mouseover") == false then return false elseif UnitExists("mouseover") == true then
-	-- 		CastSpellByName(GetSpellInfo(43265))
-	-- 		if SpellIsTargeting() then CameraOrSelectOrMoveStart() CameraOrSelectOrMoveStop() end
-	-- 		return true
-	-- 	end
-	-- end
-  -- Idea from MTS to 'pool' for conditions to cast the spell
-  -- {spell, {'toggle.tell', (function() return SomeCheckingFunc() end), 'modifer.lalt'},' mouseover.ground'}
-
---	{spell, {con1_1, con1_2, 'or', con2}}
---	, = and
---	'or' = or
---{'spell', {'player.buff(metamorphosis)', '!talent(WHATERVER IT IS)',  {'!talent(WHATERVER IT IS)', 'or', 'player.spell(chaos blade).cooldown = 0'}, {'talent(WHATEVER)', 'or', 'target.debuff(nemesis)', 'or', 'player.spell(nemesis).cooldown = 0'}}, 'target'}
--- {spell, {cond1, {cond2_1, 'or', cond2_2}, cond3}, target}
--- wich would translate to cond1 and (cond2_1 or cond2_2) and  cond3
-
-	-- Try to be smart about how to check for Metamorphosis
-	{ "Metamorphosis", { "modified.lalt", (function() return _meta() end) }, "mouseover.ground" },
+	{ "Metamorphosis", { "modifier.lalt", (function() return _meta() end) }, "mouseover.ground" },
 
 	-- Just cast it #YOLO
-	--{ "Metamorphosis", { "modified.lalt" }, "mouseover.ground" },
+	--{ "Metamorphosis", { "modifier.lalt" }, "mouseover.ground" },
 }
 
 local _Survival = {
@@ -142,71 +114,66 @@ local _Ranged = {
 
 local _Melee = {
 	-- Rotation
-	{{ -- infront
-    { "Fury of the Illidari" }, -- Fury of the Illidari
+  { "Fury of the Illidari" }, -- Fury of the Illidari
 
-		-- TODO: figure out how to handle the wiers 'worth using' crap from the simc APL
-		-- TODO: implement true gcd checking instead of assuming 1.5s
-    { "Death Sweep" },
-    { "Demon's Bite", { "player.buff(Metamorphosis).duration > 1.5", "player.spell(Blade Dance).cooldown < 1.5", "player.fury < 70" }},
-    { "Blade Dance" },
+	-- TODO: figure out how to handle the wierd 'worth using' crap from the simc APL
+	-- TODO: implement true gcd checking instead of assuming 1.5s everywhere
+  { "Death Sweep" },
+  { "Demon's Bite", { "player.buff(Metamorphosis).duration > 1.5", "player.spell(Blade Dance).cooldown < 1.5", "player.fury < 70" }},
+  { "Blade Dance" },
 
-    {{
-      { "Fel Barrage", "player.buff(Momentum)" },
-      { "Fel Barrage", "!talent(5,1)" },
-    }, { "player.spell(Fel Barrage).charges >= 5" }},
+  {{
+    { "Fel Barrage", "player.buff(Momentum)" },
+    { "Fel Barrage", "!talent(5,1)" },
+  }, { "player.spell(Fel Barrage).charges >= 5" }},
 
-    {{
-      { "Throw Glaive", "!talent(6,1)" },
-      { "Throw Glaive", "!talent(5,1)" },
-      { "Throw Glaive", "player.buff(Momentum)" },
-    }, { "talent(3,3)", "toggle.multitarget", "player.area(10).enemies >= 2" }},
+  {{
+    { "Throw Glaive", "!talent(6,1)" },
+    { "Throw Glaive", "!talent(5,1)" },
+    { "Throw Glaive", "player.buff(Momentum)" },
+  }, { "talent(3,3)", "toggle.multitarget", "player.area(10).enemies >= 2" }},
 
-    { "Fel Erruption" },
+  { "Fel Erruption" },
 
-    { "Felblade", { "player.furydiff >= 30", "!player.buff(Prepared)" }},
-    { "Felblade", { "player.furydiff >= 42", "player.buff(Prepared)" }},
+  { "Felblade", { "player.furydiff >= 30", "!player.buff(Prepared)" }},
+  { "Felblade", { "player.furydiff >= 42", "player.buff(Prepared)" }},
 
-    { "Annihilation", "!talent(5,1)" },
-    { "Annihilation", "player.buff(Momentum)" },
-    { "Annihilation", { "player.furydiff >= 30", "!player.buff(Prepared)" }},
-    { "Annihilation", { "player.furydiff >= 42", "player.buff(Prepared)" }},
-    { "Annihilation", "player.buff(Metamorphosis).duration < 2" },
+  { "Annihilation", "!talent(5,1)" },
+  { "Annihilation", "player.buff(Momentum)" },
+  { "Annihilation", { "player.furydiff >= 30", "!player.buff(Prepared)" }},
+  { "Annihilation", { "player.furydiff >= 42", "player.buff(Prepared)" }},
+  { "Annihilation", "player.buff(Metamorphosis).duration < 2" },
 
-    {{
-      { "Throw Glaive", "!talent(6,1)" },
-      { "Throw Glaive", "!talent(5,1)" },
-      { "Throw Glaive", "player.buff(Momentum)" },
-    }, { "talent(3,3)" }},
+  {{
+    { "Throw Glaive", "!talent(6,1)" },
+    { "Throw Glaive", "!talent(5,1)" },
+    { "Throw Glaive", "player.buff(Momentum)" },
+  }, { "talent(3,3)" }},
 
-		{ "Eye Beam", { "!talent(7,3)", "toggle.multitarget", "player.area(15).enemies >= 2", "!player.buff(Metamorphosis)" }},
+	{ "Eye Beam", { "!talent(7,3)", { "toggle.multitarget", "player.area(15).enemies >= 2", "or", "!player.buff(Metamorphosis)" }, { "toggle.multitarget", "player.area(15).enemies >= 2", "or", "player.level = 100" }}},
 
-    --{{
-    --  { "Eye Beam", { "toggle.multitarget", "player.area(15).enemies >= 2" }},
-    --  { "Eye Beam", "!player.buff(Metamorphosis)" },
-    --}, { "!talent(7,3)" }},
+	-- TODO: figure out how to handle the wierd 'worth using' crap from the simc APL
+  {{
+    { "Demon's Bite", { "player.spell(Blade Dance).cooldown < 1.5", "player.fury < 55" }},
+    { "Demon's Bite", { "talent(7,3)", "player.spell(Eye Beam).cooldown < 1.5", "player.furydiff >= 20" }},
+    { "Demon's Bite", { "talent(7,3)", "player.spell(Eye Beam).cooldown < 3", "player.furydiff >= 45" }},
+  }, { "!player.buff(Metamorphosis)" }},
 
-		-- TODO: figure out how to handle the wiers 'worth using' crap from the simc APL
-    {{
-      { "Demon's Bite", { "player.spell(Blade Dance).cooldown < 1.5", "player.fury < 55" }},
-      { "Demon's Bite", { "talent(7,3)", "player.spell(Eye Beam).cooldown < 1.5", "player.furydiff >= 20" }},
-      { "Demon's Bite", { "talent(7,3)", "player.spell(Eye Beam).cooldown < 3", "player.furydiff >= 45" }},
-    }, { "!player.buff(Metamorphosis)" }},
+  { "Throw Glaive", { "!player.buff(Metamorphosis)", "toggle.multitarget", "player.area(10).enemies >= 3" }},
 
-    { "Throw Glaive", { "!player.buff(Metamorphosis)", "toggle.multitarget", "player.area(10).enemies >= 3" }},
+  { "Chaos Strike", "talent(5,1)" },
+  { "Chaos Strike", "player.buff(Momentum)" },
+  { "Chaos Strike", { "player.furydiff >= 30", "!player.buff(Prepared)" }},
+  { "Chaos Strike", { "player.furydiff >= 42", "player.buff(Prepared)" }},
 
-    { "Chaos Strike", "talent(5,1)" },
-    { "Chaos Strike", "player.buff(Momentum)" },
-    { "Chaos Strike", { "player.furydiff >= 30", "!player.buff(Prepared)" }},
-    { "Chaos Strike", { "player.furydiff >= 42", "player.buff(Prepared)" }},
+  {{
+    { "Fel Barrage", "player.buff(Momentum)" },
+    { "Fel Barrage", "!talent(5,1)" },
+  }, { "player.spell(Fel Barrage).charges >= 4", "!player.buff(Metamorphosis)" }},
 
-    {{
-      { "Fel Barrage", "player.buff(Momentum)" },
-      { "Fel Barrage", "!talent(5,1)" },
-    }, { "player.spell(Fel Barrage).charges >= 4", "!player.buff(Metamorphosis)" }},
+  { "Demon's Bite" },
 
-    { "Demon's Bite" },
-	}, 'target.infront' },
+	{ "Throw Glaive" },
 }
 
 local _Rotation = {
