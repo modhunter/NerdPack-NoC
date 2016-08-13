@@ -29,8 +29,8 @@ end
 
 local _All = {
 	-- Keybinds
-  { "Infernal Strike", "modifier.lcontrol" },
-  { "Sigil of Flame", "modifier.lshift" },
+  { "Infernal Strike", "modifier.lalt" },
+  { "Sigil of Flame", "modifier.lcontrol" },
 
 	{ "/stopcasting\n/stopattack\n/cleartarget\n/stopattack\n/cleartarget", { "player.time >= 300", (function() return F('dpstest') end) }},
 }
@@ -39,14 +39,13 @@ local _Cooldowns = {
   { "Lifeblood" },
   { "Berserking" },
   { "Blood Fury" },
-
-	{ "Metamorphosis", { "modifier.lalt", "!player.buff(Demon Spikes)", "!target.debuff(Fiery Brand)", "!player.buff(Metamorphosis)" }, "mouseover.ground" },
 }
 
 local _Survival = {
-  { "Blur", { "player.health <= 70" }},
-  { "Desperate Instincts", { "player.health <= 70" }},
-  { "Netherwalk", { "player.health <= 70" }},
+	{ "Fracture", { "player.pain >= 80", "player.buff(Soul Fragments).count >= 5", "player.pain >= 80" }},
+	{ "Soul Cleave", "player.pain >= 80" },
+	{ "Fel Devastation", "player.health <= 75" },
+	{ "Metamorphosis", { "!player.buff(Demon Spikes)", "!target.debuff(Fiery Brand)", "!player.buff(Metamorphosis)", "player.health <= 70" }},
 
   { "#109223", "player.health < 40" }, -- Healing Tonic
   { "#5512", "player.health < 40" }, -- Healthstone
@@ -84,12 +83,9 @@ local _Melee = {
 
 		{ "Soul Cleave", "player.buff(Soul Fragments).count >= 5" }, -- <-- Don't use this automatically
 
-		-- actions+=/fel_devastation,if=incoming_damage_5s>health.max*0.70
-		{ "Fel Devastation" }, -- <-- Don't use this automatically?
-
 		{ "Fel Erruption" },
 
-		--{ "Soul Cleave", "player.pain >= 80" },
+		{ "Soul Cleave", "player.pain >= 80" },
 
 		{ "Shear" },
 	}, 'target.infront' },
@@ -100,13 +96,11 @@ local _AoE = {
 
 NeP.Engine.registerRotation(581, '[|cff'..NeP.Interface.addonColor..'NoC|r] Demon Hunter - Vengeance',
 	{ -- In-Combat
-		--{'pause', 'modifier.shift'},
+		{'pause', 'modifier.shift'},
 		{_All},
 		{_Survival, 'player.health < 100'},
 		{_Interrupts, 'target.interruptAt(40)'},
 		{_Cooldowns, 'modifier.cooldowns'},
-		{{ -- Conditions
-			{_Melee, 'target.inMelee'},
-			{_Ranged, { "target.range > 8", "target.range <= 40" }},
-		}, {'target.range <= 40', 'target.exists'} }
+		{_Melee, "target.range <= 5" },
+		{_Ranged, { "target.range > 8", "target.range <= 40" }},
 	}, _All, exeOnLoad)

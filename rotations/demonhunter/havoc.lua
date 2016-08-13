@@ -120,6 +120,7 @@ local _Melee = {
 	-- TODO: implement true gcd checking instead of assuming 1.5s everywhere
   { "Death Sweep" },
   { "Demon's Bite", { "player.buff(Metamorphosis).duration > 1.5", "player.spell(Blade Dance).cooldown < 1.5", "player.fury < 70" }},
+
   { "Blade Dance" },
 
   {{
@@ -151,8 +152,9 @@ local _Melee = {
   }, { "talent(3,3)" }},
 
 	{ "Eye Beam", { "!talent(7,3)", { "toggle.multitarget", "player.area(15).enemies >= 2", "or", "!player.buff(Metamorphosis)" }, { "toggle.multitarget", "player.area(15).enemies >= 2", "or", "player.level = 100" }}},
+	--{ "Eye Beam", { "!talent(7,3)", "toggle.multitarget", "player.area(15).enemies >= 2", }},
+	--{ "Eye Beam", { "!talent(7,3)", "!player.buff(Metamorphosis)", "player.level = 100" }},
 
-	-- TODO: figure out how to handle the wierd 'worth using' crap from the simc APL
   {{
     { "Demon's Bite", { "player.spell(Blade Dance).cooldown < 1.5", "player.fury < 55" }},
     { "Demon's Bite", { "talent(7,3)", "player.spell(Eye Beam).cooldown < 1.5", "player.furydiff >= 20" }},
@@ -161,7 +163,7 @@ local _Melee = {
 
   { "Throw Glaive", { "!player.buff(Metamorphosis)", "toggle.multitarget", "player.area(10).enemies >= 3" }},
 
-  { "Chaos Strike", "talent(5,1)" },
+  { "Chaos Strike", "!talent(5,1)" },
   { "Chaos Strike", "player.buff(Momentum)" },
   { "Chaos Strike", { "player.furydiff >= 30", "!player.buff(Prepared)" }},
   { "Chaos Strike", { "player.furydiff >= 42", "player.buff(Prepared)" }},
@@ -171,9 +173,9 @@ local _Melee = {
     { "Fel Barrage", "!talent(5,1)" },
   }, { "player.spell(Fel Barrage).charges >= 4", "!player.buff(Metamorphosis)" }},
 
-  { "Demon's Bite" },
-
 	{ "Throw Glaive" },
+
+  { "Demon's Bite" },
 }
 
 local _Rotation = {
@@ -204,10 +206,7 @@ NeP.Engine.registerRotation(577, '[|cff'..NeP.Interface.addonColor..'NoC|r] Demo
 		{_All},
 		{_Survival, 'player.health < 100'},
 		{_Interrupts, 'target.interruptAt(40)'},
-
-		{{ -- Conditions
-			{_Rotation},
-			{_Melee, "target.range <= 5" },
-			{_Ranged, { "target.range > 8", "target.range <= 40" }},
-		}, { 'target.exists' }}
+		{_Rotation},
+		{_Melee, "target.range <= 5" },
+		{_Ranged, { "target.range > 8", "target.range <= 40" }},
 	}, _All, exeOnLoad)

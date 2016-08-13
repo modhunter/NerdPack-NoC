@@ -158,14 +158,9 @@ NeP.Engine.registerRotation(268, '[|cff'..NeP.Interface.addonColor..'NeP|r] Monk
 		{Interrupts, 'target.interruptAt(80)'},
 		{FREEDOOM},
 		{Cooldowns, 'modifier.cooldowns'},
-
-
-		{{-- Conditions
-			{AoE, {
-				'player.area(8).enemies >= 3',
-				(function() return PeFetch('NePConfigMonkBM', 'canTaunt') end)
-			}},
-			{Melle, {'target.inMelee', 'target.infront'}},
-			--{Ranged, '!target.inMelee'}
-		}, {'target.range <= 40', 'target.exists'}}
+		{AoE, {
+			'player.area(8).enemies >= 3',
+			(function() return PeFetch('NePConfigMonkBM', 'canTaunt') end)
+		}},
+		{Melle, {'target.inMelee', 'target.infront'}},
 	}, All, exeOnLoad)
