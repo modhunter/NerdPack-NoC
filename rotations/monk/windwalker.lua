@@ -92,7 +92,7 @@ local _All = {
 	{ "116841", 'player.state.snare' }, -- Tiger's Lust = 116841
 
 	-- Use this out of combat
-	{ "Effuse", { "player.health < 100", "!player.moving", "!player.combat" }, "player" },
+	{ "Effuse", { "player.health < 100", "!player.movingfor > 0.5", "!player.combat" }, "player" },
 }
 
 local _Cooldowns = {
@@ -105,7 +105,7 @@ local _Cooldowns = {
 }
 
 local _Survival = {
-	{ "Effuse", { "player.energy >= 60", "!player.moving", effuse }, "player" },
+	{ "Effuse", { "player.energy >= 60", "!player.movingfor > 0.5", effuse }, "player" },
 	{ "#109223", healthstn, "player" }, -- Healing Tonic
 	{ '#5512', healthstn, "player" }, -- Healthstone
 	{ "Detox", "player.dispellable(Detox)", "player" },
@@ -131,6 +131,10 @@ local _Interrupts = {
 }
 
 local _SEF = {
+	-- {{
+	-- 	{ "Storm, Earth, and Fire", { '!modifier.multitarget', (function() return _SEF() end) }},
+	-- 	{ "Storm, Earth, and Fire", "!player.buff(Storm, Earth, and Fire)" },
+	-- }, { "player.spell(Strike of the Windlord).cooldown <= 0.5", "player.spell(Fists of Fury).cooldown <= 9", "player.spell(Rising Sun Kick).cooldown <= 5"  }},
 	{{
 		{ "Storm, Earth, and Fire", { '!modifier.multitarget', (function() return _SEF() end) }},
 		{ "Storm, Earth, and Fire", "!player.buff(Storm, Earth, and Fire)" },
@@ -143,9 +147,8 @@ local _Ranged = {
 }
 
 local _Openner = {
-	--{ "Fists of Fury", { "player.buff(Serenity).duration < 1.5" }},
 	{ "Rising Sun Kick" },
-	{ "Fists of Fury", { "player.buff(Serenity)" }},
+	{ "Fists of Fury", { "player.buff(Serenity)", "player.buff(Serenity).duration < 1.5" }},
 
 	-- This should 'constrain' BoK to be only casted once during the opener
 	{{
@@ -153,11 +156,18 @@ local _Openner = {
 		{ "Blackout Kick", "player.spell(Chi Brew).charges = 2" },
 	}, { "player.chidiff <= 1", "player.spell(Blackout Kick).casted = 0" }},
 	{ 'Serenity', "player.chidiff >= 2" },
-	{ "Tiger Palm", { "player.chidiff >= 2", "!player.buff(Serenity)", "!lastcast(Tiger Palm)", "player.spell(Blackout Kick).casted = 0", (function() return _GoodLastCast() end) }},
+	{ "Tiger Palm", { "player.chidiff >= 2", "!player.buff(Serenity)", "!lastcast(Tiger Palm)", "player.spell(Blackout Kick).casted = 0" }},
 }
 
 local _AoE = {
 	{ 'Spinning Crane Kick', { '!talent(6,1)', '!lastcast(Spinning Crane Kick)', (function() return _GoodLastCast() end) }},
+	{ "Strike Of The Windlord" },
+	{ "Rushing Jade Wind", { "player.chi >= 2", "!lastcast(Rushing Jade Wind)", (function() return _GoodLastCast() end) }},
+	{{
+		{ "Chi Wave" }, -- 40 yard range 0 energy, 0 chi
+		{ "Chi Burst", "!player.moving" },
+	}, { "!player.buff(Serenity)" }},
+	{ "Tiger Palm", { "!player.buff(Serenity)", "player.chi <= 2", "!lastcast(Tiger Palm)", (function() return _GoodLastCast() end) }},
 }
 
 local _Melee = {
@@ -165,6 +175,7 @@ local _Melee = {
 
 	-- Rotation
 	{{ -- infront
+		--{ 'Serenity', { "player.spell(Strike of the Windlord).cooldown <= 0.5", "player.spell(Rising Sun Kick).cooldown < 8", "player.spell(Fists of Fury).cooldown <= 3" }},
 		{ 'Serenity', { "player.spell(Rising Sun Kick).cooldown < 8", "player.spell(Fists of Fury).cooldown <= 3" }},
 		{ "Energizing Elixir", { "player.energy < 100", "player.chi <= 1", "!player.buff(Serenity)" }},
 		{ "Rushing Jade Wind", { "player.buff(Serenity)", "!lastcast(Rushing Jade Wind)", (function() return _GoodLastCast() end) }},
@@ -188,7 +199,6 @@ local _Melee = {
 		{ "Tiger Palm", { "!player.buff(Serenity)", "player.chi <= 2", "!lastcast(Tiger Palm)", (function() return _GoodLastCast() end) }},
 		{ "Blackout Kick", { "!lastcast(Blackout Kick)", (function() return _GoodLastCast() end) }},
 		{ "Tiger Palm", { "!lastcast(Tiger Palm)", (function() return _GoodLastCast() end) }},
-		--{ "Tiger Palm", { "player.chi = 0", "lastcast(Tiger Palm)" }},
 	}, 'target.infront' },
 }
 
@@ -199,10 +209,10 @@ NeP.Engine.registerRotation(269, '[|cff'..NeP.Interface.addonColor..'NoC|r] Monk
 		{'pause', 'modifier.shift'},
 		{_All},
 		{_Survival, 'player.health < 100'},
-		{_Interrupts, 'target.interruptAt(40)'},
+		{_Interrupts, {'target.interruptAt(40)', "target.infront" }},
 		{_Cooldowns, 'modifier.cooldowns'},
 		{_SEF, { "target.range <= 5", (function() return F('SEF') end) }},
-		{_Openner, { "player.time < 16", (function() return F('opener') end) }},
-		{_Melee },
-		{_Ranged, { "target.range > 8", "target.range <= 40" }},
+		{_Openner, { "player.time < 16", "target.infront", (function() return F('opener') end) }},
+		{_Melee, { "target.range <= 5", "target.infront" }},
+		{_Ranged, { "target.range > 8", "target.range <= 40", "target.infront" }},
 	}, _All, exeOnLoad)
