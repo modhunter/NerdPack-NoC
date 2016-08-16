@@ -100,12 +100,14 @@ local _Cooldowns = {
 	{ "Berserking" },
 	{ "Blood Fury" },
 	-- Use Xuen only while hero or potion is active
+	-- TODO: Update for legion's equivillant to agil potion 156423
 	{ "Invoke Xuen, the White Tiger", "player.hashero" },
 	{ "Invoke Xuen, the White Tiger", "player.buff(156423)" },
 }
 
 local _Survival = {
 	{ "Effuse", { "player.energy >= 60", "!player.movingfor > 0.5", effuse }, "player" },
+	-- TODO: Update for legion's equivillant to healing tonic 109223
 	{ "#109223", healthstn, "player" }, -- Healing Tonic
 	{ '#5512', healthstn, "player" }, -- Healthstone
 	{ "Detox", "player.dispellable(Detox)", "player" },
@@ -131,6 +133,7 @@ local _Interrupts = {
 }
 
 local _SEF = {
+	-- TODO: make sure this actually works with the artifact/spell before uncommenting
 	-- {{
 	-- 	{ "Storm, Earth, and Fire", { '!modifier.multitarget', (function() return _SEF() end) }},
 	-- 	{ "Storm, Earth, and Fire", "!player.buff(Storm, Earth, and Fire)" },
@@ -160,6 +163,7 @@ local _Openner = {
 }
 
 local _AoE = {
+	-- TODO: add some complicated logic to 'multi-dot' enemies to set-up for the big Spinning Crane Kick bonus
 	{ 'Spinning Crane Kick', { '!talent(6,1)', '!lastcast(Spinning Crane Kick)', (function() return _GoodLastCast() end) }},
 	{ "Strike Of The Windlord" },
 	{ "Rushing Jade Wind", { "player.chi >= 2", "!lastcast(Rushing Jade Wind)", (function() return _GoodLastCast() end) }},
@@ -173,36 +177,32 @@ local _AoE = {
 local _Melee = {
 	{ "Touch of Death" },
 
-	-- Rotation
-	{{ -- infront
-		--{ 'Serenity', { "player.spell(Strike of the Windlord).cooldown <= 0.5", "player.spell(Rising Sun Kick).cooldown < 8", "player.spell(Fists of Fury).cooldown <= 3" }},
-		{ 'Serenity', { "player.spell(Rising Sun Kick).cooldown < 8", "player.spell(Fists of Fury).cooldown <= 3" }},
-		{ "Energizing Elixir", { "player.energy < 100", "player.chi <= 1", "!player.buff(Serenity)" }},
-		{ "Rushing Jade Wind", { "player.buff(Serenity)", "!lastcast(Rushing Jade Wind)", (function() return _GoodLastCast() end) }},
-		{ "Strike Of The Windlord" },
-		{ "Whirling Dragon Punch" },
-		{ "Fists of Fury" },
+	-- TODO: make sure this actually works with the artifact/spell before uncommenting
+	--{ 'Serenity', { "player.spell(Strike of the Windlord).cooldown <= 0.5", "player.spell(Rising Sun Kick).cooldown < 8", "player.spell(Fists of Fury).cooldown <= 3" }},
+	{ 'Serenity', { "player.spell(Rising Sun Kick).cooldown < 8", "player.spell(Fists of Fury).cooldown <= 3" }},
+	{ "Energizing Elixir", { "player.energy < 100", "player.chi <= 1", "!player.buff(Serenity)" }},
+	{ "Rushing Jade Wind", { "player.buff(Serenity)", "!lastcast(Rushing Jade Wind)", (function() return _GoodLastCast() end) }},
+	{ "Strike Of The Windlord" },
+	{ "Whirling Dragon Punch" },
+	{ "Fists of Fury" },
 
-		{_AoE, { 'player.area(8).enemies >= 3', 'modifier.multitarget' }},
+	{_AoE, { 'player.area(8).enemies >= 3', 'modifier.multitarget' }},
 
-  	{ "Rising Sun Kick" },
-		{ "Strike Of The Windlord" },
-		{ "Rushing Jade Wind", { "player.chi > 1", "!lastcast(Rushing Jade Wind)", (function() return _GoodLastCast() end) }},
-		{{
-			{ "Chi Wave" }, -- 40 yard range 0 energy, 0 chi
-			{ "Chi Burst", "!player.moving" },
-		}, { "!player.buff(Serenity)" }},
-		{{
-    	{ "Blackout Kick", "player.buff(Blackout Kick!)" },
-    	{ "Blackout Kick", "player.chi > 1" },
-  	}, { "!player.buff(Serenity)", "!lastcast(Blackout Kick)", (function() return _GoodLastCast() end) }},
-		{ "Tiger Palm", { "!player.buff(Serenity)", "player.chi <= 2", "!lastcast(Tiger Palm)", (function() return _GoodLastCast() end) }},
-		{ "Blackout Kick", { "!lastcast(Blackout Kick)", (function() return _GoodLastCast() end) }},
-		{ "Tiger Palm", { "!lastcast(Tiger Palm)", (function() return _GoodLastCast() end) }},
-	}, 'target.infront' },
+	{ "Rising Sun Kick" },
+	{ "Strike Of The Windlord" },
+	{ "Rushing Jade Wind", { "player.chi > 1", "!lastcast(Rushing Jade Wind)", (function() return _GoodLastCast() end) }},
+	{{
+		{ "Chi Wave" }, -- 40 yard range 0 energy, 0 chi
+		{ "Chi Burst", "!player.moving" },
+	}, { "!player.buff(Serenity)" }},
+	{{
+  	{ "Blackout Kick", "player.buff(Blackout Kick!)" },
+  	{ "Blackout Kick", "player.chi > 1" },
+	}, { "!player.buff(Serenity)", "!lastcast(Blackout Kick)", (function() return _GoodLastCast() end) }},
+	{ "Tiger Palm", { "!player.buff(Serenity)", "player.chi <= 2", "!lastcast(Tiger Palm)", (function() return _GoodLastCast() end) }},
+	{ "Blackout Kick", { "!lastcast(Blackout Kick)", (function() return _GoodLastCast() end) }},
+	{ "Tiger Palm", { "!lastcast(Tiger Palm)", (function() return _GoodLastCast() end) }},
 }
-
-
 
 NeP.Engine.registerRotation(269, '[|cff'..NeP.Interface.addonColor..'NoC|r] Monk - Windwalker',
 	{ -- In-Combat
