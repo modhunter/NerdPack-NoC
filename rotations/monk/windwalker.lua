@@ -14,7 +14,6 @@ local config = {
 			{type = 'checkbox', text = 'Opener', key = 'opener', default = true},
 			{type = 'checkbox', text = 'Automatic CJL', key = 'auto_cjl', default = true},
 			{type = 'checkbox', text = '5 min DPS test', key = 'dpstest', default = false},
-      -- TODO: cast % (or randomized range) to use for interrupts
 
 		-- Survival
 		{type = 'spacer'},{type = 'rule'},
@@ -77,6 +76,10 @@ local effuse = function()
 	return E('player.health <= ' .. F('effuse'))
 end
 
+local _OOC = {
+	{ "Effuse", { "player.health < 100", "!player.movingfor > 0.5", "!player.combat" }, "player" },
+}
+
 local _All = {
 	-- Keybinds
 	--{ 'pause', 'modifier.shift' },
@@ -90,19 +93,18 @@ local _All = {
 	{ "116841", 'player.state.stun' }, -- Tiger's Lust = 116841
 	{ "116841", 'player.state.root' }, -- Tiger's Lust = 116841
 	{ "116841", 'player.state.snare' }, -- Tiger's Lust = 116841
-
-	-- Use this out of combat
-	{ "Effuse", { "player.health < 100", "!player.movingfor > 0.5", "!player.combat" }, "player" },
 }
 
 local _Cooldowns = {
+	{ "Touch of Death", "!player.spell.usable(Gale Burst)" },
+	{ "Touch of Death", { "player.spell.usable(Gale Burst)", "player.spell(Strike of the Windlord).cooldown <= 0.5", "player.spell(Fists of Fury).cooldown <= 3", "player.spell(Rising Sun Kick).cooldown < 8" }},
 	{ "Lifeblood" },
 	{ "Berserking" },
 	{ "Blood Fury" },
 	-- Use Xuen only while hero or potion is active
-	-- TODO: Update for legion's equivillant to agil potion 156423
 	{ "Invoke Xuen, the White Tiger", "player.hashero" },
-	{ "Invoke Xuen, the White Tiger", "player.buff(156423)" },
+	{ "Invoke Xuen, the White Tiger", "player.buff(156423)" }, -- Draenic Agility Potion (WoD)
+	--{ "Invoke Xuen, the White Tiger", "player.buff(188027)" }, -- Potion of Deadly Grace (Legion)
 }
 
 local _Survival = {
@@ -133,11 +135,10 @@ local _Interrupts = {
 }
 
 local _SEF = {
-	-- TODO: make sure this actually works with the artifact/spell before uncommenting
-	-- {{
-	-- 	{ "Storm, Earth, and Fire", { '!modifier.multitarget', (function() return _SEF() end) }},
-	-- 	{ "Storm, Earth, and Fire", "!player.buff(Storm, Earth, and Fire)" },
-	-- }, { "player.spell(Strike of the Windlord).cooldown <= 0.5", "player.spell(Fists of Fury).cooldown <= 9", "player.spell(Rising Sun Kick).cooldown <= 5"  }},
+	{{
+		{ "Storm, Earth, and Fire", { '!modifier.multitarget', (function() return _SEF() end) }},
+		{ "Storm, Earth, and Fire", "!player.buff(Storm, Earth, and Fire)" },
+	}, { "player.spell(Strike of the Windlord).cooldown <= 0.5", "player.spell(Fists of Fury).cooldown <= 9", "player.spell(Rising Sun Kick).cooldown <= 5"  }},
 	{{
 		{ "Storm, Earth, and Fire", { '!modifier.multitarget', (function() return _SEF() end) }},
 		{ "Storm, Earth, and Fire", "!player.buff(Storm, Earth, and Fire)" },
@@ -175,14 +176,10 @@ local _AoE = {
 }
 
 local _Melee = {
-	{ "Touch of Death" },
-
-	-- TODO: make sure this actually works with the artifact/spell before uncommenting
-	--{ 'Serenity', { "player.spell(Strike of the Windlord).cooldown <= 0.5", "player.spell(Rising Sun Kick).cooldown < 8", "player.spell(Fists of Fury).cooldown <= 3" }},
+	{ 'Serenity', { "player.spell(Strike of the Windlord).cooldown <= 0.5", "player.spell(Rising Sun Kick).cooldown < 8", "player.spell(Fists of Fury).cooldown <= 3" }},
 	{ 'Serenity', { "player.spell(Rising Sun Kick).cooldown < 8", "player.spell(Fists of Fury).cooldown <= 3" }},
 	{ "Energizing Elixir", { "player.energy < 100", "player.chi <= 1", "!player.buff(Serenity)" }},
 	{ "Rushing Jade Wind", { "player.buff(Serenity)", "!lastcast(Rushing Jade Wind)", (function() return _GoodLastCast() end) }},
-	{ "Strike Of The Windlord" },
 	{ "Whirling Dragon Punch" },
 	{ "Fists of Fury" },
 
@@ -215,4 +212,4 @@ NeP.Engine.registerRotation(269, '[|cff'..NeP.Interface.addonColor..'NoC|r] Monk
 		{_Openner, { "player.time < 16", "target.infront", (function() return F('opener') end) }},
 		{_Melee, { "target.range <= 5", "target.infront" }},
 		{_Ranged, { "target.range > 8", "target.range <= 40", "target.infront" }},
-	}, _All, exeOnLoad)
+	}, _OOC, exeOnLoad)
