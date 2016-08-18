@@ -1,9 +1,8 @@
-local dynEval = NOC.dynEval
-local PeFetch = NeP.Interface.fetchKey
 local addonColor = '|cff'..NeP.Interface.addonColor
 
+local mKey = 'NoC_Monk_BrM'
 local config = {
-	key = 'NePConfigMonkBM',
+	key = mKey,
 	profiles = true,
 	title = '|T'..NeP.Interface.Logo..':10:10|t'..NeP.Info.Nick..' Config',
 	subtitle = 'Monk Brewmaster Settings',
@@ -32,22 +31,25 @@ local config = {
 		{type = 'spacer'},{type = 'rule'},
 		{type = 'header', text = addonColor..'Survival', align = 'center'},
 			{type = 'spinner', text = 'Healthstone', key = 'Healthstone', default = 45},
+			{type = 'spinner', text = 'Healing Elixir', key = 'elixir', default = 70},
 			{type = 'spinner', text = 'Expel Harm', key = 'ExpelHarm', default = 50},
 			{type = 'spinner', text = 'Chi Wave', key = 'ChiWave', default = 70},
 			{type = 'spinner', text = 'Fortifying Brew', key = 'FortifyingBrew', default = 36},
 			{type = 'spinner', text = 'Ironskin Brew', key = 'IronskinBrew', default = 90},
 			{type = 'spinner', text = 'Purifying Brew', key = 'PurifyingBrew', default = 60},
-
-
 	}
 }
 
-
+local E = NOC.dynEval
+local F = function(key) return NeP.Interface.fetchKey(mKey, key, 100) end
 
 local exeOnLoad = function()
-	NOC.Splash()
 	NeP.Interface.buildGUI(config)
-	NeP.Interface.CreateSetting('Class Settings', function() NeP.Interface.ShowGUI('NePConfigMonkBM') end)
+	NOC.ClassSetting(mKey)
+end
+
+local elixir = function()
+	return E('player.health <= ' .. F('elixir'))
 end
 
 local All = {
@@ -72,25 +74,31 @@ local FREEDOOM = {
 }
 
 local Cooldowns = {
+}
+
+local _Mitigation = {
+
 
 }
 
 local Survival = {
+	-- First charge of Healing Elixir at 2 charges @ configured health threshold
+	{ "Healing Elixir", { "player.spell(Healing Elixir).charges >= 2", "player.spell(Healing Elixir).cooldown < 3", "!lastcast(Healing Elixir)", elixir }, "player" },
+	-- Second charge of Healing Elixir when health <= 35%
+	{ "Healing Elixir", { "player.spell(Healing Elixir).charges >= 2", "player.spell(Healing Elixir).cooldown < 3", "!lastcast(Healing Elixir)", "player.health <= 35" }, "player" },
+
 	-- Expel Harm
-	{'115072', (function() return dynEval('player.health <= '..PeFetch('NePConfigMonkBM', 'ExpelHarm')) end)},
-		-- Chi Wave
-	{'115098', (function() return dynEval('player.health <= '..PeFetch('NePConfigMonkBM', 'ChiWave')) end)},
+	{'115072', (function() return E('player.health <= '..PeFetch('NoC_Monk_BrM', 'ExpelHarm')) end)},
+	-- Chi Wave
+	--{'115098', (function() return E('player.health <= '..PeFetch('NoC_Monk_BrM', 'ChiWave')) end)},
 	--Healthstone
-	{'#5512', (function() return dynEval('player.health <= '..PeFetch('NePConfigMonkBM', 'Healthstone')) end)},
+	{'#5512', (function() return E('player.health <= '..PeFetch('NoC_Monk_BrM', 'Healthstone')) end)},
 	-- Fortifying Brew
-	{'115203', (function() return dynEval('player.health <= '..PeFetch('NePConfigMonkBM', 'FortifyingBrew')) end)},
+	{'115203', (function() return E('player.health <= '..PeFetch('NoC_Monk_BrM', 'FortifyingBrew')) end)},
 	-- Ironskin Brew
-	{'115308', {'player.buff(215479).duration <= 1', 'player.debuff(124275)',(function() return dynEval('player.health <= '..PeFetch('NePConfigMonkBM', 'IronskinBrew')) end)}},
+	--{'115308', {'player.buff(215479).duration <= 1', 'player.debuff(124275)',(function() return E('player.health <= '..PeFetch('NoC_Monk_BrM', 'IronskinBrew')) end)}},
 	-- Purifying Brew
-	{'119582', {'player.debuff(124274)',(function() return dynEval('player.health <= '..PeFetch('NePConfigMonkBM', 'PurifyingBrew')) end)}},
-
-
-
+	--{'119582', {'player.debuff(124274)',(function() return E('player.health <= '..PeFetch('NoC_Monk_BrM', 'PurifyingBrew')) end)}},
 }
 
 local Interrupts = {
@@ -157,10 +165,10 @@ NeP.Engine.registerRotation(268, '[|cff'..NeP.Interface.addonColor..'NeP|r] Monk
 		{Survival, 'player.health < 100'},
 		{Interrupts, 'target.interruptAt(80)'},
 		{FREEDOOM},
+		{_Mitigation, 'target.inMelee'},
 		{Cooldowns, 'modifier.cooldowns'},
 		{AoE, {
-			'player.area(8).enemies >= 3',
-			(function() return PeFetch('NePConfigMonkBM', 'canTaunt') end)
+			'player.area(8).enemies >= 3', (function() return F('canTaunt') end)
 		}},
 		{Melle, {'target.inMelee', 'target.infront'}},
 	}, All, exeOnLoad)
