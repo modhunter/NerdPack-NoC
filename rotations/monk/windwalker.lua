@@ -34,7 +34,7 @@ end
 local SEF_Fixate_Casted = false
 
 local _SEF = function()
-	if NOC.dynEval('player.buff(Storm, Earth, and Fire)') then
+	if E('player.buff(Storm, Earth, and Fire)') then
 		if SEF_Fixate_Casted then
 			return false
 		else
