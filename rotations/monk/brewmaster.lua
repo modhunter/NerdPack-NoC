@@ -14,7 +14,7 @@ local config = {
 		{type = 'header', text = addonColor..'Keybinds:', align = 'center'},
 			-- Control
 			{type = 'text', text = addonColor..'Control: ', align = 'left', size = 11, offset = -11},
-			{type = 'text', text = 'Summon Black Ox Statue', align = 'right', size = 11, offset = 0 },
+			--{type = 'text', text = 'Summon Black Ox Statue', align = 'right', size = 11, offset = 0 },
 			-- Shift
 			{type = 'text', text = addonColor..'Shift:', align = 'left', size = 11, offset = -11},
 			{type = 'text', text = 'Placeholder', align = 'right', size = 11, offset = 0 },
@@ -30,13 +30,13 @@ local config = {
 		-- Survival
 		{type = 'spacer'},{type = 'rule'},
 		{type = 'header', text = addonColor..'Survival', align = 'center'},
-			{type = 'spinner', text = 'Healthstone', key = 'Healthstone', default = 45},
+			{type = 'spinner', text = 'Healthstone or Healing Potion', key = 'healthstn', default = 45},
 			{type = 'spinner', text = 'Healing Elixir', key = 'elixir', default = 70},
-			{type = 'spinner', text = 'Expel Harm', key = 'ExpelHarm', default = 50},
-			{type = 'spinner', text = 'Chi Wave', key = 'ChiWave', default = 70},
-			{type = 'spinner', text = 'Fortifying Brew', key = 'FortifyingBrew', default = 36},
-			{type = 'spinner', text = 'Ironskin Brew', key = 'IronskinBrew', default = 90},
-			{type = 'spinner', text = 'Purifying Brew', key = 'PurifyingBrew', default = 60},
+			{type = 'spinner', text = 'Expel Harm', key = 'expelharm', default = 100},
+			{type = 'spinner', text = 'Fortifying Brew', key = 'fortbrew', default = 20},
+
+			--{type = 'spinner', text = 'Chi Wave', key = 'ChiWave', default = 70},
+			--{type = 'spinner', text = 'Ironskin Brew', key = 'IronskinBrew', default = 90},
 	}
 }
 
@@ -48,75 +48,147 @@ local exeOnLoad = function()
 	NOC.ClassSetting(mKey)
 end
 
+local healthstn = function()
+	return E('player.health <= ' .. F('healthstn'))
+end
+
 local elixir = function()
 	return E('player.health <= ' .. F('elixir'))
 end
 
-local All = {
--- Keybinds
-	-- Pause
-	--{'pause', 'modifier.alt'},
-	-- Summon Black Ox Statue
-	{'115315', 'modifier.control', 'mouseover.ground'},
+local fortbrew = function()
+	return E('player.health <= ' .. F('fortbrew'))
+end
 
-}
+local expelharm = function()
+	return E('player.health <= ' .. F('expelharm'))
+end
 
-local FREEDOOM = {
+local _All = {
+	-- Keybinds
+
 	-- Nimble Brew if pvp talent taken
 	{'137648', 'player.state.disorient'},
 	{'137648', 'player.state.stun'},
 	{'137648', 'player.state.fear'},
 	{'137648', 'player.state.horror'},
 
-	-- Tiger's Lust if cd taken
-	{'116841', 'player.state.root'},
-	{'116841', 'player.state.snare'},
+	{ "116841", 'player.state.disorient' }, -- Tiger's Lust = 116841
+	{ "116841", 'player.state.stun' }, -- Tiger's Lust = 116841
+	{ "116841", 'player.state.root' }, -- Tiger's Lust = 116841
+	{ "116841", 'player.state.snare' }, -- Tiger's Lust = 116841
 }
 
-local Cooldowns = {
+local _OOC = {
+}
+
+local _Cooldowns = {
 }
 
 local _Mitigation = {
+	-- TODO: Implement this below
 
+	-- if Target:Exists() and TigerPalm:Cooldown() < RandomOffGCD and Player:IsWithinCastRange(Target, TigerPalm) then
 
+	-- If not (blackout combo spell exists? AND (option toggle is turned on) AND we have blackoutcombo buff AND keg smash CD < 2.5s)
+	-- So, enter this if any of the above are false???
+	-- 	if not (BlackoutCombo:Exists() and (module.GetOptionValue("Blackout Combo") == "Keg Smash" or module.GetOptionValue("Blackout Combo") == "Auto") and Player:Buff(BlackoutCombo) and KegSmash:Cooldown() < 2.5) then
+	--    cast black ox brew when: option enabled and player.spell.charges(purifying brew) < 1 and player.spell.recharge(purifying brew) > 2
+	-- 		-- Active Mitigation
+	--		if player.spell.charges(purifying brew) >= 1
+	--			collect current stagger
+	-- 		if PurifyingBrew:Charges() >= 1 then
+	-- 			CurrentStagger = Player:Stagger();
+	-- 			-- Purify if we have Moderate / Heavy Stagger
+	-- 			if PurifyingBrew:Exists() and module.IsOptionEnabled("Purifying Brew") and PurifyingBrew:TimeSinceCast() >= 5 then
+	-- 				Option1 = module.GetOptionValue("Purifying Brew");
+	-- 				if CurrentStagger > Option1 and Player:CanCast(PurifyingBrew) then
+	-- 					module.Bug("Mitigation via Purifying Brew with "..CurrentStagger.."%.");
+	-- 					PurifyingBrew.LastCastTime = module.GetTime();
+	-- 					Player:Cast(PurifyingBrew);
+	-- 					RandomOffGCD = nil;
+	-- 					return;
+	-- 				end
+	-- 			end
+	-- 			-- Ironskin if we have Light / No Stagger
+	-- 			if IronskinBrew:Exists() and module.IsOptionEnabled("Ironskin Brew") and PurifyingBrew:Charges() >= 2 and IronskinBrew:TimeSinceCast() >= 5 and not Player:Buff(IronskinBrew) then
+	-- 				Option1, Option2 = module.GetOptionValue("Ironskin Brew"), module.GetSecondOptionValue("Ironskin Brew");
+	-- 				if Player:RecentDamageTakenPercent(Option2, "Physical") + Player:RecentDamageTakenPercent(Option2, "Spell") > Option1 and Player:CanCast(IronskinBrew) then
+	-- 					module.Bug("Mitigation via Ironskin Brew with "..tostring(Player:RecentDamageTakenPercent(Option2, "Physical") + Player:RecentDamageTakenPercent(Option2, "Spell")).." health% damage taken over the last "..tostring(Option2).." seconds.");
+	-- 					Player:Cast(IronskinBrew);
+	-- 					IronskinBrew.LastCastTime = module.GetTime();
+	-- 					RandomOffGCD = nil;
+	-- 					return;
+	-- 				end
+	-- 			end
+	-- 		end
+	-- 		-- Prevent Capping
+	-- 		if module.IsOptionEnabled("Mitigation Dump") and PurifyingCapped and IronskinBrew:Exists() and not Player:Buff(IronskinBrew) then
+	-- 			if Player:RecentDamageTakenPercent(5, "Physical") + Player:RecentDamageTakenPercent(5, "Spell") > 0 and Player:CanCast(IronskinBrew) then
+	-- 				module.Bug("Mitigation Dump via Ironskin Brew");
+	-- 				IronskinBrew.LastCastTime = module.GetTime();
+	-- 				Player:Cast(IronskinBrew);
+	-- 				RandomOffGCD = nil;
+	-- 				return;
+	-- 			end
+	-- 		end
+	-- 	end
+	-- end
 }
 
-local Survival = {
+local _Survival = {
 	-- First charge of Healing Elixir at 2 charges @ configured health threshold
 	{ "Healing Elixir", { "player.spell(Healing Elixir).charges >= 2", "player.spell(Healing Elixir).cooldown < 3", "!lastcast(Healing Elixir)", elixir }, "player" },
 	-- Second charge of Healing Elixir when health <= 35%
 	{ "Healing Elixir", { "player.spell(Healing Elixir).charges >= 2", "player.spell(Healing Elixir).cooldown < 3", "!lastcast(Healing Elixir)", "player.health <= 35" }, "player" },
 
-	-- Expel Harm
-	{'115072', (function() return E('player.health <= '..PeFetch('NoC_Monk_BrM', 'ExpelHarm')) end)},
+	-- TODO: Update for legion's equivillant to healing tonic 109223
+	{ "#109223", healthstn, "player" }, -- Healing Tonic
+	{ '#5512', healthstn, "player" }, -- Healthstone
+
+	{'Fortifying Brew', { fortbrew }, "player" },
+
+	-- Cast when there is at least one orb on the ground
+	{'Expel Harm', { expelharm, "player.spell(Expel Harm).count >= 1" }, "player" },
+
 	-- Chi Wave
 	--{'115098', (function() return E('player.health <= '..PeFetch('NoC_Monk_BrM', 'ChiWave')) end)},
-	--Healthstone
-	{'#5512', (function() return E('player.health <= '..PeFetch('NoC_Monk_BrM', 'Healthstone')) end)},
-	-- Fortifying Brew
-	{'115203', (function() return E('player.health <= '..PeFetch('NoC_Monk_BrM', 'FortifyingBrew')) end)},
 	-- Ironskin Brew
 	--{'115308', {'player.buff(215479).duration <= 1', 'player.debuff(124275)',(function() return E('player.health <= '..PeFetch('NoC_Monk_BrM', 'IronskinBrew')) end)}},
 	-- Purifying Brew
 	--{'119582', {'player.debuff(124274)',(function() return E('player.health <= '..PeFetch('NoC_Monk_BrM', 'PurifyingBrew')) end)}},
 }
 
-local Interrupts = {
-	-- Spear Hand Strike
-	{'116705'},
+local _Interrupts = {
+	{ "Ring of Peace", { -- Ring of Peace when SHS is on CD
+     "!target.debuff(Spear Hand Strike)",
+     "player.spell(Spear Hand Strike).cooldown > 1",
+     "!lastcast(Spear Hand Strike)"
+  }},
+  { "Leg Sweep", { -- Leg Sweep when SHS is on CD
+     "player.spell(Spear Hand Strike).cooldown > 1",
+     "target.range <= 5",
+     "!lastcast(Spear Hand Strike)"
+  }},
+  { "Quaking Palm", { -- Quaking Palm when SHS is on CD
+     "!target.debuff(Spear Hand Strike)",
+     "player.spell(Spear Hand Strike).cooldown > 1",
+     "!lastcast(Spear Hand Strike)"
+  }},
+  { "Spear Hand Strike" }, -- Spear Hand Strike
 }
 
-local Ranged = {
+local _Ranged = {
 	-- Crackling Jade Lightning
 	{'117952'},
 }
 
-local Taunts = {
-	-- Provoke
-	{'115546', 'target.range <= 35'},
+local _Taunts = {
+	-- TODO: Provoke (on a toggle) any valid* unit within 30 yards ("player.area(30).enemies") that we're not already tanking ("player.threat < 100"), that a pet is not tanking (???), and that maintank ("tank.threat < 100") or offtank ((tank2.threat < 100)) aren't already tanking too
+	--{'Provoke', 'target.range <= 35'},
 }
 
-local Melle = {
+local _Melee = {
 	--[[Use Blackout Strike first due to blackout combo talent this is priority over keg smash]]
 	{'205523'},
 
@@ -132,10 +204,9 @@ local Melle = {
 
 	-- Use Rushing Jade Wind, if you have taken this talent.
 	{'116847'},
-
 }
 
-local AoE = {
+local _AoE = {
 	--[[Use Blackout Strike first due to blackout combo talent this is priority over keg smash]]
 	{'205523'},
 
@@ -155,20 +226,19 @@ local AoE = {
 	--[[Use Tiger Palm to fill any spare global cooldowns.
 	This should only be used each time the monk is above 65 energy and keg smash is currently on cd.]]
 	{'100780', 'player.energy >= 65'},
-
 }
 
-NeP.Engine.registerRotation(268, '[|cff'..NeP.Interface.addonColor..'NeP|r] Monk - Brewmaster',
+NeP.Engine.registerRotation(268, '[|cff'..NeP.Interface.addonColor..'NoC|r] Monk - Brewmaster',
 	{-- In-Combat
 		{'pause', 'modifier.shift'},
-		{All},
-		{Survival, 'player.health < 100'},
-		{Interrupts, 'target.interruptAt(80)'},
-		{FREEDOOM},
+		{_All},
+		{_Survival, 'player.health < 100'},
+		{_Interrupts, 'target.interruptAt(55)'},
 		{_Mitigation, 'target.inMelee'},
-		{Cooldowns, 'modifier.cooldowns'},
-		{AoE, {
+		{_Cooldowns, 'modifier.cooldowns'},
+		{_AoE, {
 			'player.area(8).enemies >= 3', (function() return F('canTaunt') end)
 		}},
-		{Melle, {'target.inMelee', 'target.infront'}},
-	}, All, exeOnLoad)
+		{_Melee, {'target.inMelee', 'target.infront'}},
+		{_Ranged, { "target.range > 8", "target.range <= 40", "target.infront" }},
+	}, _OOC, exeOnLoad)
