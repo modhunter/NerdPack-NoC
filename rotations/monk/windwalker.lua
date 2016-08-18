@@ -77,7 +77,7 @@ local effuse = function()
 end
 
 local _OOC = {
-	{ "Effuse", { "player.health < 100", "!player.movingfor > 0.5", "!player.combat" }, "player" },
+	{ "Effuse", { "player.health < 100", "player.lastmoved >= 1", "!player.combat" }, "player" },
 }
 
 local _All = {
@@ -206,10 +206,10 @@ NeP.Engine.registerRotation(269, '[|cff'..NeP.Interface.addonColor..'NoC|r] Monk
 		{'pause', 'modifier.shift'},
 		{_All},
 		{_Survival, 'player.health < 100'},
-		{_Interrupts, {'target.interruptAt(40)' }},
+		{_Interrupts, {'target.interruptAt(40)', "target.infront" }},
 		{_Cooldowns, 'modifier.cooldowns'},
 		{_SEF, { "target.range <= 5", (function() return F('SEF') end) }},
-		{_Openner, { "player.time < 16", (function() return F('opener') end) }},
-		{_Melee, { "target.range <= 5" }},
-		{_Ranged, { "target.range > 8", "target.range <= 40" }},
+		{_Openner, { "player.time < 16", "target.infront", (function() return F('opener') end) }},
+		{_Melee, { "target.range <= 5", "target.infront" }},
+		{_Ranged, { "target.range > 8", "target.range <= 40", "target.infront" }},
 	}, _OOC, exeOnLoad)
