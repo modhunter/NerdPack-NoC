@@ -97,7 +97,7 @@ local _All = {
 
 local _Cooldowns = {
 	{ "Touch of Death", "!player.spell.usable(Gale Burst)" },
-	{ "Touch of Death", { "player.spell.usable(Gale Burst)", "player.spell(Strike of the Windlord).cooldown <= 0.5", "player.spell(Fists of Fury).cooldown <= 3", "player.spell(Rising Sun Kick).cooldown < 8" }},
+	{ "Touch of Death", { "player.spell.usable(Gale Burst)", "player.spell(Strike of the Windlord).cooldown <= 8", "player.spell(Fists of Fury).cooldown <= 3", "player.spell(Rising Sun Kick).cooldown < 8" }},
 	{ "Lifeblood" },
 	{ "Berserking" },
 	{ "Blood Fury" },
@@ -138,7 +138,7 @@ local _SEF = {
 	{{
 		{ "Storm, Earth, and Fire", { '!modifier.multitarget', (function() return _SEF() end) }},
 		{ "Storm, Earth, and Fire", "!player.buff(Storm, Earth, and Fire)" },
-	}, { "player.spell(Strike of the Windlord).cooldown <= 0.5", "player.spell(Fists of Fury).cooldown <= 9", "player.spell(Rising Sun Kick).cooldown <= 5"  }},
+	}, { "player.spell(Strike of the Windlord).cooldown <= 8", "player.spell(Fists of Fury).cooldown <= 9", "player.spell(Rising Sun Kick).cooldown <= 5"  }},
 	{{
 		{ "Storm, Earth, and Fire", { '!modifier.multitarget', (function() return _SEF() end) }},
 		{ "Storm, Earth, and Fire", "!player.buff(Storm, Earth, and Fire)" },
@@ -176,7 +176,7 @@ local _AoE = {
 }
 
 local _Melee = {
-	{ 'Serenity', { "player.spell(Strike of the Windlord).cooldown <= 0.5", "player.spell(Rising Sun Kick).cooldown < 8", "player.spell(Fists of Fury).cooldown <= 3" }},
+	{ 'Serenity', { "player.spell(Strike of the Windlord).cooldown <= 8", "player.spell(Rising Sun Kick).cooldown < 8", "player.spell(Fists of Fury).cooldown <= 3" }},
 	{ 'Serenity', { "player.spell(Rising Sun Kick).cooldown < 8", "player.spell(Fists of Fury).cooldown <= 3" }},
 	{ "Energizing Elixir", { "player.energy < 100", "player.chi <= 1", "!player.buff(Serenity)" }},
 	{ "Rushing Jade Wind", { "player.buff(Serenity)", "!lastcast(Rushing Jade Wind)", (function() return _GoodLastCast() end) }},
