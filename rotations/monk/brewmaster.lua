@@ -35,9 +35,7 @@ local config = {
 			{type = 'spinner', text = 'Expel Harm', key = 'Expel Harm', default = 100},
 			{type = 'spinner', text = 'Fortifying Brew', key = 'Fortifying Brew', default = 20},
 			{type = 'spinner', text = 'Ironskin Brew', key = 'Ironskin Brew', default = 80},
-
 			--{type = 'spinner', text = 'Chi Wave', key = 'ChiWave', default = 70},
-			--{type = 'spinner', text = 'Ironskin Brew', key = 'IronskinBrew', default = 80},
 	}
 }
 
@@ -70,23 +68,14 @@ local IronskinBrew = function()
 end
 
 local staggered = function()
-	-- if Player:DebuffAny(HeavyStagger) then
-	-- 	return math.floor(Player:DebuffValue(HeavyStagger)*2/Player:MaxHealth()*10000)/100;
-	-- elseif Player:DebuffAny(ModerateStagger) then
-	-- 	return math.floor(Player:DebuffValue(ModerateStagger)*2/Player:MaxHealth()*10000)/100;
-	-- elseif Player:DebuffAny(LightStagger) then
-	-- 	return math.floor(Player:DebuffValue(LightStagger)*2/Player:MaxHealth()*10000)/100;
-	-- else
-	-- 	return 0;
-	-- end
-	-- Use this instead?
-	--UnitStagger("player")/UnitHealthMax("player")
-	local staggerLight, _, iconLight, _, _, remainingLight, _, _, _, _, _, _, _, _, valueStaggerLight, _, _ = UnitAura("player", GetSpellInfo(124275), "", "HARMFUL")
-	local staggerModerate, _, iconModerate, _, _, remainingModerate, _, _, _, _, _, _, _, _, valueStaggerModerate, _, _ = UnitAura("player", GetSpellInfo(124274), "", "HARMFUL")
-	local staggerHeavy, _, iconHeavy, _, _, remainingHeavy, _, _, _, _, _, _, _, _, valueStaggerHeavy, _, _ = UnitAura("player", GetSpellInfo(124273), "", "HARMFUL")
-	local staggerTotal= (remainingLight or remainingModerate or remainingHeavy or 0) * (valueStaggerLight or valueStaggerModerate or valueStaggerHeavy or 0)
-	local percentOfHealth=(100/UnitHealthMax("player")*staggerTotal)
-	return percentOfHealth;
+	local stagger = UnitStagger("player");
+	local percentOfHealth = (100/UnitHealthMax("player")*stagger);
+	-- TODO: We are targetting 4.5% stagger value - too low?  I think we used 25% or heavy stagger before as the trigger
+	if (percentOfHealth > 4.5) or UnitDebuff("player", GetSpellInfo(124273)) then
+	if percentOfHealth > 4.5 then
+		return true
+	end
+	return false
 end
 
 local PurifyingCapped = function()
@@ -128,15 +117,11 @@ local _Mitigation = {
 	{ "Purifying Brew", { staggered, "player.spell(Purifying Brew).charges >= 1" }},
 
 	-- Ironskin if we have Light / No Stagger
-	{ "Ironskin Brew", { IronskinBrew, "player.spell(Purifying Brew).charges >= 2", "!player.buff(Ironskin Brew)" }},
+	-- TODO: add check to determine if we've lost 25% health over the last 5 seconds
+	{ "Ironskin Brew", { IronskinBrew, "player.spell(Purifying Brew).charges >= 2", "!player.buff(Ironskin Brew)", "player.health < 75" }},
 
 	-- Prevent Capping
 	{ "Ironskin Brew", { PurifyingCapped, "player.health < 100", "!player.buff(Ironskin Brew)" }},
-
-	-- Ironskin Brew
-	--{'115308', {'player.buff(215479).duration <= 1', 'player.debuff(124275)',(function() return E('player.health <= '..PeFetch('NoC_Monk_BrM', 'IronskinBrew')) end)}},
-	-- Purifying Brew
-	--{'119582', {'player.debuff(124274)',(function() return E('player.health <= '..PeFetch('NoC_Monk_BrM', 'PurifyingBrew')) end)}},
 }
 
 local _Survival = {
@@ -150,13 +135,6 @@ local _Survival = {
 
 	-- Cast when there is at least one orb on the ground
 	{'Expel Harm', { ExpelHarm, "player.spell(Expel Harm).count >= 1" }, "player" },
-
-	-- Chi Wave
-	--{'115098', (function() return E('player.health <= '..PeFetch('NoC_Monk_BrM', 'ChiWave')) end)},
-	-- Ironskin Brew
-	--{'115308', {'player.buff(215479).duration <= 1', 'player.debuff(124275)',(function() return E('player.health <= '..PeFetch('NoC_Monk_BrM', 'IronskinBrew')) end)}},
-	-- Purifying Brew
-	--{'119582', {'player.debuff(124274)',(function() return E('player.health <= '..PeFetch('NoC_Monk_BrM', 'PurifyingBrew')) end)}},
 }
 
 local _Interrupts = {
