@@ -30,13 +30,14 @@ local config = {
 		-- Survival
 		{type = 'spacer'},{type = 'rule'},
 		{type = 'header', text = addonColor..'Survival', align = 'center'},
-			{type = 'spinner', text = 'Healthstone or Healing Potion', key = 'healthstn', default = 45},
-			{type = 'spinner', text = 'Healing Elixir', key = 'elixir', default = 70},
-			{type = 'spinner', text = 'Expel Harm', key = 'expelharm', default = 100},
-			{type = 'spinner', text = 'Fortifying Brew', key = 'fortbrew', default = 20},
+			{type = 'spinner', text = 'Healthstone or Healing Potion', key = 'Health Stone', default = 45},
+			{type = 'spinner', text = 'Healing Elixir', key = 'Healing Elixir', default = 70},
+			{type = 'spinner', text = 'Expel Harm', key = 'Expel Harm', default = 100},
+			{type = 'spinner', text = 'Fortifying Brew', key = 'Fortifying Brew', default = 20},
+			{type = 'spinner', text = 'Ironskin Brew', key = 'Ironskin Brew', default = 80},
 
 			--{type = 'spinner', text = 'Chi Wave', key = 'ChiWave', default = 70},
-			--{type = 'spinner', text = 'Ironskin Brew', key = 'IronskinBrew', default = 90},
+			--{type = 'spinner', text = 'Ironskin Brew', key = 'IronskinBrew', default = 80},
 	}
 }
 
@@ -48,21 +49,56 @@ local exeOnLoad = function()
 	NOC.ClassSetting(mKey)
 end
 
-local healthstn = function()
-	return E('player.health <= ' .. F('healthstn'))
+local HealthStone = function()
+	return E('player.health <= ' .. F('Health Stone'))
 end
 
-local elixir = function()
-	return E('player.health <= ' .. F('elixir'))
+local HealingElixir = function()
+	return E('player.health <= ' .. F('Healing Elixir'))
 end
 
-local fortbrew = function()
-	return E('player.health <= ' .. F('fortbrew'))
+local FortifyingBrew = function()
+	return E('player.health <= ' .. F('Fortifying Brew'))
 end
 
-local expelharm = function()
-	return E('player.health <= ' .. F('expelharm'))
+local ExpelHarm = function()
+	return E('player.health <= ' .. F('Expel Harm'))
 end
+
+local IronskinBrew = function()
+	return E('player.health <= ' .. F('Ironskin Brew'))
+end
+
+local staggered = function()
+	-- if Player:DebuffAny(HeavyStagger) then
+	-- 	return math.floor(Player:DebuffValue(HeavyStagger)*2/Player:MaxHealth()*10000)/100;
+	-- elseif Player:DebuffAny(ModerateStagger) then
+	-- 	return math.floor(Player:DebuffValue(ModerateStagger)*2/Player:MaxHealth()*10000)/100;
+	-- elseif Player:DebuffAny(LightStagger) then
+	-- 	return math.floor(Player:DebuffValue(LightStagger)*2/Player:MaxHealth()*10000)/100;
+	-- else
+	-- 	return 0;
+	-- end
+	-- Use this instead?
+	--UnitStagger("player")/UnitHealthMax("player")
+	local staggerLight, _, iconLight, _, _, remainingLight, _, _, _, _, _, _, _, _, valueStaggerLight, _, _ = UnitAura("player", GetSpellInfo(124275), "", "HARMFUL")
+	local staggerModerate, _, iconModerate, _, _, remainingModerate, _, _, _, _, _, _, _, _, valueStaggerModerate, _, _ = UnitAura("player", GetSpellInfo(124274), "", "HARMFUL")
+	local staggerHeavy, _, iconHeavy, _, _, remainingHeavy, _, _, _, _, _, _, _, _, valueStaggerHeavy, _, _ = UnitAura("player", GetSpellInfo(124273), "", "HARMFUL")
+	local staggerTotal= (remainingLight or remainingModerate or remainingHeavy or 0) * (valueStaggerLight or valueStaggerModerate or valueStaggerHeavy or 0)
+	local percentOfHealth=(100/UnitHealthMax("player")*staggerTotal)
+	return percentOfHealth;
+end
+
+local PurifyingCapped = function()
+	local MaxBrewCharges = 3;
+	if E('talent(3,1)') then
+		MaxBrewCharges = MaxBrewCharges + 1;
+	end
+	local PurifyingCapped = E("player.spell(Purifying Brew).charges") ==  MaxBrewCharges or (E("player.spell(Purifying Brew).charges") == MaxBrewCharges - 1 and E("player.spell(Purifying Brew).recharge < 3")) or false;
+	return PurifyingCapped
+end
+
+
 
 local _All = {
 	-- Keybinds
@@ -86,70 +122,34 @@ local _Cooldowns = {
 }
 
 local _Mitigation = {
-	-- TODO: Implement this below
+	{ "Black Ox Brew", { "player.spell(Purifying Brew).charges < 1", "player.spell(purifying brew).recharge > 2" }},
 
-	-- if Target:Exists() and TigerPalm:Cooldown() < RandomOffGCD and Player:IsWithinCastRange(Target, TigerPalm) then
+	-- Active Mitigation
+	{ "Purifying Brew", { staggered, "player.spell(Purifying Brew).charges >= 1" }},
 
-	-- If not (blackout combo spell exists? AND (option toggle is turned on) AND we have blackoutcombo buff AND keg smash CD < 2.5s)
-	-- So, enter this if any of the above are false???
-	-- 	if not (BlackoutCombo:Exists() and (module.GetOptionValue("Blackout Combo") == "Keg Smash" or module.GetOptionValue("Blackout Combo") == "Auto") and Player:Buff(BlackoutCombo) and KegSmash:Cooldown() < 2.5) then
-	--    cast black ox brew when: option enabled and player.spell.charges(purifying brew) < 1 and player.spell.recharge(purifying brew) > 2
-	-- 		-- Active Mitigation
-	--		if player.spell.charges(purifying brew) >= 1
-	--			collect current stagger
-	-- 		if PurifyingBrew:Charges() >= 1 then
-	-- 			CurrentStagger = Player:Stagger();
-	-- 			-- Purify if we have Moderate / Heavy Stagger
-	-- 			if PurifyingBrew:Exists() and module.IsOptionEnabled("Purifying Brew") and PurifyingBrew:TimeSinceCast() >= 5 then
-	-- 				Option1 = module.GetOptionValue("Purifying Brew");
-	-- 				if CurrentStagger > Option1 and Player:CanCast(PurifyingBrew) then
-	-- 					module.Bug("Mitigation via Purifying Brew with "..CurrentStagger.."%.");
-	-- 					PurifyingBrew.LastCastTime = module.GetTime();
-	-- 					Player:Cast(PurifyingBrew);
-	-- 					RandomOffGCD = nil;
-	-- 					return;
-	-- 				end
-	-- 			end
-	-- 			-- Ironskin if we have Light / No Stagger
-	-- 			if IronskinBrew:Exists() and module.IsOptionEnabled("Ironskin Brew") and PurifyingBrew:Charges() >= 2 and IronskinBrew:TimeSinceCast() >= 5 and not Player:Buff(IronskinBrew) then
-	-- 				Option1, Option2 = module.GetOptionValue("Ironskin Brew"), module.GetSecondOptionValue("Ironskin Brew");
-	-- 				if Player:RecentDamageTakenPercent(Option2, "Physical") + Player:RecentDamageTakenPercent(Option2, "Spell") > Option1 and Player:CanCast(IronskinBrew) then
-	-- 					module.Bug("Mitigation via Ironskin Brew with "..tostring(Player:RecentDamageTakenPercent(Option2, "Physical") + Player:RecentDamageTakenPercent(Option2, "Spell")).." health% damage taken over the last "..tostring(Option2).." seconds.");
-	-- 					Player:Cast(IronskinBrew);
-	-- 					IronskinBrew.LastCastTime = module.GetTime();
-	-- 					RandomOffGCD = nil;
-	-- 					return;
-	-- 				end
-	-- 			end
-	-- 		end
-	-- 		-- Prevent Capping
-	-- 		if module.IsOptionEnabled("Mitigation Dump") and PurifyingCapped and IronskinBrew:Exists() and not Player:Buff(IronskinBrew) then
-	-- 			if Player:RecentDamageTakenPercent(5, "Physical") + Player:RecentDamageTakenPercent(5, "Spell") > 0 and Player:CanCast(IronskinBrew) then
-	-- 				module.Bug("Mitigation Dump via Ironskin Brew");
-	-- 				IronskinBrew.LastCastTime = module.GetTime();
-	-- 				Player:Cast(IronskinBrew);
-	-- 				RandomOffGCD = nil;
-	-- 				return;
-	-- 			end
-	-- 		end
-	-- 	end
-	-- end
+	-- Ironskin if we have Light / No Stagger
+	{ "Ironskin Brew", { IronskinBrew, "player.spell(Purifying Brew).charges >= 2", "!player.buff(Ironskin Brew)" }},
+
+	-- Prevent Capping
+	{ "Ironskin Brew", { PurifyingCapped, "player.health < 100", "!player.buff(Ironskin Brew)" }},
+
+	-- Ironskin Brew
+	--{'115308', {'player.buff(215479).duration <= 1', 'player.debuff(124275)',(function() return E('player.health <= '..PeFetch('NoC_Monk_BrM', 'IronskinBrew')) end)}},
+	-- Purifying Brew
+	--{'119582', {'player.debuff(124274)',(function() return E('player.health <= '..PeFetch('NoC_Monk_BrM', 'PurifyingBrew')) end)}},
 }
 
 local _Survival = {
-	-- First charge of Healing Elixir at 2 charges @ configured health threshold
-	{ "Healing Elixir", { "player.spell(Healing Elixir).charges >= 2", "player.spell(Healing Elixir).cooldown < 3", "!lastcast(Healing Elixir)", elixir }, "player" },
-	-- Second charge of Healing Elixir when health <= 35%
-	{ "Healing Elixir", { "player.spell(Healing Elixir).charges >= 2", "player.spell(Healing Elixir).cooldown < 3", "!lastcast(Healing Elixir)", "player.health <= 35" }, "player" },
+	{ "Healing Elixir", { "player.spell(Healing Elixir).charges >= 1", "player.spell(Healing Elixir).cooldown < 3", "!lastcast(Healing Elixir)", HealingElixir }, "player" },
 
 	-- TODO: Update for legion's equivillant to healing tonic 109223
-	{ "#109223", healthstn, "player" }, -- Healing Tonic
-	{ '#5512', healthstn, "player" }, -- Healthstone
+	{ "#109223", HealthStone, "player" }, -- Healing Tonic
+	{ '#5512', HealthStone, "player" }, -- Healthstone
 
-	{'Fortifying Brew', { fortbrew }, "player" },
+	{'Fortifying Brew', { FortifyingBrew }, "player" },
 
 	-- Cast when there is at least one orb on the ground
-	{'Expel Harm', { expelharm, "player.spell(Expel Harm).count >= 1" }, "player" },
+	{'Expel Harm', { ExpelHarm, "player.spell(Expel Harm).count >= 1" }, "player" },
 
 	-- Chi Wave
 	--{'115098', (function() return E('player.health <= '..PeFetch('NoC_Monk_BrM', 'ChiWave')) end)},
@@ -184,7 +184,7 @@ local _Ranged = {
 }
 
 local _Taunts = {
-	-- TODO: Provoke (on a toggle) any valid* unit within 30 yards ("player.area(30).enemies") that we're not already tanking ("player.threat < 100"), that a pet is not tanking (???), and that maintank ("tank.threat < 100") or offtank ((tank2.threat < 100)) aren't already tanking too
+	-- TODO: Provoke (on a toggle) any valid unit within 30 yards ("player.area(30).enemies") that we're not already tanking ("player.threat < 100"), that a pet is not tanking (???), and that maintank ("tank.threat < 100") or offtank ((tank2.threat < 100)) aren't already tanking too
 	--{'Provoke', 'target.range <= 35'},
 }
 
@@ -234,7 +234,7 @@ NeP.Engine.registerRotation(268, '[|cff'..NeP.Interface.addonColor..'NoC|r] Monk
 		{_All},
 		{_Survival, 'player.health < 100'},
 		{_Interrupts, 'target.interruptAt(55)'},
-		{_Mitigation, 'target.inMelee'},
+		{_Mitigation, { 'target.inMelee', { "!talent(7,2)", "or", "!player.buff(Blackout Combo)", "or", "player.spell(Keg Smash).cooldown >= 2.5" }}},
 		{_Cooldowns, 'modifier.cooldowns'},
 		{_AoE, {
 			'player.area(8).enemies >= 3', (function() return F('canTaunt') end)
