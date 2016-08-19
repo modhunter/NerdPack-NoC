@@ -87,10 +87,16 @@ local PurifyingCapped = function()
 	return PurifyingCapped
 end
 
+local NotPurifyingCapped = function()
+	return not PurifyingCapped
+end
+
 
 
 local _All = {
 	-- Keybinds
+	-- TODO: Get proper spell name for this
+	--{'Invoke Niuzao', 'modifier.lalt'},
 
 	-- Nimble Brew if pvp talent taken
 	{'137648', 'player.state.disorient'},
@@ -102,9 +108,13 @@ local _All = {
 	{ "116841", 'player.state.stun' }, -- Tiger's Lust = 116841
 	{ "116841", 'player.state.root' }, -- Tiger's Lust = 116841
 	{ "116841", 'player.state.snare' }, -- Tiger's Lust = 116841
+
+	-- TODO: Add support for (optional) automatic potion use w/pull timer
 }
 
 local _OOC = {
+	-- TODO: add automatic ressurection?
+
 }
 
 local _Cooldowns = {
@@ -167,11 +177,83 @@ local _Taunts = {
 }
 
 local _Melee = {
-	--[[Use Blackout Strike first due to blackout combo talent this is priority over keg smash]]
-	{'205523'},
+	-- If Blackout Combo talent enabled
+	{{
+		{ "Blackout Strike", { "!player.buff(Blackout Combo)", { "player.spell(Keg Smash).cooldown > 3", "or", "player.spell(Keg Smash).cooldown < 1.5" }}},
+		{ "Keg Smash", { { "!player.buff(Blackout Combo)", "or" PurifyingCapped }, "target.range < 20" }},
+	}, { "talent(7,2)" }},
 
-	--[[Use Keg Smash on cooldown ]]
-	{'121253'},
+	{ "Keg Smash", { "talent(7,2)", "target.range < 20" }},
+
+	-- Keg Smash Wait - Wait longer for Blackout Combo if not capped
+	{{
+
+		-- if BlackoutCombo:Exists() then
+		-- 	-- Breath Of Fire
+		-- 	if module.GetOptionValue("Blackout Combo") == "Breath Of Fire" or module.GetOptionValue("Blackout Combo") == "Auto" then
+		-- 		if BreathOfFire:Exists() and module.IsOptionEnabled("Breath Of Fire") and BreathOfFireUnits >= module.GetOptionValue("Breath Of Fire") then
+		-- 			if not Player:Buff(BlackoutComboBuff) and Target:CanCast(BlackoutStrike) then
+		-- 				Target:Cast(BlackoutStrike);
+		-- 				return;
+		-- 			end
+		-- 			if Player:Buff(BlackoutComboBuff) and Player:CanCast(BreathOfFire) then
+		-- 				Player:Cast(BreathOfFire);
+		-- 				return;
+		-- 			end
+		-- 		end
+		-- 	end
+		-- 	-- Tiger Palm
+		-- 	if module.GetOptionValue("Blackout Combo") == "Tiger Palm" or module.GetOptionValue("Blackout Combo") == "Auto" then
+		-- 		if BlackoutStrike:Exists() and not Player:Buff(BlackoutComboBuff) and (Player:Power() >= 45 or not KegSmash:Exists() or KegSmash:Cooldown() > 3) and Target:CanCast(BlackoutStrike) then
+		-- 			Target:Cast(BlackoutStrike);
+		-- 			return;
+		-- 		end
+		-- 		if Player:Buff(BlackoutComboBuff) and Target:CanCast(TigerPalm) then
+		-- 			Target:Cast(TigerPalm);
+		-- 			return;
+		-- 		end
+		-- 	end
+		-- end
+		-- -- Blackout Strike
+		-- if BlackoutStrike:Exists() and Target:CanCast(BlackoutStrike) then
+		-- 	Target:Cast(BlackoutStrike);
+		-- 	return;
+		-- end
+		-- -- Breath Of Fire
+		-- if BreathOfFire:Exists() and Player:IsWithinCastRange(Target, TigerPalm) and Target:Debuff(KegSmash) and module.IsOptionEnabled("Breath Of Fire") and (not BlackoutCombo:Exists() or (module.GetOptionValue("Blackout Combo") ~= "Breath Of Fire" and module.GetOptionValue("Blackout Combo") ~= "Auto")) and BreathOfFireUnits >= module.GetOptionValue("Breath Of Fire") and Player:CanCast(BreathOfFire) then
+		-- 	Player:Cast(BreathOfFire);
+		-- 	return;
+		-- end
+		-- -- Chi Burst
+		-- if ChiBurst:Exists() and module.IsOptionEnabled("Chi Burst") and ChiBurstUnits >= module.GetOptionValue("Chi Burst") and Player:CanCast(ChiBurst) then
+		-- 	Player:Cast(ChiBurst);
+		-- 	return;
+		-- end
+		-- -- Chi Wave
+		-- if ChiWave:Exists() and Target:CanCast(ChiWave) then
+		-- 	Target:Cast(ChiWave);
+		-- 	return;
+		-- end
+		-- -- Rushing Jade Wind
+		-- if RushingJadeWind:Exists() and module.IsOptionEnabled("Rushing Jade Wind") and NumEnemies >= module.GetOptionValue("Rushing Jade Wind") and Player:CanCast(RushingJadeWind) then
+		-- 	Player:Cast(RushingJadeWind);
+		-- 	return;
+		-- end
+		-- -- Flaming Keg
+		-- if FlamingKeg:Exists() and module.IsOptionEnabled("Flaming Keg") and Target:CanCast(FlamingKeg) then
+		-- 	if Target:CastGroundSpell(FlamingKeg, "Flaming Keg", 8) then return; end
+		-- end
+		-- -- Tiger Palm
+		-- if TigerPalm:Exists() and (not BlackoutCombo:Exists() or (module.GetOptionValue("Blackout Combo") ~= "Tiger Palm" and module.GetOptionValue("Blackout Combo") ~= "Auto") or Player:Power() >= 70) and (Player:Power() >= 55 or KegSmash:Cooldown() > 3) and Target:CanCast(TigerPalm) then
+		-- 	Target:Cast(TigerPalm);
+		-- 	return;
+		-- end
+
+
+
+
+	}, { "player.spell(Keg Smash).cooldown < 0.5", "or", { "player.buff(Blackout Combo)", "player.spell(Keg Smash).cooldown < 2",  NotPurifyingCapped }},
+
 
 	--[[Use Tiger Palm to fill any spare global cooldowns.
 	This should only be used each time the monk is above 65 energy and keg smash is currently on cd.]]

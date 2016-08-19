@@ -26,6 +26,18 @@ function NOC.Splash()
 	return true
 end
 
+
+-- function NOC.getGCD()
+-- 	local CDTime, CDValue = 0, 0;
+--   CDTime, CDValue = GetSpellCooldown(61304);
+--   if CDTime == 0 or module.GetTime()-module.GetLatency() >= CDTime+CDValue then
+--     return true;
+--   else
+--     return false;
+--   end
+-- end
+
+
 NeP.library.register('NOC', {
 
 -- Place custom functions here???
