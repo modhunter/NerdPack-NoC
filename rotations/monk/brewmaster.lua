@@ -103,11 +103,12 @@ local _All = {
 	{ "116841", 'player.state.root' }, -- Tiger's Lust = 116841
 	{ "116841", 'player.state.snare' }, -- Tiger's Lust = 116841
 
-	-- TODO: Add support for (optional) automatic potion use w/pull timer
+
 }
 
 local _OOC = {
 	-- TODO: add automatic ressurection?
+	-- TODO: Add support for (optional) automatic potion use w/pull timer
 	{'Summon Black Ox Statue', 'modifier.lalt', "mouseover.ground"},
 }
 

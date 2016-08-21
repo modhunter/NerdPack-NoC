@@ -18,8 +18,8 @@ local config = {
 		-- Survival
 		{type = 'spacer'},{type = 'rule'},
 		{type = 'header', text = 'Survival', align = 'center'},
-		{type = 'spinner', text = 'Healthstone & Healing Tonic', key = 'Healthstone', default = 45},
-		{type = 'spinner', text = 'Effuse', key = 'effuse', default = 40},
+		{type = 'spinner', text = 'Healthstone & Healing Tonic', key = 'Healthstone', default = 35},
+		{type = 'spinner', text = 'Effuse', key = 'effuse', default = 30},
 	}
 }
 
@@ -77,7 +77,10 @@ local effuse = function()
 end
 
 local _OOC = {
-	{ "Effuse", { "player.health < 100", "player.lastmoved >= 1", "!player.combat" }, "player" },
+	{ "Effuse", { "player.health < 90", "player.lastmoved >= 1", "!player.combat" }, "player" },
+
+	-- TODO: add automatic ressurection?
+	-- TODO: Add support for (optional) automatic potion use w/pull timer
 }
 
 local _All = {
@@ -86,6 +89,7 @@ local _All = {
 	{ "Leg Sweep", "modifier.lcontrol" },
   { "Touch of Karma", "modifier.lalt" },
 
+	-- TODO: turn off engine
 	{ "/stopcasting\n/stopattack\n/cleartarget\n/stopattack\n/cleartarget", { "player.time >= 300", (function() return F('dpstest') end) }},
 
 	-- FREEDOOM!
@@ -108,7 +112,7 @@ local _Cooldowns = {
 }
 
 local _Survival = {
-	{ "Effuse", { "player.energy >= 60", "!player.movingfor > 0.5", effuse }, "player" },
+	{ "Effuse", { "player.energy >= 60", "player.lastmoved >= 0.5", effuse }, "player" },
 	-- TODO: Update for legion's equivillant to healing tonic 109223
 	{ "#109223", healthstn, "player" }, -- Healing Tonic
 	{ '#5512', healthstn, "player" }, -- Healthstone
