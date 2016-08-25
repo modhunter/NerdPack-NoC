@@ -170,27 +170,21 @@ local _Openner = {
 local _AoE = {
 	-- TODO: add some complicated logic to 'multi-dot' enemies to set-up for the big Spinning Crane Kick bonus
 	{ 'Spinning Crane Kick', { '!talent(6,1)', '!lastcast(Spinning Crane Kick)', (function() return _GoodLastCast() end) }},
-	{ "Strike Of The Windlord" },
-	{ "Rushing Jade Wind", { "player.chi >= 2", "!lastcast(Rushing Jade Wind)", (function() return _GoodLastCast() end) }},
+	{ "Rising Sun Kick" },
+	{ "Rushing Jade Wind", { "player.chi >= 1", "!lastcast(Rushing Jade Wind)", (function() return _GoodLastCast() end) }},
 	{{
 		{ "Chi Wave" }, -- 40 yard range 0 energy, 0 chi
 		{ "Chi Burst", "!player.moving" },
 	}, { "!player.buff(Serenity)" }},
-	{ "Tiger Palm", { "!player.buff(Serenity)", "player.chi <= 2", "!lastcast(Tiger Palm)", (function() return _GoodLastCast() end) }},
+	{{
+  	{ "Blackout Kick", "player.buff(Blackout Kick!)" },
+  	{ "Blackout Kick", "player.chi > 1" },
+	}, { "!lastcast(Blackout Kick)", (function() return _GoodLastCast() end) }},
+	{ "Tiger Palm", { "!player.buff(Serenity)", "player.chidiff > 1", "!lastcast(Tiger Palm)", (function() return _GoodLastCast() end) }},
 }
 
-local _Melee = {
-	{ 'Serenity', { "player.spell(Strike of the Windlord).cooldown <= 8", "player.spell(Rising Sun Kick).cooldown < 8", "player.spell(Fists of Fury).cooldown <= 3" }},
-	{ 'Serenity', { "player.spell(Rising Sun Kick).cooldown < 8", "player.spell(Fists of Fury).cooldown <= 3" }},
-	{ "Energizing Elixir", { "player.energy < 100", "player.chi <= 1", "!player.buff(Serenity)" }},
-	{ "Rushing Jade Wind", { "player.buff(Serenity)", "!lastcast(Rushing Jade Wind)", (function() return _GoodLastCast() end) }},
-	{ "Whirling Dragon Punch" },
-	{ "Fists of Fury" },
-
-	{_AoE, { 'player.area(8).enemies >= 3', 'modifier.multitarget' }},
-
+local _ST = {
 	{ "Rising Sun Kick" },
-	{ "Strike Of The Windlord" },
 	{ "Rushing Jade Wind", { "player.chi > 1", "!lastcast(Rushing Jade Wind)", (function() return _GoodLastCast() end) }},
 	{{
 		{ "Chi Wave" }, -- 40 yard range 0 energy, 0 chi
@@ -201,6 +195,21 @@ local _Melee = {
   	{ "Blackout Kick", "player.chi > 1" },
 	}, { "!player.buff(Serenity)", "!lastcast(Blackout Kick)", (function() return _GoodLastCast() end) }},
 	{ "Tiger Palm", { "!player.buff(Serenity)", "player.chi <= 2", "!lastcast(Tiger Palm)", (function() return _GoodLastCast() end) }},
+}
+
+local _Melee = {
+	{ 'Serenity', { "player.spell(Strike of the Windlord).cooldown <= 8", "player.spell(Rising Sun Kick).cooldown < 8", "player.spell(Fists of Fury).cooldown <= 3" }},
+	{ 'Serenity', { "player.spell(Rising Sun Kick).cooldown < 8", "player.spell(Fists of Fury).cooldown <= 3" }},
+	{ "Energizing Elixir", { "player.energy < 100", "player.chi <= 1", "!player.buff(Serenity)" }},
+	{ "Rushing Jade Wind", { "player.buff(Serenity)", "!lastcast(Rushing Jade Wind)", (function() return _GoodLastCast() end) }},
+	{ "Strike of the Windlord" },
+	{ "Whirling Dragon Punch" },
+	{ "Fists of Fury" },
+
+	{_AoE, { 'player.area(8).enemies >= 3', 'modifier.multitarget' }},
+	{_ST, { 'player.area(8).enemies < 3' }},
+
+	-- Last resort to keep using abilitites
 	{ "Blackout Kick", { "!lastcast(Blackout Kick)", (function() return _GoodLastCast() end) }},
 	{ "Tiger Palm", { "!lastcast(Tiger Palm)", (function() return _GoodLastCast() end) }},
 }
