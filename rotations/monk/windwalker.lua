@@ -168,19 +168,19 @@ local _Openner = {
 }
 
 local _AoE = {
-	-- TODO: add some complicated logic to 'multi-dot' enemies to set-up for the big Spinning Crane Kick bonus
 	{ 'Spinning Crane Kick', { '!talent(6,1)', '!lastcast(Spinning Crane Kick)', (function() return _GoodLastCast() end) }},
-	{ "Rising Sun Kick" },
+	{ "@NOC.AoEMissingDebuff('Rising Sun Kick', 'Mark of the Crane', 5)" },
 	{ "Rushing Jade Wind", { "player.chi >= 1", "!lastcast(Rushing Jade Wind)", (function() return _GoodLastCast() end) }},
 	{{
 		{ "Chi Wave" }, -- 40 yard range 0 energy, 0 chi
 		{ "Chi Burst", "!player.moving" },
 	}, { "!player.buff(Serenity)" }},
 	{{
-  	{ "Blackout Kick", "player.buff(Blackout Kick!)" },
-  	{ "Blackout Kick", "player.chi > 1" },
+		{ "@NOC.AoEMissingDebuff('Blackout Kick', 'Mark of the Crane', 5)", "player.buff(Blackout Kick!)" },
+  	{ "@NOC.AoEMissingDebuff('Blackout Kick', 'Mark of the Crane', 5)", "player.chi > 1" },
 	}, { "!lastcast(Blackout Kick)", (function() return _GoodLastCast() end) }},
-	{ "Tiger Palm", { "!player.buff(Serenity)", "player.chidiff > 1", "!lastcast(Tiger Palm)", (function() return _GoodLastCast() end) }},
+
+	{ "@NOC.AoEMissingDebuff('Tiger Palm', 'Mark of the Crane', 5)", { "!player.buff(Serenity)", "player.chidiff > 1", "!lastcast(Tiger Palm)", (function() return _GoodLastCast() end) }},
 }
 
 local _ST = {
@@ -206,7 +206,7 @@ local _Melee = {
 	{ "Whirling Dragon Punch" },
 	{ "Fists of Fury" },
 
-	{_AoE, { 'player.area(8).enemies >= 3', 'modifier.multitarget' }},
+	{_AoE, { 'player.area(8).enemies >= 1', 'modifier.multitarget' }},
 	{_ST, { 'player.area(8).enemies < 3' }},
 
 	-- Last resort to keep using abilitites

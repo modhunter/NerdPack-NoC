@@ -26,40 +26,38 @@ function NOC.Splash()
 	return true
 end
 
-function NOC.AoEMissingDebuff(spell, debuff, range)
-	if spell == nil or range == nil or NeP.DSL.Conditions['spell.cooldown']("player", 61304) ~= 0 then return false end
-	local spell = select(1,GetSpellInfo(spell))
-	if not IsUsableSpell(spell) then return false end
-	for i=1,#NeP.OM.unitEnemie do
-		local Obj = NeP.OM.unitEnemie[i]
-		if Obj.distance <= range and (UnitAffectingCombat(Obj.key) or Obj.is == 'dummy') then
-			local _,_,_,_,_,_,debuffDuration = UnitDebuff(Obj.key, debuff, nil, 'PLAYER')
-			if not debuffDuration or debuffDuration - GetTime() < 1.5 then
-				--                print(Obj.name)
-				if UnitCanAttack('player', Obj.key)    and NeP.Engine.Infront('player', Obj.key) then
-					NeP.Engine.Cast_Queue(spell, Obj.key)
-					return true
-				end
-			end
-		end
-	end
-end
-
-
--- function NOC.getGCD()
--- 	local CDTime, CDValue = 0, 0;
---   CDTime, CDValue = GetSpellCooldown(61304);
---   if CDTime == 0 or module.GetTime()-module.GetLatency() >= CDTime+CDValue then
---     return true;
---   else
---     return false;
---   end
--- end
 
 
 NeP.library.register('NOC', {
 
--- Place custom functions here???
+	AoEMissingDebuff = function(spell, debuff, range)
+		if spell == nil or range == nil or NeP.DSL.Conditions['spell.cooldown']("player", 61304) ~= 0 then return false end
+		local spell = select(1,GetSpellInfo(spell))
+		if not IsUsableSpell(spell) then return false end
+		for i=1,#NeP.OM.unitEnemie do
+			local Obj = NeP.OM.unitEnemie[i]
+			if Obj.distance <= range and (UnitAffectingCombat(Obj.key) or Obj.is == 'dummy') then
+				local _,_,_,_,_,_,debuffDuration = UnitDebuff(Obj.key, debuff, nil, 'PLAYER')
+				if not debuffDuration or debuffDuration - GetTime() < 1.5 then
+					if UnitCanAttack('player', Obj.key) and NeP.Engine.SpellSanity(spell, Obj.key) and (NeP.TimeToDie(Obj.key) > 3) then
+						--print("AoEMissingDebuff: casting "..spell.." against "..Obj.name.." ("..Obj.key..")".." - TTD="..NeP.TimeToDie(Obj.key));
+						NeP.Engine.Cast_Queue(spell, Obj.key)
+						return true
+					end
+				end
+			end
+		end
+	end,
+
+	-- getGCD = function()
+	-- 	local CDTime, CDValue = 0, 0;
+	--   CDTime, CDValue = GetSpellCooldown(61304);
+	--   if CDTime == 0 or module.GetTime()-module.GetLatency() >= CDTime+CDValue then
+	--     return true;
+	--   else
+	--     return false;
+	--   end
+	-- end,
 
 })
 
