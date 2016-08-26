@@ -14,6 +14,7 @@ local config = {
 			{type = 'checkbox', text = 'Opener', key = 'opener', default = true},
 			{type = 'checkbox', text = 'Automatic CJL', key = 'auto_cjl', default = true},
 			{type = 'checkbox', text = 'Automatic Res', key = 'auto_res', default = false},
+			{type = 'checkbox', text = 'Automatic Mark of the Crane Dotting', key = 'auto_dot', default = false},
 			--{type = 'checkbox', text = 'Automatic Pre-Pot', key = 'auto_pot', default = false},
 			{type = 'checkbox', text = '5 min DPS test', key = 'dpstest', default = false},
 
@@ -170,7 +171,7 @@ local _Openner = {
 
 local _AoE = {
 	{ 'Spinning Crane Kick', { '!lastcast(Spinning Crane Kick)', goodLastCast }},
-	{ "@NOC.AoEMissingDebuff('Rising Sun Kick', 'Mark of the Crane', 5)" },
+	{ "@NOC.AoEMissingDebuff('Rising Sun Kick', 'Mark of the Crane', 5)", (function() return F('auto_dot') end) },
 	{ "Rising Sun Kick" },
 	{ "Rushing Jade Wind", { "player.chi >= 1", "!lastcast(Rushing Jade Wind)", goodLastCast }},
 	{{
@@ -178,13 +179,13 @@ local _AoE = {
 		{ "Chi Burst", "!player.moving" },
 	}, { "!player.buff(Serenity)", "player.timetomax > 2" }},
 	{{
-		{ "@NOC.AoEMissingDebuff('Blackout Kick', 'Mark of the Crane', 5)", "player.buff(Blackout Kick!)" },
+		{ "@NOC.AoEMissingDebuff('Blackout Kick', 'Mark of the Crane', 5)", { "player.buff(Blackout Kick!)", (function() return F('auto_dot') end) }},
 		{ "Blackout Kick", "player.buff(Blackout Kick!)" },
-  	{ "@NOC.AoEMissingDebuff('Blackout Kick', 'Mark of the Crane', 5)", "player.chi > 1" },
+  	{ "@NOC.AoEMissingDebuff('Blackout Kick', 'Mark of the Crane', 5)", { "player.chi > 1", (function() return F('auto_dot') end) }},
 		{ "Blackout Kick", "player.chi > 1" },
 	}, { "!lastcast(Blackout Kick)", goodLastCast }},
 
-	{ "@NOC.AoEMissingDebuff('Tiger Palm', 'Mark of the Crane', 5)", { "!player.buff(Serenity)", "player.chidiff > 1", "!lastcast(Tiger Palm)", goodLastCast }},
+	{ "@NOC.AoEMissingDebuff('Tiger Palm', 'Mark of the Crane', 5)", { "!player.buff(Serenity)", "player.chidiff > 1", (function() return F('auto_dot') end), "!lastcast(Tiger Palm)", goodLastCast }},
 	{ "Tiger Palm", { "!player.buff(Serenity)", "player.chidiff > 1", "!lastcast(Tiger Palm)", goodLastCast }},
 
 }
@@ -212,7 +213,7 @@ local _Melee = {
 	{ "Whirling Dragon Punch" },
 	{ "Fists of Fury" },
 
-	{ _AoE, { 'player.area(8).enemies >= 1', 'modifier.multitarget' }},
+	{ _AoE, { 'player.area(8).enemies >= 3', 'modifier.multitarget' }},
 	{ _ST },
 
 	-- Last resort to keep using abilitites
