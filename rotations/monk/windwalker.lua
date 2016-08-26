@@ -206,7 +206,7 @@ local _Melee = {
 	{ "Whirling Dragon Punch" },
 	{ "Fists of Fury" },
 
-	{_AoE, { 'player.area(8).enemies >= 1', 'modifier.multitarget' }},
+	{_AoE, { 'player.area(8).enemies >= 3', 'modifier.multitarget' }},
 	{_ST, { 'player.area(8).enemies < 3' }},
 
 	-- Last resort to keep using abilitites
