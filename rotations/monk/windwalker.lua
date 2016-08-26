@@ -13,6 +13,8 @@ local config = {
 			{type = 'checkbox', text = 'SEF', key = 'SEF', default = true},
 			{type = 'checkbox', text = 'Opener', key = 'opener', default = true},
 			{type = 'checkbox', text = 'Automatic CJL', key = 'auto_cjl', default = true},
+			{type = 'checkbox', text = 'Automatic Res', key = 'auto_res', default = false},
+			--{type = 'checkbox', text = 'Automatic Pre-Pot', key = 'auto_pot', default = false},
 			{type = 'checkbox', text = '5 min DPS test', key = 'dpstest', default = false},
 
 		-- Survival
@@ -32,8 +34,7 @@ local exeOnLoad = function()
 end
 
 local SEF_Fixate_Casted = false
-
-local _SEF = function()
+local sef = function()
 	if E('player.buff(Storm, Earth, and Fire)') then
 		if SEF_Fixate_Casted then
 			return false
@@ -62,8 +63,7 @@ local MasterySpells = {
 	[116847] = '', -- Rushing Jade Wind
 	[152175] = '', -- Whirling Dragon Punch
 }
-
-local _GoodLastCast = function()
+local goodLastCast = function()
 	local _, _, _, _, _, _, spellID = GetSpellInfo(NeP.Engine.lastCast)
 	return MasterySpells[spellID] ~= nil
 end
@@ -79,13 +79,14 @@ end
 local _OOC = {
 	{ "Effuse", { "player.health < 90", "player.lastmoved >= 1", "!player.combat" }, "player" },
 
-	-- TODO: add automatic ressurection?
+	-- Automatic res of dead party members
+	{ "@NOC.resDeadFriends('Resuscitate')", (function() return F('auto_res') end) },
+
 	-- TODO: Add support for (optional) automatic potion use w/pull timer
 }
 
 local _All = {
 	-- Keybinds
-	--{ 'pause', 'modifier.shift' },
 	{ "Leg Sweep", "modifier.lcontrol" },
   { "Touch of Karma", "modifier.lalt" },
 
@@ -140,11 +141,11 @@ local _Interrupts = {
 
 local _SEF = {
 	{{
-		{ "Storm, Earth, and Fire", { '!modifier.multitarget', (function() return _SEF() end) }},
+		{ "Storm, Earth, and Fire", { '!modifier.multitarget', sef }},
 		{ "Storm, Earth, and Fire", "!player.buff(Storm, Earth, and Fire)" },
 	}, { "player.spell(Strike of the Windlord).cooldown <= 8", "player.spell(Fists of Fury).cooldown <= 9", "player.spell(Rising Sun Kick).cooldown <= 5"  }},
 	{{
-		{ "Storm, Earth, and Fire", { '!modifier.multitarget', (function() return _SEF() end) }},
+		{ "Storm, Earth, and Fire", { '!modifier.multitarget', sef }},
 		{ "Storm, Earth, and Fire", "!player.buff(Storm, Earth, and Fire)" },
 	}, { "player.spell(Fists of Fury).cooldown <= 9", "player.spell(Rising Sun Kick).cooldown <= 5"  }},
 }
@@ -155,8 +156,8 @@ local _Ranged = {
 }
 
 local _Openner = {
-	{ "Rising Sun Kick" },
 	{ "Fists of Fury", { "player.buff(Serenity)", "player.buff(Serenity).duration < 1.5" }},
+	{ "Rising Sun Kick" },
 
 	-- This should 'constrain' BoK to be only casted once during the opener
 	{{
@@ -168,24 +169,29 @@ local _Openner = {
 }
 
 local _AoE = {
-	{ 'Spinning Crane Kick', { '!talent(6,1)', '!lastcast(Spinning Crane Kick)', (function() return _GoodLastCast() end) }},
+	{ 'Spinning Crane Kick', { '!lastcast(Spinning Crane Kick)', goodLastCast }},
 	{ "@NOC.AoEMissingDebuff('Rising Sun Kick', 'Mark of the Crane', 5)" },
-	{ "Rushing Jade Wind", { "player.chi >= 1", "!lastcast(Rushing Jade Wind)", (function() return _GoodLastCast() end) }},
+	{ "Rising Sun Kick" },
+	{ "Rushing Jade Wind", { "player.chi >= 1", "!lastcast(Rushing Jade Wind)", goodLastCast }},
 	{{
 		{ "Chi Wave" }, -- 40 yard range 0 energy, 0 chi
 		{ "Chi Burst", "!player.moving" },
-	}, { "!player.buff(Serenity)" }},
+	}, { "!player.buff(Serenity)", "player.timetomax > 2" }},
 	{{
 		{ "@NOC.AoEMissingDebuff('Blackout Kick', 'Mark of the Crane', 5)", "player.buff(Blackout Kick!)" },
+		{ "Blackout Kick", "player.buff(Blackout Kick!)" },
   	{ "@NOC.AoEMissingDebuff('Blackout Kick', 'Mark of the Crane', 5)", "player.chi > 1" },
-	}, { "!lastcast(Blackout Kick)", (function() return _GoodLastCast() end) }},
+		{ "Blackout Kick", "player.chi > 1" },
+	}, { "!lastcast(Blackout Kick)", goodLastCast }},
 
-	{ "@NOC.AoEMissingDebuff('Tiger Palm', 'Mark of the Crane', 5)", { "!player.buff(Serenity)", "player.chidiff > 1", "!lastcast(Tiger Palm)", (function() return _GoodLastCast() end) }},
+	{ "@NOC.AoEMissingDebuff('Tiger Palm', 'Mark of the Crane', 5)", { "!player.buff(Serenity)", "player.chidiff > 1", "!lastcast(Tiger Palm)", goodLastCast }},
+	{ "Tiger Palm", { "!player.buff(Serenity)", "player.chidiff > 1", "!lastcast(Tiger Palm)", goodLastCast }},
+
 }
 
 local _ST = {
 	{ "Rising Sun Kick" },
-	{ "Rushing Jade Wind", { "player.chi > 1", "!lastcast(Rushing Jade Wind)", (function() return _GoodLastCast() end) }},
+	{ "Rushing Jade Wind", { "player.chi > 1", "!lastcast(Rushing Jade Wind)", goodLastCast }},
 	{{
 		{ "Chi Wave" }, -- 40 yard range 0 energy, 0 chi
 		{ "Chi Burst", "!player.moving" },
@@ -193,25 +199,25 @@ local _ST = {
 	{{
   	{ "Blackout Kick", "player.buff(Blackout Kick!)" },
   	{ "Blackout Kick", "player.chi > 1" },
-	}, { "!player.buff(Serenity)", "!lastcast(Blackout Kick)", (function() return _GoodLastCast() end) }},
-	{ "Tiger Palm", { "!player.buff(Serenity)", "player.chi <= 2", "!lastcast(Tiger Palm)", (function() return _GoodLastCast() end) }},
+	}, { "!player.buff(Serenity)", "!lastcast(Blackout Kick)", goodLastCast }},
+	{ "Tiger Palm", { "!player.buff(Serenity)", "player.chi <= 2", "!lastcast(Tiger Palm)", goodLastCast }},
 }
 
 local _Melee = {
 	{ 'Serenity', { "player.spell(Strike of the Windlord).cooldown <= 8", "player.spell(Rising Sun Kick).cooldown < 8", "player.spell(Fists of Fury).cooldown <= 3" }},
 	{ 'Serenity', { "player.spell(Rising Sun Kick).cooldown < 8", "player.spell(Fists of Fury).cooldown <= 3" }},
-	{ "Energizing Elixir", { "player.energy < 100", "player.chi <= 1", "!player.buff(Serenity)" }},
-	{ "Rushing Jade Wind", { "player.buff(Serenity)", "!lastcast(Rushing Jade Wind)", (function() return _GoodLastCast() end) }},
+	{ "Energizing Elixir", { "player.energydiff = 0", "player.chi <= 1", "!player.buff(Serenity)" }},
+	{ "Rushing Jade Wind", { "player.buff(Serenity)", "!lastcast(Rushing Jade Wind)", goodLastCast }},
 	{ "Strike of the Windlord" },
 	{ "Whirling Dragon Punch" },
 	{ "Fists of Fury" },
 
-	{_AoE, { 'player.area(8).enemies >= 3', 'modifier.multitarget' }},
-	{_ST, { 'player.area(8).enemies < 3' }},
+	{ _AoE, { 'player.area(8).enemies >= 1', 'modifier.multitarget' }},
+	{ _ST },
 
 	-- Last resort to keep using abilitites
-	{ "Blackout Kick", { "!lastcast(Blackout Kick)", (function() return _GoodLastCast() end) }},
-	{ "Tiger Palm", { "!lastcast(Tiger Palm)", (function() return _GoodLastCast() end) }},
+	{ "Blackout Kick", { "!lastcast(Blackout Kick)", goodLastCast }},
+	{ "Tiger Palm", { "!lastcast(Tiger Palm)", goodLastCast }},
 }
 
 NeP.Engine.registerRotation(269, '[|cff'..NeP.Interface.addonColor..'NoC|r] Monk - Windwalker',
@@ -223,6 +229,6 @@ NeP.Engine.registerRotation(269, '[|cff'..NeP.Interface.addonColor..'NoC|r] Monk
 		{_Cooldowns, 'modifier.cooldowns'},
 		{_SEF, { "target.range <= 5", (function() return F('SEF') end) }},
 		{_Openner, { "player.time < 16", "target.infront", (function() return F('opener') end) }},
-		{_Melee, { "target.range <= 5", "target.infront" }},
+		{_Melee, { "target.range <= 5" }},
 		{_Ranged, { "target.range > 8", "target.range <= 40", "target.infront" }},
 	}, _OOC, exeOnLoad)

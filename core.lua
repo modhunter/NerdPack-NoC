@@ -1,5 +1,5 @@
 NOC = {
-	Version = '1.5',
+	Version = '1.6',
 	Branch = 'master',
 	Interface = {
 		addonColor = 'A330C9',
@@ -26,6 +26,18 @@ function NOC.Splash()
 	return true
 end
 
+--math.randomseed( os.time() )
+local function shuffleTable( t )
+    local rand = math.random
+    assert( t, "shuffleTable() expected a table, got nil" )
+    local iterations = #t
+    local j
+
+    for i = iterations, 2, -1 do
+        j = rand(i)
+        t[i], t[j] = t[j], t[i]
+    end
+end
 
 
 NeP.library.register('NOC', {
@@ -34,16 +46,47 @@ NeP.library.register('NOC', {
 		if spell == nil or range == nil or NeP.DSL.Conditions['spell.cooldown']("player", 61304) ~= 0 then return false end
 		local spell = select(1,GetSpellInfo(spell))
 		if not IsUsableSpell(spell) then return false end
-		for i=1,#NeP.OM.unitEnemie do
-			local Obj = NeP.OM.unitEnemie[i]
+		local enemies = NeP.OM.unitEnemie
+		-- randomize the enemy table so that we don't get 'stuck' on the same unit everey time in the event that it's behind us and we can't actually cast on it
+		shuffleTable( enemies )
+		for i=1,#enemies do
+			local Obj = enemies[i]
 			if Obj.distance <= range and (UnitAffectingCombat(Obj.key) or Obj.is == 'dummy') then
 				local _,_,_,_,_,_,debuffDuration = UnitDebuff(Obj.key, debuff, nil, 'PLAYER')
 				if not debuffDuration or debuffDuration - GetTime() < 1.5 then
-					if UnitCanAttack('player', Obj.key) and NeP.Engine.SpellSanity(spell, Obj.key) and (NeP.TimeToDie(Obj.key) > 3) then
+					--print("AoEMissingDebuff: ATTEMPT "..spell.." against "..Obj.name.." ("..Obj.key..")".." - TTD="..NeP.TimeToDie(Obj.key));
+					-- if not NeP.Helpers.infront then
+					-- 	print("before check, infront is false")
+					-- end
+					-- if NeP.Engine.SpellSanity(spell, Obj.key) then
+					-- 	print("SpellSanity was true");
+					-- else
+					-- 	print("SpellSanity was false");
+					-- end
+					-- if NeP.Helpers.spellHasFailed[spell] then
+					-- 	print ("spellHasFailed["..spell.."] is true");
+					-- end
+					if (Obj.key ~= 'target') and UnitCanAttack('player', Obj.key) and NeP.Engine.SpellSanity(spell, Obj.key) and (NeP.TimeToDie(Obj.key) > 3) then
 						--print("AoEMissingDebuff: casting "..spell.." against "..Obj.name.." ("..Obj.key..")".." - TTD="..NeP.TimeToDie(Obj.key));
 						NeP.Engine.Cast_Queue(spell, Obj.key)
 						return true
 					end
+				end
+			end
+		end
+	end,
+
+	resDeadFriends = function(spell)
+		if spell == nil or NeP.DSL.Conditions['spell.cooldown']("player", 61304) ~= 0 then return false end
+		local spell = select(1,GetSpellInfo(spell))
+		if not IsUsableSpell(spell) then return false end
+		for i=1,#NeP.OM.unitFriend do
+			local Obj = NeP.OM.unitFriend[i]
+			if NeP.DSL.Conditions['spell.range'](Obj.key, spell) then
+				if UnitIsDeadOrGhost(Obj.key) then
+					print("resDeadFriends: casting "..spell.." against "..Obj.name.." ("..Obj.key..")");
+					NeP.Engine.Cast_Queue(spell, Obj.key)
+					return true
 				end
 			end
 		end
