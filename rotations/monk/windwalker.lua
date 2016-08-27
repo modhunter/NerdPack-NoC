@@ -170,10 +170,12 @@ local _Openner = {
 }
 
 local _AoE = {
+	-- TODO: constrain spinnking crane kick to >= 6 stacks, or (>=2 targets & >= 2 stacks)
 	{ 'Spinning Crane Kick', { '!lastcast(Spinning Crane Kick)', goodLastCast }},
 	{ "@NOC.AoEMissingDebuff('Rising Sun Kick', 'Mark of the Crane', 5)", (function() return F('auto_dot') end) },
 	{ "Rising Sun Kick" },
 	{ "Rushing Jade Wind", { "player.chi >= 1", "!lastcast(Rushing Jade Wind)", goodLastCast }},
+	-- TODO: add spinning crane kick here if >= 4 stacks, or >=2 targets
 	{{
 		{ "Chi Wave" }, -- 40 yard range 0 energy, 0 chi
 		{ "Chi Burst", "!player.moving" },
@@ -191,8 +193,10 @@ local _AoE = {
 }
 
 local _ST = {
+	-- TODO: add spinning crane kick here if >= 6 stacks, or (>=2 targets & >= 2 stacks)
 	{ "Rising Sun Kick" },
 	{ "Rushing Jade Wind", { "player.chi > 1", "!lastcast(Rushing Jade Wind)", goodLastCast }},
+	-- TODO: add spinning crane kick here if >= 4 stacks, or >=2 targets
 	{{
 		{ "Chi Wave" }, -- 40 yard range 0 energy, 0 chi
 		{ "Chi Burst", "!player.moving" },
@@ -207,14 +211,20 @@ local _ST = {
 local _Melee = {
 	{ 'Serenity', { "player.spell(Strike of the Windlord).cooldown <= 8", "player.spell(Rising Sun Kick).cooldown < 8", "player.spell(Fists of Fury).cooldown <= 3" }},
 	{ 'Serenity', { "player.spell(Rising Sun Kick).cooldown < 8", "player.spell(Fists of Fury).cooldown <= 3" }},
-	{ "Energizing Elixir", { "player.energydiff = 0", "player.chi <= 1", "!player.buff(Serenity)" }},
+	{ "Energizing Elixir", { "player.energydiff > 0", "player.chi <= 1", "!player.buff(Serenity)" }},
 	{ "Rushing Jade Wind", { "player.buff(Serenity)", "!lastcast(Rushing Jade Wind)", goodLastCast }},
 	{ "Strike of the Windlord" },
+	-- TODO: add spinning crane kick here if >= 17 stacks
 	{ "Whirling Dragon Punch" },
+	-- TODO: add spinning crane kick here if >= 12 stacks
 	{ "Fists of Fury" },
 
 	{ _AoE, { 'player.area(8).enemies >= 3', 'modifier.multitarget' }},
 	{ _ST },
+
+	-- TODO: Add some crackling jade lightning trickery when at full energy to avoid several wasted GCDs of auto-attackingf due to hit combo constraints, perhaps:
+	-- cancel cast of CJL if player.energydiff = 0 & ????? (some other necessary constraint)
+	-- cast CJL if player.energydiff = 0 and not goodLastCast,
 
 	-- Last resort to keep using abilitites
 	{ "Blackout Kick", { "!lastcast(Blackout Kick)", goodLastCast }},
