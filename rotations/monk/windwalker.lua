@@ -219,6 +219,10 @@ local _Melee = {
 	-- Last resort to keep using abilitites
 	{ "Blackout Kick", { "!lastcast(Blackout Kick)", goodLastCast }},
 	{ "Tiger Palm", { "!lastcast(Tiger Palm)", goodLastCast }},
+	{{
+		{ "Blackout Kick" },
+		{ "Tiger Palm" },
+	}, "!player.buff(Hit Combo)" },
 }
 
 NeP.Engine.registerRotation(269, '[|cff'..NeP.Interface.addonColor..'NoC|r] Monk - Windwalker',
