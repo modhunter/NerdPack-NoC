@@ -13,8 +13,9 @@ local config = {
 			{type = 'checkbox', text = 'SEF', key = 'SEF', default = true},
 			{type = 'checkbox', text = 'Opener', key = 'opener', default = true},
 			{type = 'checkbox', text = 'Automatic CJL', key = 'auto_cjl', default = true},
-			{type = 'checkbox', text = 'Automatic Res', key = 'auto_res', default = false},
 			{type = 'checkbox', text = 'Automatic Mark of the Crane Dotting', key = 'auto_dot', default = false},
+			{type = 'checkbox', text = 'Smart RJW usage during single-target rotation', key = 'smart_rjw', default = true},
+			{type = 'checkbox', text = 'Automatic Res', key = 'auto_res', default = false},
 			--{type = 'checkbox', text = 'Automatic Pre-Pot', key = 'auto_pot', default = false},
 			{type = 'checkbox', text = '5 min DPS test', key = 'dpstest', default = false},
 
@@ -63,6 +64,7 @@ local MasterySpells = {
 	[123986] = '', -- Chi Burst
 	[116847] = '', -- Rushing Jade Wind
 	[152175] = '', -- Whirling Dragon Punch
+	[117952] = '', -- Crackling Jade Lightning
 }
 local goodLastCast = function()
 	local _, _, _, _, _, _, spellID = GetSpellInfo(NeP.Engine.lastCast)
@@ -76,6 +78,8 @@ end
 local effuse = function()
 	return E('player.health <= ' .. F('effuse'))
 end
+
+
 
 local _OOC = {
 	{ "Effuse", { "player.health < 90", "player.lastmoved >= 1", "!player.combat" }, "player" },
@@ -91,8 +95,10 @@ local _All = {
 	{ "Leg Sweep", "modifier.lcontrol" },
   { "Touch of Karma", "modifier.lalt" },
 
-	-- TODO: turn off engine
-	{ "/stopcasting\n/stopattack\n/cleartarget\n/stopattack\n/cleartarget", { "player.time >= 300", (function() return F('dpstest') end) }},
+	{ "/stopcasting\n/stopattack\n/cleartarget\n/stopattack\n/cleartarget\n/nep mt", { "player.time >= 300", (function() return F('dpstest') end) }},
+
+	-- Cancel CJL when we're in melee range and having cast at least 1 second (delta < 2)- to help with controlling Hit Combo stuff.
+	{"!/stopcasting", { "target.range <= 5", "player.casting(Crackling Jade Lightning)", "player.casting.delta < 2" }},
 
 	-- FREEDOOM!
 	{ "116841", 'player.state.disorient' }, -- Tiger's Lust = 116841
@@ -110,7 +116,7 @@ local _Cooldowns = {
 	-- Use Xuen only while hero or potion is active
 	{ "Invoke Xuen, the White Tiger", "player.hashero" },
 	{ "Invoke Xuen, the White Tiger", "player.buff(156423)" }, -- Draenic Agility Potion (WoD)
-	--{ "Invoke Xuen, the White Tiger", "player.buff(188027)" }, -- Potion of Deadly Grace (Legion)
+	{ "Invoke Xuen, the White Tiger", "player.buff(188027)" }, -- Potion of Deadly Grace (Legion)
 }
 
 local _Survival = {
@@ -157,6 +163,7 @@ local _Ranged = {
 }
 
 local _Openner = {
+	{ (function() print('in openner: '..GetTime()); end) },
 	{ "Fists of Fury", { "player.buff(Serenity)", "player.buff(Serenity).duration < 1.5" }},
 	{ "Rising Sun Kick" },
 
@@ -170,12 +177,11 @@ local _Openner = {
 }
 
 local _AoE = {
-	-- TODO: constrain spinnking crane kick to >= 6 stacks, or (>=2 targets & >= 2 stacks)
-	{ 'Spinning Crane Kick', { '!lastcast(Spinning Crane Kick)', goodLastCast }},
+	{ 'Spinning Crane Kick', { '!lastcast(Spinning Crane Kick)', goodLastCast, "player.spell(Spinning Crane Kick).count >= 2" }},
 	{ "@NOC.AoEMissingDebuff('Rising Sun Kick', 'Mark of the Crane', 5)", (function() return F('auto_dot') end) },
 	{ "Rising Sun Kick" },
 	{ "Rushing Jade Wind", { "player.chi >= 1", "!lastcast(Rushing Jade Wind)", goodLastCast }},
-	-- TODO: add spinning crane kick here if >= 4 stacks, or >=2 targets
+	{ 'Spinning Crane Kick', { '!lastcast(Spinning Crane Kick)', goodLastCast, "player.spell(Spinning Crane Kick).count >= 4" }},
 	{{
 		{ "Chi Wave" }, -- 40 yard range 0 energy, 0 chi
 		{ "Chi Burst", "!player.moving" },
@@ -193,10 +199,10 @@ local _AoE = {
 }
 
 local _ST = {
-	-- TODO: add spinning crane kick here if >= 6 stacks, or (>=2 targets & >= 2 stacks)
+	{ 'Spinning Crane Kick', { (function() return F('smart_rjw') end), '!lastcast(Spinning Crane Kick)', goodLastCast, { "player.spell(Spinning Crane Kick).count >= 6", "or", { "player.spell(Spinning Crane Kick).count >= 2", "player.area(8).enemies >= 2" }}}},
 	{ "Rising Sun Kick" },
 	{ "Rushing Jade Wind", { "player.chi > 1", "!lastcast(Rushing Jade Wind)", goodLastCast }},
-	-- TODO: add spinning crane kick here if >= 4 stacks, or >=2 targets
+	{ 'Spinning Crane Kick', { (function() return F('smart_rjw') end), '!lastcast(Spinning Crane Kick)', goodLastCast, { "player.spell(Spinning Crane Kick).count >= 4", "or", "player.area(8).enemies >= 2" }}},
 	{{
 		{ "Chi Wave" }, -- 40 yard range 0 energy, 0 chi
 		{ "Chi Burst", "!player.moving" },
@@ -214,25 +220,24 @@ local _Melee = {
 	{ "Energizing Elixir", { "player.energydiff > 0", "player.chi <= 1", "!player.buff(Serenity)" }},
 	{ "Rushing Jade Wind", { "player.buff(Serenity)", "!lastcast(Rushing Jade Wind)", goodLastCast }},
 	{ "Strike of the Windlord" },
-	-- TODO: add spinning crane kick here if >= 17 stacks
+	{ 'Spinning Crane Kick', { (function() return F('smart_rjw') end), '!lastcast(Spinning Crane Kick)', goodLastCast, { "player.spell(Spinning Crane Kick).count >= 17" }}},
 	{ "Whirling Dragon Punch" },
-	-- TODO: add spinning crane kick here if >= 12 stacks
+	{ 'Spinning Crane Kick', { (function() return F('smart_rjw') end), '!lastcast(Spinning Crane Kick)', goodLastCast, { "player.spell(Spinning Crane Kick).count >= 12" }}},
 	{ "Fists of Fury" },
 
 	{ _AoE, { 'player.area(8).enemies >= 3', 'modifier.multitarget' }},
 	{ _ST },
 
-	-- TODO: Add some crackling jade lightning trickery when at full energy to avoid several wasted GCDs of auto-attackingf due to hit combo constraints, perhaps:
-	-- cancel cast of CJL if player.energydiff = 0 & ????? (some other necessary constraint)
-	-- cast CJL if player.energydiff = 0 and not goodLastCast,
+	-- CJL when we're using Hit Combo as a last resort, and perhaps with other constraints like "GoodLastCast"
+	{ "Crackling Jade Lightning", { "!lastcast(Crackling Jade Lightning)", goodLastCast }},
 
 	-- Last resort to keep using abilitites
-	{ "Blackout Kick", { "!lastcast(Blackout Kick)", goodLastCast }},
-	{ "Tiger Palm", { "!lastcast(Tiger Palm)", goodLastCast }},
-	{{
-		{ "Blackout Kick" },
-		{ "Tiger Palm" },
-	}, "!player.buff(Hit Combo)" },
+	-- { "Blackout Kick", { "!lastcast(Blackout Kick)", goodLastCast }},
+	-- { "Tiger Palm", { "!lastcast(Tiger Palm)", goodLastCast }},
+	-- {{
+	-- 	{ "Blackout Kick" },
+	-- 	{ "Tiger Palm" },
+	-- }, "!player.buff(Hit Combo)" },
 }
 
 NeP.Engine.registerRotation(269, '[|cff'..NeP.Interface.addonColor..'NoC|r] Monk - Windwalker',
@@ -243,7 +248,7 @@ NeP.Engine.registerRotation(269, '[|cff'..NeP.Interface.addonColor..'NoC|r] Monk
 		{_Interrupts, {'target.interruptAt(40)', "target.infront" }},
 		{_Cooldowns, 'modifier.cooldowns'},
 		{_SEF, { "target.range <= 5", (function() return F('SEF') end) }},
-		{_Openner, { "player.time < 16", "target.infront", (function() return F('opener') end) }},
+		{_Openner, { (function() return F('opener') end), "player.time < 16", "or", { "player.spell(Fists of Fury).casted = 0", "player.spell(Rising Sun Kick).casted = 0", "player.spell(Blackout Kick).casted = 0", "player.spell(Serenity).casted = 0", "player.spell(Tiger Palm).casted = 0"  }}},
 		{_Melee, { "target.range <= 5" }},
 		{_Ranged, { "target.range > 8", "target.range <= 40", "target.infront" }},
 	}, _OOC, exeOnLoad)
