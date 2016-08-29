@@ -1,3 +1,5 @@
+-- Syncronized with simc APL as of simc commit 2d8f9afd71e21254ced2891789722ff1970f57d4
+
 local mKey = 'NoC_Monk_WW'
 local config = {
 	key = mKey,
@@ -13,6 +15,7 @@ local config = {
 			{type = 'checkbox', text = 'SEF', key = 'SEF', default = true},
 			{type = 'checkbox', text = 'Opener', key = 'opener', default = true},
 			{type = 'checkbox', text = 'Automatic CJL', key = 'auto_cjl', default = true},
+			{type = 'checkbox', text = 'Automatic Chi Wave at pull', key = 'auto_cw', default = true},
 			{type = 'checkbox', text = 'Automatic Mark of the Crane Dotting', key = 'auto_dot', default = false},
 			{type = 'checkbox', text = 'Smart RJW usage during single-target rotation', key = 'smart_rjw', default = true},
 			{type = 'checkbox', text = 'Automatic Res', key = 'auto_res', default = false},
@@ -24,6 +27,7 @@ local config = {
 		{type = 'header', text = 'Survival', align = 'center'},
 		{type = 'spinner', text = 'Healthstone & Healing Tonic', key = 'Healthstone', default = 35},
 		{type = 'spinner', text = 'Effuse', key = 'effuse', default = 30},
+		{type = 'spinner', text = 'Healing Elixir', key = 'Healing Elixir', default = 70},
 	}
 }
 
@@ -75,6 +79,10 @@ local healthstn = function()
 	return E('player.health <= ' .. F('Healthstone'))
 end
 
+local HealingElixir = function()
+	return E('player.health <= ' .. F('Healing Elixir'))
+end
+
 local effuse = function()
 	return E('player.health <= ' .. F('effuse'))
 end
@@ -121,6 +129,8 @@ local _Cooldowns = {
 
 local _Survival = {
 	{ "Effuse", { "player.energy >= 60", "player.lastmoved >= 0.5", effuse }, "player" },
+	{ "Healing Elixir", { "player.spell(Healing Elixir).charges >= 2", "or", { "player.spell(Healing Elixir).charges = 1", "player.spell(Healing Elixir).cooldown < 3" }, "!lastcast(Healing Elixir)", HealingElixir }, "player" },
+
 	-- TODO: Update for legion's equivillant to healing tonic 109223
 	{ "#109223", healthstn, "player" }, -- Healing Tonic
 	{ '#5512', healthstn, "player" }, -- Healthstone
@@ -159,11 +169,12 @@ local _SEF = {
 
 local _Ranged = {
 	{ "116841", { "player.movingfor > 0.5", "target.alive" }},
-	{ "Crackling Jade Lightning", { "!player.moving", (function() return F('auto_cjl') end) }},
+	{ "Crackling Jade Lightning", { (function() return F('auto_cjl') end), "!player.moving", "player.time > 4" }},
+	{ "Chi Wave", { (function() return F('auto_cw') end), "player.time <= 4", "target.range > 8" }},
 }
 
 local _Openner = {
-	{ (function() print('in openner: '..GetTime()); end) },
+	--{ (function() print('in openner: '..GetTime()); end) },
 	{ "Fists of Fury", { "player.buff(Serenity)", "player.buff(Serenity).duration < 1.5" }},
 	{ "Rising Sun Kick" },
 
@@ -248,7 +259,7 @@ NeP.Engine.registerRotation(269, '[|cff'..NeP.Interface.addonColor..'NoC|r] Monk
 		{_Interrupts, {'target.interruptAt(40)', "target.infront" }},
 		{_Cooldowns, 'modifier.cooldowns'},
 		{_SEF, { "target.range <= 5", (function() return F('SEF') end) }},
-		{_Openner, { (function() return F('opener') end), "player.time < 16", "or", { "player.spell(Fists of Fury).casted = 0", "player.spell(Rising Sun Kick).casted = 0", "player.spell(Blackout Kick).casted = 0", "player.spell(Serenity).casted = 0", "player.spell(Tiger Palm).casted = 0"  }}},
+		{_Openner, { (function() return F('opener') end), "player.time < 10" }},
 		{_Melee, { "target.range <= 5" }},
 		{_Ranged, { "target.range > 8", "target.range <= 40", "target.infront" }},
 	}, _OOC, exeOnLoad)
