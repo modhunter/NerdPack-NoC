@@ -239,27 +239,29 @@ local _Melee = {
 	{ _AoE, { 'player.area(8).enemies >= 3', 'modifier.multitarget' }},
 	{ _ST },
 
+	-- Last resort to keep using abilitites
+	{ "Blackout Kick", { "!lastcast(Blackout Kick)", goodLastCast }},
+	{ "Tiger Palm", { "!lastcast(Tiger Palm)", goodLastCast }},
+	{{
+		{ "Blackout Kick" },
+		{ "Tiger Palm" },
+	}, "!player.buff(Hit Combo)" },
+
 	-- CJL when we're using Hit Combo as a last resort, and perhaps with other constraints like "GoodLastCast"
 	{ "Crackling Jade Lightning", { "!lastcast(Crackling Jade Lightning)", goodLastCast }},
 
-	-- Last resort to keep using abilitites
-	-- { "Blackout Kick", { "!lastcast(Blackout Kick)", goodLastCast }},
-	-- { "Tiger Palm", { "!lastcast(Tiger Palm)", goodLastCast }},
-	-- {{
-	-- 	{ "Blackout Kick" },
-	-- 	{ "Tiger Palm" },
-	-- }, "!player.buff(Hit Combo)" },
+	--{ (function() print('I have nothing to do ('..GetTime()..')'); end) },
 }
 
 NeP.Engine.registerRotation(269, '[|cff'..NeP.Interface.addonColor..'NoC|r] Monk - Windwalker',
 	{ -- In-Combat
-		{'pause', 'modifier.shift'},
+		--{'pause', 'modifier.shift'},
 		{_All},
 		{_Survival, 'player.health < 100'},
-		{_Interrupts, {'target.interruptAt(40)', "target.infront" }},
+		{_Interrupts, {'target.interruptAt(40)' }},
 		{_Cooldowns, 'modifier.cooldowns'},
 		{_SEF, { "target.range <= 5", (function() return F('SEF') end) }},
 		{_Openner, { (function() return F('opener') end), "player.time < 10" }},
 		{_Melee, { "target.range <= 5" }},
-		{_Ranged, { "target.range > 8", "target.range <= 40", "target.infront" }},
+		{_Ranged, { "target.range > 8", "target.range <= 40" }},
 	}, _OOC, exeOnLoad)

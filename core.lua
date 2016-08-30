@@ -68,7 +68,7 @@ NeP.library.register('NOC', {
 					-- end
 					--if (Obj.key ~= 'target') and UnitCanAttack('player', Obj.key) and NeP.Helpers.SpellSanity(spell, Obj.key) and (NeP.TimeToDie(Obj.key) > 3) then
 					if (Obj.key ~= 'target') and (NeP.TimeToDie(Obj.key) > 3) then
-						--print("AoEMissingDebuff: casting "..spell.." against "..Obj.name.." ("..Obj.key.." - "..Obj.guid..") - TTD="..NeP.TimeToDie(Obj.key));
+						print("AoEMissingDebuff: casting "..spell.." against "..Obj.name.." ("..Obj.key.." - "..Obj.guid..") - TTD="..NeP.TimeToDie(Obj.key));
 						NeP.Engine.Cast_Queue(spell, Obj.key)
 						return true
 					end
