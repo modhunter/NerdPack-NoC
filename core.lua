@@ -26,6 +26,19 @@ function NOC.Splash()
 	return true
 end
 
+function NOC.tt()
+	if NeP.Protected.Unlocker and UnitAffectingCombat('player') then
+		NeP.Engine.Cast_Queue('Transcendence: Transfer', 'player')
+	end
+end
+
+function NOC.ts()
+	if NeP.Protected.Unlocker and UnitAffectingCombat('player') then
+		NeP.Engine.Cast_Queue('Transcendence', 'player') 
+	end
+end
+
+
 --math.randomseed( os.time() )
 local function shuffleTable( t )
     local rand = math.random

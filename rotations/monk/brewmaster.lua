@@ -91,6 +91,7 @@ end
 local _All = {
 	-- Keybinds
 	{'Summon Black Ox Statue', 'modifier.lalt', "mouseover.ground"},
+	{ "Leg Sweep", "modifier.lcontrol" },
 
 	-- Nimble Brew if pvp talent taken
 	{'137648', 'player.state.disorient'},

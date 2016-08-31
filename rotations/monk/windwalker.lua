@@ -93,7 +93,7 @@ local _OOC = {
 	{ "Effuse", { "player.health < 90", "player.lastmoved >= 1", "!player.combat" }, "player" },
 
 	-- Automatic res of dead party members
-	--{ "@NOC.resDeadFriends('Resuscitate')", (function() return F('auto_res') end) },
+	{ "@NOC.resDeadFriends('Resuscitate')", (function() return F('auto_res') end) },
 
 	-- TODO: Add support for (optional) automatic potion use w/pull timer
 }
@@ -106,7 +106,7 @@ local _All = {
 	{ "/stopcasting\n/stopattack\n/cleartarget\n/stopattack\n/cleartarget\n/nep mt", { "player.time >= 300", (function() return F('dpstest') end) }},
 
 	-- Cancel CJL when we're in melee range and having cast at least 1 second (delta < 2)- to help with controlling Hit Combo stuff.
-	--{"!/stopcasting", { "target.range <= 5", "player.casting(Crackling Jade Lightning)", "player.casting.delta < 2" }},
+	{"!/stopcasting", { "target.range <= 5", "player.casting(Crackling Jade Lightning)", "player.casting.delta < 2" }},
 
 	-- FREEDOOM!
 	{ "116841", 'player.state.disorient' }, -- Tiger's Lust = 116841
@@ -116,26 +116,25 @@ local _All = {
 }
 
 local _Cooldowns = {
-	{ "Touch of Death" },
-	--{ "Touch of Death", "!player.spell.usable(Gale Burst)" },
-	--{ "Touch of Death", { "player.spell.usable(Gale Burst)", "player.spell(Strike of the Windlord).cooldown <= 8", "player.spell(Fists of Fury).cooldown <= 3", "player.spell(Rising Sun Kick).cooldown < 8" }},
+	{ "Touch of Death", "!player.spell.usable(Gale Burst)" },
+	{ "Touch of Death", { "player.spell.usable(Gale Burst)", "player.spell(Strike of the Windlord).cooldown <= 8", "player.spell(Fists of Fury).cooldown <= 3", "player.spell(Rising Sun Kick).cooldown < 8" }},
 	{ "Lifeblood" },
 	{ "Berserking" },
 	{ "Blood Fury" },
 	-- Use Xuen only while hero or potion is active
 	{ "Invoke Xuen, the White Tiger", "player.hashero" },
 	{ "Invoke Xuen, the White Tiger", "player.buff(156423)" }, -- Draenic Agility Potion (WoD)
-	--{ "Invoke Xuen, the White Tiger", "player.buff(188027)" }, -- Potion of Deadly Grace (Legion)
+	{ "Invoke Xuen, the White Tiger", "player.buff(188027)" }, -- Potion of Deadly Grace (Legion)
 }
 
 local _Survival = {
 	{ "Effuse", { "player.energy >= 60", "player.lastmoved >= 0.5", effuse }, "player" },
-	--{ "Healing Elixir", { "player.spell(Healing Elixir).charges >= 2", "or", { "player.spell(Healing Elixir).charges = 1", "player.spell(Healing Elixir).cooldown < 3" }, "!lastcast(Healing Elixir)", HealingElixir }, "player" },
+	{ "Healing Elixir", { "player.spell(Healing Elixir).charges >= 2", "or", { "player.spell(Healing Elixir).charges = 1", "player.spell(Healing Elixir).cooldown < 3" }, "!lastcast(Healing Elixir)", HealingElixir }, "player" },
 
 	-- TODO: Update for legion's equivillant to healing tonic 109223
 	{ "#109223", healthstn, "player" }, -- Healing Tonic
 	{ '#5512', healthstn, "player" }, -- Healthstone
-	--{ "Detox", "player.dispellable(Detox)", "player" },
+	{ "Detox", "player.dispellable(Detox)", "player" },
 }
 
 local _Interrupts = {
@@ -190,7 +189,7 @@ local _Openner = {
 
 local _AoE = {
 	{ 'Spinning Crane Kick', { '!lastcast(Spinning Crane Kick)', goodLastCast, "player.spell(Spinning Crane Kick).count >= 2" }},
-	--{ "@NOC.AoEMissingDebuff('Rising Sun Kick', 'Mark of the Crane', 5)", (function() return F('auto_dot') end) },
+	{ "@NOC.AoEMissingDebuff('Rising Sun Kick', 'Mark of the Crane', 5)", (function() return F('auto_dot') end) },
 	{ "Rising Sun Kick" },
 	{ "Rushing Jade Wind", { "player.chi >= 1", "!lastcast(Rushing Jade Wind)", goodLastCast }},
 	{ 'Spinning Crane Kick', { '!lastcast(Spinning Crane Kick)', goodLastCast, "player.spell(Spinning Crane Kick).count >= 4" }},
@@ -199,22 +198,22 @@ local _AoE = {
 		{ "Chi Burst", "!player.moving" },
 	}, { "!player.buff(Serenity)", "player.timetomax > 2" }},
 	{{
-		--{ "@NOC.AoEMissingDebuff('Blackout Kick', 'Mark of the Crane', 5)", { "player.buff(Blackout Kick!)", (function() return F('auto_dot') end) }},
+		{ "@NOC.AoEMissingDebuff('Blackout Kick', 'Mark of the Crane', 5)", { "player.buff(Blackout Kick!)", (function() return F('auto_dot') end) }},
 		{ "Blackout Kick", "player.buff(Blackout Kick!)" },
-  	--{ "@NOC.AoEMissingDebuff('Blackout Kick', 'Mark of the Crane', 5)", { "player.chi > 1", (function() return F('auto_dot') end) }},
+  	{ "@NOC.AoEMissingDebuff('Blackout Kick', 'Mark of the Crane', 5)", { "player.chi > 1", (function() return F('auto_dot') end) }},
 		{ "Blackout Kick", "player.chi > 1" },
 	}, { "!lastcast(Blackout Kick)", goodLastCast }},
 
-	--{ "@NOC.AoEMissingDebuff('Tiger Palm', 'Mark of the Crane', 5)", { "!player.buff(Serenity)", "player.chidiff > 1", (function() return F('auto_dot') end), "!lastcast(Tiger Palm)", goodLastCast }},
+	{ "@NOC.AoEMissingDebuff('Tiger Palm', 'Mark of the Crane', 5)", { "!player.buff(Serenity)", "player.chidiff > 1", (function() return F('auto_dot') end), "!lastcast(Tiger Palm)", goodLastCast }},
 	{ "Tiger Palm", { "!player.buff(Serenity)", "player.chidiff > 1", "!lastcast(Tiger Palm)", goodLastCast }},
 
 }
 
 local _ST = {
-	--{ 'Spinning Crane Kick', { (function() return F('smart_rjw') end), '!lastcast(Spinning Crane Kick)', goodLastCast, { "player.spell(Spinning Crane Kick).count >= 6", "or", { "player.spell(Spinning Crane Kick).count >= 2", "player.area(8).enemies >= 2" }}}},
+	{ 'Spinning Crane Kick', { (function() return F('smart_rjw') end), '!lastcast(Spinning Crane Kick)', goodLastCast, { "player.spell(Spinning Crane Kick).count >= 6", "or", { "player.spell(Spinning Crane Kick).count >= 2", "player.area(8).enemies >= 2" }}}},
 	{ "Rising Sun Kick" },
 	{ "Rushing Jade Wind", { "player.chi > 1", "!lastcast(Rushing Jade Wind)", goodLastCast }},
-	--{ 'Spinning Crane Kick', { (function() return F('smart_rjw') end), '!lastcast(Spinning Crane Kick)', goodLastCast, { "player.spell(Spinning Crane Kick).count >= 4", "or", "player.area(8).enemies >= 2" }}},
+	{ 'Spinning Crane Kick', { (function() return F('smart_rjw') end), '!lastcast(Spinning Crane Kick)', goodLastCast, { "player.spell(Spinning Crane Kick).count >= 4", "or", "player.area(8).enemies >= 2" }}},
 	{{
 		{ "Chi Wave" }, -- 40 yard range 0 energy, 0 chi
 		{ "Chi Burst", "!player.moving" },
@@ -232,9 +231,9 @@ local _Melee = {
 	--{ "Energizing Elixir", { "player.energydiff > 0", "player.chi <= 1", "!player.buff(Serenity)" }},
 	{ "Rushing Jade Wind", { "player.buff(Serenity)", "!lastcast(Rushing Jade Wind)", goodLastCast }},
 	{ "Strike of the Windlord" },
-	--{ 'Spinning Crane Kick', { (function() return F('smart_rjw') end), '!lastcast(Spinning Crane Kick)', goodLastCast, { "player.spell(Spinning Crane Kick).count >= 17" }}},
+	{ 'Spinning Crane Kick', { (function() return F('smart_rjw') end), '!lastcast(Spinning Crane Kick)', goodLastCast, { "player.spell(Spinning Crane Kick).count >= 17" }}},
 	{ "Whirling Dragon Punch" },
-	--{ 'Spinning Crane Kick', { (function() return F('smart_rjw') end), '!lastcast(Spinning Crane Kick)', goodLastCast, { "player.spell(Spinning Crane Kick).count >= 12" }}},
+	{ 'Spinning Crane Kick', { (function() return F('smart_rjw') end), '!lastcast(Spinning Crane Kick)', goodLastCast, { "player.spell(Spinning Crane Kick).count >= 12" }}},
 	{ "Fists of Fury" },
 
 	{ _AoE, { 'player.area(8).enemies >= 3', 'modifier.multitarget' }},
@@ -249,7 +248,7 @@ local _Melee = {
 	}, "!player.buff(Hit Combo)" },
 
 	-- CJL when we're using Hit Combo as a last resort, and perhaps with other constraints like "GoodLastCast"
-	--{ "Crackling Jade Lightning", { "!lastcast(Crackling Jade Lightning)", goodLastCast }},
+	{ "Crackling Jade Lightning", { "!lastcast(Crackling Jade Lightning)", goodLastCast }},
 
 	--{ (function() print('I have nothing to do ('..GetTime()..')'); end) },
 }
