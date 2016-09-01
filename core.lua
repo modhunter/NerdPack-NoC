@@ -34,7 +34,7 @@ end
 
 function NOC.ts()
 	if NeP.Protected.Unlocker and UnitAffectingCombat('player') then
-		NeP.Engine.Cast_Queue('Transcendence', 'player') 
+		NeP.Engine.Cast_Queue('Transcendence', 'player')
 	end
 end
 
@@ -52,6 +52,40 @@ local function shuffleTable( t )
     end
 end
 
+local MasterySpells = {
+	[100784] = '', -- Blackout Kick
+	[113656] = '', -- Fists of Fury
+	[101545] = '', -- Flying Serpent Kick
+	[107428] = '', -- Rising Sun Kick
+	[101546] = '', -- Spinning Crane Kick
+	[205320] = '', -- Strike of the Windlord
+	[100780] = '', -- Tiger Palm
+	[115080] = '', -- Touch of Death
+	[115098] = '', -- Chi Wave
+	[123986] = '', -- Chi Burst
+	[116847] = '', -- Rushing Jade Wind
+	[152175] = '', -- Whirling Dragon Punch
+	[117952] = '', -- Crackling Jade Lightning
+}
+local NOC.HitComboLastCast = ''
+
+NeP.Timer.Sync("windwalker_sync", function()
+	local Running = NeP.DSL.get('toggle')('mastertoggle')
+	if Running then
+		if NeP.Engine.SelectedCR then
+			if not NeP.Engine.forcePause then
+				local _, _, _, _, _, _, spellID = GetSpellInfo(NeP.Engine.lastCast)
+				if spellID then
+					if MasterySpells[spellID] ~= nil then
+						-- If NeP.Engine.lastCast is in the MasterySpells list, set HitComboLastCast to this spellID
+						NOC.HitComboLastCast = spellID
+						--print("windwalker_sync flagging "..NeP.Engine.lastCast);
+					end
+				end
+			end
+		end
+	end
+end, 99)
 
 NeP.library.register('NOC', {
 
@@ -114,6 +148,35 @@ NeP.library.register('NOC', {
 	--   else
 	--     return false;
 	--   end
+	-- end,
+
+	hitcombo = function(spell)
+		--return true
+		local spell = spell
+		if spell then
+			local _, _, _, _, _, _, spellID = GetSpellInfo(spell)
+			if Parse('player.buff(Hit Combo)') then
+				-- we're using hit combo and need to check if the spell we've passed-in is in the list
+				if NOC.HitComboLastCast == spellID then
+					-- If the passed-spell is in the list as flagged, we need to exit false
+					print('hitcombo('..spell..') and it is was flagged ('..NOC.HitComboLastCast..'), returning false');
+					return false
+				end
+			end
+			return true
+		else
+			return true
+		end
+		print('hitcombo('..spell..') was not found, returning false');
+		return false
+	end,
+
+	-- flagLastcast = function()
+	-- 	local _, _, _, _, _, _, spellID = GetSpellInfo(NeP.Engine.lastCast)
+	-- 	if spellID and MasterySpells[spellID] then
+	-- 		MasterySpells[spellID] = 1
+	-- 	end
+	-- 	return true
 	-- end,
 
 })
