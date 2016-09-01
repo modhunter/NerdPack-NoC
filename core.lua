@@ -67,7 +67,7 @@ local MasterySpells = {
 	[152175] = '', -- Whirling Dragon Punch
 	[117952] = '', -- Crackling Jade Lightning
 }
-local NOC.HitComboLastCast = ''
+local HitComboLastCast = ''
 
 NeP.Timer.Sync("windwalker_sync", function()
 	local Running = NeP.DSL.get('toggle')('mastertoggle')
@@ -78,7 +78,7 @@ NeP.Timer.Sync("windwalker_sync", function()
 				if spellID then
 					if MasterySpells[spellID] ~= nil then
 						-- If NeP.Engine.lastCast is in the MasterySpells list, set HitComboLastCast to this spellID
-						NOC.HitComboLastCast = spellID
+						HitComboLastCast = spellID
 						--print("windwalker_sync flagging "..NeP.Engine.lastCast);
 					end
 				end
@@ -157,9 +157,9 @@ NeP.library.register('NOC', {
 			local _, _, _, _, _, _, spellID = GetSpellInfo(spell)
 			if Parse('player.buff(Hit Combo)') then
 				-- we're using hit combo and need to check if the spell we've passed-in is in the list
-				if NOC.HitComboLastCast == spellID then
+				if HitComboLastCast == spellID then
 					-- If the passed-spell is in the list as flagged, we need to exit false
-					print('hitcombo('..spell..') and it is was flagged ('..NOC.HitComboLastCast..'), returning false');
+					print('hitcombo('..spell..') and it is was flagged ('..HitComboLastCast..'), returning false');
 					return false
 				end
 			end
