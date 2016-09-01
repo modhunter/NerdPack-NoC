@@ -228,7 +228,7 @@ local _ST = {
 local _Melee = {
 	{ 'Serenity', { "player.spell(Strike of the Windlord).cooldown <= 8", "player.spell(Rising Sun Kick).cooldown < 8", "player.spell(Fists of Fury).cooldown <= 3" }},
 	{ 'Serenity', { "player.spell(Rising Sun Kick).cooldown < 8", "player.spell(Fists of Fury).cooldown <= 3" }},
-	--{ "Energizing Elixir", { "player.energydiff > 0", "player.chi <= 1", "!player.buff(Serenity)" }},
+	{ "Energizing Elixir", { "player.energydiff > 0", "player.chi <= 1", "!player.buff(Serenity)" }},
 	{ "Rushing Jade Wind", { "player.buff(Serenity)", "!lastcast(Rushing Jade Wind)", goodLastCast }},
 	{ "Strike of the Windlord" },
 	{ 'Spinning Crane Kick', { (function() return F('smart_rjw') end), '!lastcast(Spinning Crane Kick)', goodLastCast, { "player.spell(Spinning Crane Kick).count >= 17" }}},
@@ -240,15 +240,15 @@ local _Melee = {
 	{ _ST },
 
 	-- Last resort to keep using abilitites
-	{ "Blackout Kick", { "!lastcast(Blackout Kick)", goodLastCast }},
-	{ "Tiger Palm", { "!lastcast(Tiger Palm)", goodLastCast }},
-	{{
-		{ "Blackout Kick" },
-		{ "Tiger Palm" },
-	}, "!player.buff(Hit Combo)" },
+	-- { "Blackout Kick", { "!lastcast(Blackout Kick)", goodLastCast }},
+	-- { "Tiger Palm", { "!lastcast(Tiger Palm)", goodLastCast }},
+	-- {{
+	-- 	{ "Blackout Kick" },
+	-- 	{ "Tiger Palm" },
+	-- }, "!player.buff(Hit Combo)" },
 
 	-- CJL when we're using Hit Combo as a last resort, and perhaps with other constraints like "GoodLastCast"
-	{ "Crackling Jade Lightning", { "!lastcast(Crackling Jade Lightning)", goodLastCast }},
+	--{ "Crackling Jade Lightning", { "!lastcast(Crackling Jade Lightning)", goodLastCast }},
 
 	--{ (function() print('I have nothing to do ('..GetTime()..')'); end) },
 }
