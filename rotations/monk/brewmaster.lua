@@ -11,20 +11,21 @@ local config = {
 	height = 500,
 	config = {
 		-- Keybinds
-		{type = 'header', text = addonColor..'Keybinds:', align = 'center'},
-		-- Control
-		{type = 'text', text = addonColor..'Control: ', align = 'left', size = 11, offset = -11},
-		--{type = 'text', text = 'Summon Black Ox Statue', align = 'right', size = 11, offset = 0 },
-		-- Shift
-		{type = 'text', text = addonColor..'Shift:', align = 'left', size = 11, offset = -11},
-		{type = 'text', text = 'Placeholder', align = 'right', size = 11, offset = 0 },
-		-- Alt
-		{type = 'text', text = addonColor..'Alt:',align = 'left', size = 11, offset = -11},
-		{type = 'text', text = 'Pause Rotation', align = 'right', size = 11, offset = 0 },
+		-- {type = 'header', text = addonColor..'Keybinds:', align = 'center'},
+		-- -- Control
+		-- {type = 'text', text = addonColor..'Control: ', align = 'left', size = 11, offset = -11},
+		-- --{type = 'text', text = 'Summon Black Ox Statue', align = 'right', size = 11, offset = 0 },
+		-- -- Shift
+		-- {type = 'text', text = addonColor..'Shift:', align = 'left', size = 11, offset = -11},
+		-- {type = 'text', text = 'Placeholder', align = 'right', size = 11, offset = 0 },
+		-- -- Alt
+		-- {type = 'text', text = addonColor..'Alt:',align = 'left', size = 11, offset = -11},
+		-- {type = 'text', text = 'Pause Rotation', align = 'right', size = 11, offset = 0 },
 
 		-- General
 		{type = 'spacer'},{type = 'rule'},
 		{type = 'header', text = addonColor..'General', align = 'center' },
+		{type = 'checkbox', text = 'Automatic Res', key = 'auto_res', default = false},
 		{type = "checkbox", text = "Automated Taunts", key = "canTaunt", default = false },
 		{type = 'checkbox', text = 'Automatic CJL', key = 'auto_cjl', default = true},
 
@@ -108,9 +109,13 @@ local _All = {
 }
 
 local _OOC = {
-	-- TODO: add automatic ressurection?
 	-- TODO: Add support for (optional) automatic potion use w/pull timer
 	{'Summon Black Ox Statue', 'modifier.lalt', "mouseover.ground"},
+
+	-- Automatic res of dead party members
+	{ "%ressdead('Resuscitate')", (function() return F('auto_res') end) },
+
+	{ "Effuse", { "player.health < 90", "player.lastmoved >= 1", "!player.combat" }, "player" },
 }
 
 local _Cooldowns = {
@@ -209,7 +214,7 @@ local _Melee = {
 
 NeP.Engine.registerRotation(268, '[|cff'..NeP.Interface.addonColor..'NoC|r] Monk - Brewmaster',
 	{-- In-Combat
-		{'pause', 'modifier.shift'},
+		{'%pause', 'modifier.shift'},
 		{_All},
 		{_Survival, 'player.health < 100'},
 		{_Interrupts, { 'target.interruptAt(55)', 'target.inMelee' }},
