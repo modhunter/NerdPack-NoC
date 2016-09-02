@@ -113,26 +113,10 @@ NeP.library.register('NOC', {
 					-- end
 					--if (Obj.key ~= 'target') and UnitCanAttack('player', Obj.key) and NeP.Helpers.SpellSanity(spell, Obj.key) and (NeP.TimeToDie(Obj.key) > 3) then
 					if (Obj.key ~= 'target') and (NeP.TimeToDie(Obj.key) > 3) then
-						print("AoEMissingDebuff: casting "..spell.." against "..Obj.name.." ("..Obj.key.." - "..Obj.guid..") - TTD="..NeP.TimeToDie(Obj.key));
+						--print("AoEMissingDebuff: casting "..spell.." against "..Obj.name.." ("..Obj.key.." - "..Obj.guid..") - TTD="..NeP.TimeToDie(Obj.key));
 						NeP.Engine.Cast_Queue(spell, Obj.key)
 						return true
 					end
-				end
-			end
-		end
-	end,
-
-	resDeadFriends = function(spell)
-		if spell == nil or NeP.DSL.Conditions['spell.cooldown']("player", 61304) ~= 0 then return false end
-		local spell = select(1,GetSpellInfo(spell))
-		if not IsUsableSpell(spell) then return false end
-		for i=1,#NeP.OM.unitFriend do
-			local Obj = NeP.OM.unitFriend[i]
-			if NeP.DSL.Conditions['spell.range'](Obj.key, spell) then
-				if UnitIsDeadOrGhost(Obj.key) then
-					print("resDeadFriends: casting "..spell.." against "..Obj.name.." ("..Obj.key..")");
-					NeP.Engine.Cast_Queue(spell, Obj.key)
-					return true
 				end
 			end
 		end

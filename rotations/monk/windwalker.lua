@@ -11,16 +11,11 @@ local config = {
 	height = 500,
 	config = {
 		-- General
-			{type = 'header',text = 'General', align = 'center'},
-			{type = 'checkbox', text = 'SEF', key = 'SEF', default = true},
-			--{type = 'checkbox', text = 'Opener', key = 'opener', default = true},
-			{type = 'checkbox', text = 'Automatic CJL', key = 'auto_cjl', default = true},
-			{type = 'checkbox', text = 'Automatic Chi Wave at pull', key = 'auto_cw', default = true},
-			{type = 'checkbox', text = 'Automatic Mark of the Crane Dotting', key = 'auto_dot', default = false},
-			{type = 'checkbox', text = 'Smart RJW usage during single-target rotation', key = 'smart_rjw', default = true},
-			{type = 'checkbox', text = 'Automatic Res', key = 'auto_res', default = false},
-			--{type = 'checkbox', text = 'Automatic Pre-Pot', key = 'auto_pot', default = false},
-			{type = 'checkbox', text = '5 min DPS test', key = 'dpstest', default = false},
+		{type = 'header',text = 'General', align = 'center'},
+		--{type = 'checkbox', text = 'Opener', key = 'opener', default = true},
+		{type = 'checkbox', text = 'Automatic Res', key = 'auto_res', default = false},
+		--{type = 'checkbox', text = 'Automatic Pre-Pot', key = 'auto_pot', default = false},
+		{type = 'checkbox', text = '5 min DPS test', key = 'dpstest', default = false},
 
 		-- Survival
 		{type = 'spacer'},{type = 'rule'},
@@ -28,6 +23,17 @@ local config = {
 		{type = 'spinner', text = 'Healthstone & Healing Tonic', key = 'Healthstone', default = 35},
 		{type = 'spinner', text = 'Effuse', key = 'effuse', default = 30},
 		{type = 'spinner', text = 'Healing Elixir', key = 'Healing Elixir', default = 70},
+
+		-- Offensive
+		{type = 'spacer'},{type = 'rule'},
+		{type = 'header', text = 'Survival', align = 'center'},
+		{type = 'checkbox', text = 'SEF usage', key = 'SEF', default = true},
+		{type = 'checkbox', text = 'Automatic CJL at range', key = 'auto_cjl', default = false},
+		{type = 'checkbox', text = 'Automatic Chi Wave at pull', key = 'auto_cw', default = true},
+		{type = 'checkbox', text = 'Automatic Mark of the Crane Dotting', key = 'auto_dot', default = true},
+		{type = 'checkbox', text = 'Smart RJW usage during single-target rotation', key = 'smart_rjw', default = true},
+		{type = 'checkbox', text = 'Automatic CJL in melee to maintain Hit Combo', key = 'auto_cjl_hc', default = false},
+
 	}
 }
 
@@ -72,7 +78,6 @@ local _OOC = {
 	{ "Effuse", { "player.health < 90", "player.lastmoved >= 1", "!player.combat" }, "player" },
 
 	-- Automatic res of dead party members
-	--{ "@NOC.resDeadFriends('Resuscitate')", (function() return F('auto_res') end) },
 	{ "%ressdead('Resuscitate')", (function() return F('auto_res') end) },
 
 	-- TODO: Add support for (optional) automatic potion use w/pull timer
@@ -86,7 +91,9 @@ local _All = {
 	{ "/stopcasting\n/stopattack\n/cleartarget\n/stopattack\n/cleartarget\n/nep mt", { "player.time >= 300", (function() return F('dpstest') end) }},
 
 	-- Cancel CJL when we're in melee range and having cast at least a tick (delta < 2.95)- to help with controlling Hit Combo stuff.
-	{"!/stopcasting", { "target.range <= 5", "player.casting(Crackling Jade Lightning)", "player.casting.delta < 2.95" }},
+	--{ "!/stopcasting", { (function() return F('auto_cjl_hc') end), "target.range <= 5", "player.casting(Crackling Jade Lightning)", "player.casting.delta < 2.95" }},
+	-- Just cancel right away #YOLO
+	{ "!/stopcasting", { (function() return F('auto_cjl_hc') end), "target.range <= 5", "player.casting(Crackling Jade Lightning)" }},
 
 	-- FREEDOOM!
 	{ "116841", 'player.state.disorient' }, -- Tiger's Lust = 116841
@@ -112,6 +119,7 @@ local _Survival = {
 	{ "Healing Elixir", { HealingElixir }, "player" },
 
 	-- TODO: Update for legion's equivillant to healing tonic 109223
+	-- TODO: Item usage may still be broken in NeP, consider commenting-out
 	{ "#109223", healthstn, "player" }, -- Healing Tonic
 	{ '#5512', healthstn, "player" }, -- Healthstone
 	{ "Detox", "player.dispellable(Detox)", "player" },
@@ -153,17 +161,8 @@ local _Ranged = {
 	{ "Chi Wave", { (function() return F('auto_cw') end), "player.time <= 4", "target.range > 8" }},
 }
 
+-- TODO: Under review
 local _Openner = {
-	{ "Fists of Fury", { "player.buff(Serenity)", "player.buff(Serenity).duration < 1.5" }},
-	{ "Rising Sun Kick" },
-
-	-- This should 'constrain' BoK to be only casted once during the opener
-	{{
-		{ "Blackout Kick", "player.buff(Serenity)" },
-		{ "Blackout Kick", "player.spell(Chi Brew).charges = 2" },
-	}, { "player.chidiff <= 1", "player.spell(Blackout Kick).casted = 0" }},
-	{ 'Serenity', "player.chidiff >= 2" },
-	{ "Tiger Palm", { "player.chidiff >= 2", "!player.buff(Serenity)", "!lastcast(Tiger Palm)", "player.spell(Blackout Kick).casted = 0" }},
 }
 
 local _AoE = {
@@ -218,6 +217,7 @@ local _Melee = {
 	{ _AoE, { 'player.area(8).enemies >= 3', 'modifier.multitarget' }},
 	{ _ST },
 
+	-- TODO: Remove? may not be needed anymore
 	-- Last resort to keep using abilitites
 	-- { "Blackout Kick", { "!lastcast(Blackout Kick)", "@NOC.hitcombo('Blackout Kick')" }},
 	-- { "Tiger Palm", { "!lastcast(Tiger Palm)", "@NOC.hitcombo('Tiger Palm')" }},
@@ -226,7 +226,7 @@ local _Melee = {
 	-- 	{ "Tiger Palm" },
 	-- }, "!player.buff(Hit Combo)" },
 
-	-- CJL when we're using Hit Combo as a last resort"
+	-- CJL when we're using Hit Combo as a last resort filler
 	{ "Crackling Jade Lightning", { "!lastcast(Crackling Jade Lightning)", "@NOC.hitcombo('Crackling Jade Lightning')" }},
 
 }
