@@ -7,8 +7,6 @@ NOC = {
 	},
 }
 
---NeP.Core.DebugMode = true
-
 local Parse = NeP.DSL.parse
 local Fetch = NeP.Interface.fetchKey
 
@@ -159,7 +157,7 @@ NeP.library.register('NOC', {
 				-- we're using hit combo and need to check if the spell we've passed-in is in the list
 				if HitComboLastCast == spellID then
 					-- If the passed-spell is in the list as flagged, we need to exit false
-					print('hitcombo('..spell..') and it is was flagged ('..HitComboLastCast..'), returning false');
+					--print('hitcombo('..spell..') and it is was flagged ('..HitComboLastCast..'), returning false');
 					return false
 				end
 			end
@@ -167,17 +165,8 @@ NeP.library.register('NOC', {
 		else
 			return true
 		end
-		print('hitcombo('..spell..') was not found, returning false');
 		return false
 	end,
-
-	-- flagLastcast = function()
-	-- 	local _, _, _, _, _, _, spellID = GetSpellInfo(NeP.Engine.lastCast)
-	-- 	if spellID and MasterySpells[spellID] then
-	-- 		MasterySpells[spellID] = 1
-	-- 	end
-	-- 	return true
-	-- end,
 
 })
 

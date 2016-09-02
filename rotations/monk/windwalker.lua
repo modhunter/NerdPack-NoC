@@ -13,7 +13,7 @@ local config = {
 		-- General
 			{type = 'header',text = 'General', align = 'center'},
 			{type = 'checkbox', text = 'SEF', key = 'SEF', default = true},
-			{type = 'checkbox', text = 'Opener', key = 'opener', default = true},
+			--{type = 'checkbox', text = 'Opener', key = 'opener', default = true},
 			{type = 'checkbox', text = 'Automatic CJL', key = 'auto_cjl', default = true},
 			{type = 'checkbox', text = 'Automatic Chi Wave at pull', key = 'auto_cw', default = true},
 			{type = 'checkbox', text = 'Automatic Mark of the Crane Dotting', key = 'auto_dot', default = false},
@@ -54,26 +54,6 @@ local sef = function()
 	return false
 end
 
--- List of spells that can benefit Mastery
--- local MasterySpells = {
--- 	[100784] = '', -- Blackout Kick
--- 	[113656] = '', -- Fists of Fury
--- 	[101545] = '', -- Flying Serpent Kick
--- 	[107428] = '', -- Rising Sun Kick
--- 	[101546] = '', -- Spinning Crane Kick
--- 	[205320] = '', -- Strike of the Windlord
--- 	[100780] = '', -- Tiger Palm
--- 	[115080] = '', -- Touch of Death
--- 	[115098] = '', -- Chi Wave
--- 	[123986] = '', -- Chi Burst
--- 	[116847] = '', -- Rushing Jade Wind
--- 	[152175] = '', -- Whirling Dragon Punch
--- 	[117952] = '', -- Crackling Jade Lightning
--- }
--- local goodLastCast = function()
--- 	local _, _, _, _, _, _, spellID = GetSpellInfo(NeP.Engine.lastCast)
--- 	return MasterySpells[spellID] ~= nil
--- end
 
 local healthstn = function()
 	return E('player.health <= ' .. F('Healthstone'))
@@ -88,12 +68,12 @@ local effuse = function()
 end
 
 
-
 local _OOC = {
 	{ "Effuse", { "player.health < 90", "player.lastmoved >= 1", "!player.combat" }, "player" },
 
 	-- Automatic res of dead party members
-	{ "@NOC.resDeadFriends('Resuscitate')", (function() return F('auto_res') end) },
+	--{ "@NOC.resDeadFriends('Resuscitate')", (function() return F('auto_res') end) },
+	{ "%ressdead('Resuscitate')", (function() return F('auto_res') end) },
 
 	-- TODO: Add support for (optional) automatic potion use w/pull timer
 }
@@ -105,8 +85,8 @@ local _All = {
 
 	{ "/stopcasting\n/stopattack\n/cleartarget\n/stopattack\n/cleartarget\n/nep mt", { "player.time >= 300", (function() return F('dpstest') end) }},
 
-	-- Cancel CJL when we're in melee range and having cast at least 1 second (delta < 2)- to help with controlling Hit Combo stuff.
-	{"!/stopcasting", { "target.range <= 5", "player.casting(Crackling Jade Lightning)", "player.casting.delta < 2" }},
+	-- Cancel CJL when we're in melee range and having cast at least a tick (delta < 2.95)- to help with controlling Hit Combo stuff.
+	{"!/stopcasting", { "target.range <= 5", "player.casting(Crackling Jade Lightning)", "player.casting.delta < 2.95" }},
 
 	-- FREEDOOM!
 	{ "116841", 'player.state.disorient' }, -- Tiger's Lust = 116841
@@ -174,7 +154,6 @@ local _Ranged = {
 }
 
 local _Openner = {
-	--{ (function() print('in openner: '..GetTime()); end) },
 	{ "Fists of Fury", { "player.buff(Serenity)", "player.buff(Serenity).duration < 1.5" }},
 	{ "Rising Sun Kick" },
 
@@ -248,14 +227,13 @@ local _Melee = {
 	-- }, "!player.buff(Hit Combo)" },
 
 	-- CJL when we're using Hit Combo as a last resort"
-	--{ "Crackling Jade Lightning", { "!lastcast(Crackling Jade Lightning)", "@NOC.hitcombo('Crackling Jade Lightning')" }},
+	{ "Crackling Jade Lightning", { "!lastcast(Crackling Jade Lightning)", "@NOC.hitcombo('Crackling Jade Lightning')" }},
 
-	--{ (function() print('I have nothing to do ('..GetTime()..')'); end) },
 }
 
 NeP.Engine.registerRotation(269, '[|cff'..NeP.Interface.addonColor..'NoC|r] Monk - Windwalker',
 	{ -- In-Combat
-		{'pause', 'modifier.shift'},
+		{'%pause', 'modifier.shift'},
 		{_All},
 		{_Survival, 'player.health < 100'},
 		{_Interrupts, { 'target.interruptAt(55)', 'target.inMelee' }},
