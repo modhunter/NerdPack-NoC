@@ -26,7 +26,7 @@ local config = {
 
 		-- Offensive
 		{type = 'spacer'},{type = 'rule'},
-		{type = 'header', text = 'Survival', align = 'center'},
+		{type = 'header', text = 'Offensive', align = 'center'},
 		{type = 'checkbox', text = 'SEF usage', key = 'SEF', default = true},
 		{type = 'checkbox', text = 'Automatic CJL at range', key = 'auto_cjl', default = false},
 		{type = 'checkbox', text = 'Automatic Chi Wave at pull', key = 'auto_cw', default = true},
