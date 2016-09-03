@@ -214,7 +214,7 @@ local _Melee = {
 
 NeP.Engine.registerRotation(268, '[|cff'..NeP.Interface.addonColor..'NoC|r] Monk - Brewmaster',
 	{-- In-Combat
-		{'%pause', 'modifier.shift'},
+		{ '%pause', 'modifier.shift'},
 		{_All},
 		{_Survival, 'player.health < 100'},
 		{_Interrupts, { 'target.interruptAt(55)', 'target.inMelee' }},
