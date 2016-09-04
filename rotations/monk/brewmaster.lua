@@ -25,9 +25,9 @@ local config = {
 		-- General
 		{type = 'spacer'},{type = 'rule'},
 		{type = 'header', text = addonColor..'General', align = 'center' },
-		{type = 'checkbox', text = 'Automatic Res', key = 'auto_res', default = false},
-		{type = "checkbox", text = "Automated Taunts", key = "canTaunt", default = false },
-		{type = 'checkbox', text = 'Automatic CJL', key = 'auto_cjl', default = true},
+		{type = 'checkbox', text = 'Automatic Res', key = 'auto_res', default = true},
+		--{type = "checkbox", text = "Automated Taunts", key = "canTaunt", default = false },
+		{type = 'checkbox', text = 'Automatic CJL at range', key = 'auto_cjl', default = false},
 
 		-- Survival
 		{type = 'spacer'},{type = 'rule'},
@@ -115,7 +115,8 @@ local _OOC = {
 	-- Automatic res of dead party members
 	{ "%ressdead('Resuscitate')", (function() return F('auto_res') end) },
 
-	{ "Effuse", { "player.health < 90", "player.lastmoved >= 1", "!player.combat" }, "player" },
+	-- Effuse up to 50% health
+	{ "Effuse", { "player.health < 50", "player.lastmoved >= 1" }, "player" },
 }
 
 local _Cooldowns = {

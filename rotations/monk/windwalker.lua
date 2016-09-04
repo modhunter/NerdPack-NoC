@@ -22,7 +22,7 @@ local config = {
 		{type = 'header', text = 'Survival', align = 'center'},
 		{type = 'spinner', text = 'Healthstone & Healing Tonic', key = 'Healthstone', default = 35},
 		{type = 'spinner', text = 'Effuse', key = 'effuse', default = 30},
-		{type = 'spinner', text = 'Healing Elixir', key = 'Healing Elixir', default = 70},
+		{type = 'spinner', text = 'Healing Elixir', key = 'Healing Elixir', default = 0},
 
 		-- Offensive
 		{type = 'spacer'},{type = 'rule'},
@@ -32,7 +32,7 @@ local config = {
 		{type = 'checkbox', text = 'Automatic Chi Wave at pull', key = 'auto_cw', default = true},
 		{type = 'checkbox', text = 'Automatic Mark of the Crane Dotting', key = 'auto_dot', default = true},
 		{type = 'checkbox', text = 'Smart RJW usage during single-target rotation', key = 'smart_rjw', default = true},
-		{type = 'checkbox', text = 'Automatic CJL in melee to maintain Hit Combo', key = 'auto_cjl_hc', default = false},
+		{type = 'checkbox', text = 'Automatic CJL in melee to maintain Hit Combo', key = 'auto_cjl_hc', default = true},
 
 	}
 }
@@ -75,7 +75,7 @@ end
 
 
 local _OOC = {
-	{ "Effuse", { "player.health < 90", "player.lastmoved >= 1", "!player.combat" }, "player" },
+	{ "Effuse", { "player.health < 50", "player.lastmoved >= 1" }, "player" },
 
 	-- Automatic res of dead party members
 	{ "%ressdead('Resuscitate')", (function() return F('auto_res') end) },
@@ -90,10 +90,8 @@ local _All = {
 
 	{ "/stopcasting\n/stopattack\n/cleartarget\n/stopattack\n/cleartarget\n/nep mt", { "player.time >= 300", (function() return F('dpstest') end) }},
 
-	-- Cancel CJL when we're in melee range and having cast at least a tick (delta < 2.95)- to help with controlling Hit Combo stuff.
-	--{ "!/stopcasting", { (function() return F('auto_cjl_hc') end), "target.range <= 5", "player.casting(Crackling Jade Lightning)", "player.casting.delta < 2.95" }},
-	-- Just cancel right away #YOLO
-	{ "!/stopcasting", { (function() return F('auto_cjl_hc') end), "target.range <= 5", "player.casting(Crackling Jade Lightning)" }},
+	-- Cancel CJL when we're in melee range
+	{ "!/stopcasting", { "target.range <= 5", "player.casting(Crackling Jade Lightning)" }},
 
 	-- FREEDOOM!
 	{ "116841", 'player.state.disorient' }, -- Tiger's Lust = 116841
@@ -217,18 +215,8 @@ local _Melee = {
 	{ _AoE, { 'player.area(8).enemies >= 3', 'modifier.multitarget' }},
 	{ _ST },
 
-	-- TODO: Remove? may not be needed anymore
-	-- Last resort to keep using abilitites
-	-- { "Blackout Kick", { "!lastcast(Blackout Kick)", "@NOC.hitcombo('Blackout Kick')" }},
-	-- { "Tiger Palm", { "!lastcast(Tiger Palm)", "@NOC.hitcombo('Tiger Palm')" }},
-	-- {{
-	-- 	{ "Blackout Kick" },
-	-- 	{ "Tiger Palm" },
-	-- }, "!player.buff(Hit Combo)" },
-
-	-- CJL when we're using Hit Combo as a last resort filler
-	{ "Crackling Jade Lightning", { "!lastcast(Crackling Jade Lightning)", "@NOC.hitcombo('Crackling Jade Lightning')" }},
-
+	-- CJL when we're using Hit Combo as a last resort filler, and it's toggled on
+	{ "Crackling Jade Lightning", { (function() return F('auto_cjl_hc') end), "!lastcast(Crackling Jade Lightning)", "@NOC.hitcombo('Crackling Jade Lightning')" }},
 }
 
 NeP.Engine.registerRotation(269, '[|cff'..NeP.Interface.addonColor..'NoC|r] Monk - Windwalker',
