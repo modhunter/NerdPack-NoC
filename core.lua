@@ -99,7 +99,7 @@ NeP.library.register('NOC', {
 			if Obj.distance <= range and (UnitAffectingCombat(Obj.key) or Obj.is == 'dummy') then
 				local _,_,_,_,_,_,debuffDuration = UnitDebuff(Obj.key, debuff, nil, 'PLAYER')
 				if not debuffDuration or debuffDuration - GetTime() < 1.5 then
-					-- print("AoEMissingDebuff: ATTEMPT "..spell.." against "..Obj.name.." ("..Obj.key..")".." - TTD="..NeP.TimeToDie(Obj.key));
+					-- print("AoEMissingDebuff: ATTEMPT "..spell.." against "..Obj.name.." ("..Obj.key..")".." - TTD="..NeP.CombatTracker.TimeToDie(Obj.key));
 					-- if not NeP.Helpers.infront then
 					-- 	print("before check, infront is false")
 					-- end
@@ -111,9 +111,9 @@ NeP.library.register('NOC', {
 					-- if NeP.Helpers.spellHasFailed[spell] then
 					-- 	print ("spellHasFailed["..spell.."] is true");
 					-- end
-					--if (Obj.key ~= 'target') and UnitCanAttack('player', Obj.key) and NeP.Helpers.SpellSanity(spell, Obj.key) and (NeP.TimeToDie(Obj.key) > 3) then
-					if (Obj.key ~= 'target') and (NeP.TimeToDie(Obj.key) > 3) then
-						--print("AoEMissingDebuff: casting "..spell.." against "..Obj.name.." ("..Obj.key.." - "..Obj.guid..") - TTD="..NeP.TimeToDie(Obj.key));
+					--if (Obj.key ~= 'target') and UnitCanAttack('player', Obj.key) and NeP.Helpers.SpellSanity(spell, Obj.key) and (NeP.CombatTracker.TimeToDie(Obj.key) > 3) then
+					if (Obj.key ~= 'target') and (NeP.CombatTracker.TimeToDie(Obj.key) > 3) then
+						--print("AoEMissingDebuff: casting "..spell.." against "..Obj.name.." ("..Obj.key.." - "..Obj.guid..") - TTD="..NeP.CombatTracker.TimeToDie(Obj.key));
 						NeP.Engine.Cast_Queue(spell, Obj.key)
 						return true
 					end
