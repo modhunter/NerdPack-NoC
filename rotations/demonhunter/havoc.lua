@@ -65,7 +65,7 @@ local _All = {
   { "Chaos Nova", "modifier.lcontrol" },
   --{ "Darkness", "modifier.lalt" }, -- reserve alt for Metamorphosis instead
 
-	{ "/stopcasting\n/stopattack\n/cleartarget\n/stopattack\n/cleartarget", { "player.time >= 300", (function() return F('dpstest') end) }},
+	{ "/stopcasting\n/stopattack\n/cleartarget\n/stopattack\n/cleartarget", { "player.combattime >= 300", (function() return F('dpstest') end) }},
 
 	-- Vengeful Retreat backwards through the target to minimize downtime.
   --vengeful_retreat,if=(talent.prepared.enabled|talent.momentum.enabled)&buff.prepared.down&buff.momentum.down

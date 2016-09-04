@@ -101,15 +101,18 @@ local _All = {
 }
 
 local _Cooldowns = {
-	{ "Touch of Death", "!player.spell.usable(Gale Burst)" },
-	{ "Touch of Death", { "player.spell.usable(Gale Burst)", "player.spell(Strike of the Windlord).cooldown <= 8", "player.spell(Fists of Fury).cooldown <= 3", "player.spell(Rising Sun Kick).cooldown < 8" }},
+	{{
+		{ "Touch of Death", "!player.spell.usable(Gale Burst)" },
+		{ "Touch of Death", { "player.spell.usable(Gale Burst)", "player.spell(Strike of the Windlord).cooldown <= 8", "player.spell(Fists of Fury).cooldown <= 3", "player.spell(Rising Sun Kick).cooldown < 8" }},
+	}, "target.range <= 5" },
+
 	{ "Lifeblood" },
 	{ "Berserking" },
 	{ "Blood Fury" },
-	-- Use Xuen only while hero or potion is active
-	{ "Invoke Xuen, the White Tiger", "player.hashero" },
-	{ "Invoke Xuen, the White Tiger", "player.buff(156423)" }, -- Draenic Agility Potion (WoD)
-	{ "Invoke Xuen, the White Tiger", "player.buff(188027)" }, -- Potion of Deadly Grace (Legion)
+	{ "#trinket1", { "player.buff(Serenity)", "or", "player.buff(Storm, Earth, and Fire)" }},
+	{ "#trinket2", { "player.buff(Serenity)", "or", "player.buff(Storm, Earth, and Fire)" }},
+	-- Use Xuen only while hero or potion (WOD: 156423, Legion: 188027) is active
+	{ "Invoke Xuen, the White Tiger", "player.hashero", "or", "player.buff(156423)", "or", "player.buff(188027)" },
 }
 
 local _Survival = {
@@ -154,9 +157,9 @@ local _SEF = {
 }
 
 local _Ranged = {
-	{ "116841", { "player.movingfor > 0.5", "target.alive" }},
-	{ "Crackling Jade Lightning", { (function() return F('auto_cjl') end), "!player.moving", "player.time > 4" }},
-	{ "Chi Wave", { (function() return F('auto_cw') end), "player.time <= 4", "target.range > 8" }},
+	{ "116841", { "player.movingfor > 0.5", "target.alive" }}, -- Tiger's Lust
+	{ "Crackling Jade Lightning", { (function() return F('auto_cjl') end), "!player.moving", "player.combattime > 2" }},
+	{ "Chi Wave", { (function() return F('auto_cw') end), "target.range > 8" }},
 }
 
 -- TODO: Under review
@@ -227,7 +230,7 @@ NeP.Engine.registerRotation(269, '[|cff'..NeP.Interface.addonColor..'NoC|r] Monk
 		{_Interrupts, { 'target.interruptAt(55)', 'target.inMelee' }},
 		{_Cooldowns, 'modifier.cooldowns' },
 		{_SEF, { "target.range <= 5", (function() return F('SEF') end) }},
-		--{_Openner, { (function() return F('opener') end), "player.time < 10" }},
+		--{_Openner, { (function() return F('opener') end), "player.combattime < 10" }},
 		{_Melee, { "target.range <= 5" }},
 		{_Ranged, { "target.range > 8", "target.range <= 40" }},
 	}, _OOC, exeOnLoad)
