@@ -158,7 +158,7 @@ local _SEF = {
 
 local _Ranged = {
 	{ "116841", { "player.movingfor > 0.5", "target.alive" }}, -- Tiger's Lust
-	{ "Crackling Jade Lightning", { (function() return F('auto_cjl') end), "!player.moving", "player.combattime > 2" }},
+	{ "Crackling Jade Lightning", { (function() return F('auto_cjl') end), "!player.moving", "player.combattime > 4" }},
 	{ "Chi Wave", { (function() return F('auto_cw') end), "target.range > 8" }},
 }
 
