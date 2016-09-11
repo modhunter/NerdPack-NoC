@@ -68,7 +68,7 @@ local MasterySpells = {
 local HitComboLastCast = ''
 
 NeP.Timer.Sync("windwalker_sync", function()
-	local Running = NeP.DSL.get('toggle')('mastertoggle')
+	local Running = NeP.DSL.Get('toggle')(nil, 'mastertoggle')
 	if Running then
 		if NeP.Engine.SelectedCR then
 			if not NeP.Engine.forcePause then
