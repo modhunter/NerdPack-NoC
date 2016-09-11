@@ -91,8 +91,8 @@ end
 
 local _All = {
 	-- Keybinds
-	{'Summon Black Ox Statue', 'modifier.lalt', "mouseover.ground"},
-	{ "Leg Sweep", "modifier.lcontrol" },
+	{'Summon Black Ox Statue', 'keybind.lalt', "mouseover.ground"},
+	{ "Leg Sweep", "keybind.lcontrol" },
 
 	-- Nimble Brew if pvp talent taken
 	{'137648', 'player.state.disorient'},
@@ -110,7 +110,7 @@ local _All = {
 
 local _OOC = {
 	-- TODO: Add support for (optional) automatic potion use w/pull timer
-	{'Summon Black Ox Statue', 'modifier.lalt', "mouseover.ground"},
+	{'Summon Black Ox Statue', 'keybind.lalt', "mouseover.ground"},
 
 	-- Automatic res of dead party members
 	{ "%ressdead('Resuscitate')", (function() return F('auto_res') end) },
@@ -203,7 +203,7 @@ local _Melee = {
 
 		{ "Chi Wave" },
 
-		{ "Rushing Jade Wind", { "target.range <= 8", 'player.area(8).enemies >= 2', 'modifier.multitarget' }},
+		{ "Rushing Jade Wind", { "target.range <= 8", 'player.area(8).enemies >= 2', 'toggle(AoE)' }},
 
 		-- required ground cast?
 		--{ "Flaming Keg" },
@@ -215,12 +215,12 @@ local _Melee = {
 
 NeP.Engine.registerRotation(268, '[|cff'..NeP.Interface.addonColor..'NoC|r] Monk - Brewmaster',
 	{-- In-Combat
-		{ '%pause', 'modifier.shift'},
+		{ '%pause', 'keybind.shift'},
 		{_All},
 		{_Survival, 'player.health < 100'},
 		{_Interrupts, { 'target.interruptAt(55)', 'target.inMelee' }},
 		{_Mitigation, { 'target.inMelee', { "!talent(7,2)", "or", "!player.buff(228563)", "or", "player.spell(Keg Smash).cooldown >= 2.5" }}},
-		{_Cooldowns, 'modifier.cooldowns'},
+		{_Cooldowns, 'toggle(cooldowns)'},
 		{_Melee, {'target.infront'}},
 		{_Ranged, { "target.range > 8", "target.range <= 40", "target.infront" }},
 	}, _OOC, exeOnLoad)

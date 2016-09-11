@@ -84,8 +84,8 @@ local _OOC = {
 
 local _All = {
 	-- Keybinds
-	{ "Leg Sweep", "modifier.lcontrol" },
-  { "Touch of Karma", "modifier.lalt" },
+	{ "Leg Sweep", "keybind.lcontrol" },
+  { "Touch of Karma", "keybind.lalt" },
 
 	{ "/stopcasting\n/stopattack\n/cleartarget\n/stopattack\n/cleartarget\n/nep mt", { "player.time >= 300", (function() return F('dpstest') end) }},
 
@@ -146,11 +146,11 @@ local _Interrupts = {
 
 local _SEF = {
 	{{
-		{ "Storm, Earth, and Fire", { '!modifier.multitarget', sef }},
+		{ "Storm, Earth, and Fire", { '!toggle(AoE)', sef }},
 		{ "Storm, Earth, and Fire", "!player.buff(Storm, Earth, and Fire)" },
 	}, { "player.spell(Strike of the Windlord).cooldown <= 8", "player.spell(Fists of Fury).cooldown <= 9", "player.spell(Rising Sun Kick).cooldown <= 5"  }},
 	{{
-		{ "Storm, Earth, and Fire", { '!modifier.multitarget', sef }},
+		{ "Storm, Earth, and Fire", { '!toggle(AoE)', sef }},
 		{ "Storm, Earth, and Fire", "!player.buff(Storm, Earth, and Fire)" },
 	}, { "player.spell(Fists of Fury).cooldown <= 9", "player.spell(Rising Sun Kick).cooldown <= 5"  }},
 }
@@ -214,7 +214,7 @@ local _Melee = {
 	{ 'Spinning Crane Kick', { '!lastcast(Spinning Crane Kick)', "@NOC.hitcombo('Spinning Crane Kick')", { "player.spell(Spinning Crane Kick).count >= 12" }}},
 	{ "Fists of Fury" },
 
-	{ _AoE, { 'player.area(8).enemies >= 3', 'modifier.multitarget' }},
+	{ _AoE, { 'player.area(8).enemies >= 3', 'toggle(AoE)' }},
 	{ _ST },
 
 	-- CJL when we're using Hit Combo as a last resort filler, and it's toggled on
@@ -223,11 +223,11 @@ local _Melee = {
 
 NeP.Engine.registerRotation(269, '[|cff'..NeP.Interface.addonColor..'NoC|r] Monk - Windwalker',
 	{ -- In-Combat
-		{'%pause', 'modifier.shift'},
+		{'%pause', 'keybind.shift'},
 		{_All},
 		{_Survival, 'player.health < 100'},
 		{_Interrupts, { 'target.interruptAt(55)', 'target.inMelee' }},
-		{_Cooldowns, 'modifier.cooldowns' },
+		{_Cooldowns, 'toggle(cooldowns)' },
 		{_SEF, { "target.range <= 5", (function() return F('SEF') end) }},
 		--{_Openner, { (function() return F('opener') end), "player.combattime < 10" }},
 		{_Melee, { "target.range <= 5" }},

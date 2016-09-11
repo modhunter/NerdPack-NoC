@@ -71,11 +71,11 @@ local _Melee = {
 
 NeP.Engine.registerRotation(266, '[|cff'..NeP.Interface.addonColor..'NoC|r] Warlock - Demonology',
 	{ -- In-Combat
-		{'pause', 'modifier.shift'},
+		{'pause', 'keybind.shift'},
 		{_All},
 		{_Survival, 'player.health < 100'},
 		{_Interrupts, {'target.interruptAt(40)', "target.infront" }},
-		{_Cooldowns, 'modifier.cooldowns'},
+		{_Cooldowns, 'toggle(cooldowns)'},
 		{_Melee, { "target.range <= 5" }},
 		{_Ranged, { "target.range > 8", "target.range <= 40", "target.infront" }},
 	}, _OOC, exeOnLoad)
