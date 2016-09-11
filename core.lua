@@ -7,7 +7,7 @@ NOC = {
 	},
 }
 
-local Parse = NeP.DSL.parse
+local Parse = NeP.DSL.Parse
 local Fetch = NeP.Interface.fetchKey
 
 
