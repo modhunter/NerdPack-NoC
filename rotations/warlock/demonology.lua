@@ -71,7 +71,7 @@ local _Melee = {
 
 NeP.Engine.registerRotation(266, '[|cff'..NeP.Interface.addonColor..'NoC|r] Warlock - Demonology',
 	{ -- In-Combat
-		{'pause', 'keybind.shift'},
+		{'pause', 'keybinds(shift)'},
 		{_All},
 		{_Survival, 'player.health < 100'},
 		{_Interrupts, {'target.interruptAt(40)', "target.infront" }},

@@ -84,8 +84,8 @@ local _OOC = {
 
 local _All = {
 	-- Keybinds
-	{ "Leg Sweep", "keybind.lcontrol" },
-  { "Touch of Karma", "keybind.lalt" },
+	{ "Leg Sweep", "keybinds(lcontrol)" },
+  { "Touch of Karma", "keybinds(lalt)" },
 
 	{ "/stopcasting\n/stopattack\n/cleartarget\n/stopattack\n/cleartarget\n/nep mt", { "player.time >= 300", (function() return F('dpstest') end) }},
 
@@ -223,7 +223,7 @@ local _Melee = {
 
 NeP.Engine.registerRotation(269, '[|cff'..NeP.Interface.addonColor..'NoC|r] Monk - Windwalker',
 	{ -- In-Combat
-		{'%pause', 'keybind.shift'},
+		{'%pause', 'keybinds(shift)'},
 		{_All},
 		{_Survival, 'player.health < 100'},
 		{_Interrupts, { 'target.interruptAt(55)', 'target.inMelee' }},
