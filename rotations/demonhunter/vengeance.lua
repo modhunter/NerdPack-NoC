@@ -28,9 +28,9 @@ local exeOnLoad = function()
 end
 
 local _All = {
-	-- Keybinds
-  { "Infernal Strike", "keybinds(lalt)" },
-  { "Sigil of Flame", "keybinds(lcontrol)" },
+	-- keybind
+  { "Infernal Strike", "keybind(lalt)" },
+  { "Sigil of Flame", "keybind(lcontrol)" },
 
 	{ "/stopcasting\n/stopattack\n/cleartarget\n/stopattack\n/cleartarget", { "player.combattime >= 300", (function() return F('dpstest') end) }},
 }
@@ -96,7 +96,7 @@ local _AoE = {
 
 NeP.Engine.registerRotation(581, '[|cff'..NeP.Interface.addonColor..'NoC|r] Demon Hunter - Vengeance',
 	{ -- In-Combat
-		{ '%pause', 'keybinds(shift)'},
+		{ '%pause', 'keybind(shift)'},
 		{_All},
 		{_Survival, 'player.health < 100'},
 		{_Interrupts, 'target.interruptAt(40)'},
