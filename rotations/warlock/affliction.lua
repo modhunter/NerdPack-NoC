@@ -71,7 +71,7 @@ local _Melee = {
 
 NeP.Engine.registerRotation(265, '[|cff'..NeP.Interface.addonColor..'NoC|r] Warlock - Affliction',
 	{ -- In-Combat
-		{'pause', 'keybind.shift'},
+		{'pause', 'keybinds(shift)'},
 		{_All},
 		{_Survival, 'player.health < 100'},
 		{_Interrupts, {'target.interruptAt(40)', "target.infront" }},
