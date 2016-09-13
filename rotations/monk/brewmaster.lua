@@ -10,8 +10,8 @@ local config = {
 	width = 250,
 	height = 500,
 	config = {
-		-- Keybinds
-		-- {type = 'header', text = addonColor..'Keybinds:', align = 'center'},
+		-- keybind
+		-- {type = 'header', text = addonColor..'keybind:', align = 'center'},
 		-- -- Control
 		-- {type = 'text', text = addonColor..'Control: ', align = 'left', size = 11, offset = -11},
 		-- --{type = 'text', text = 'Summon Black Ox Statue', align = 'right', size = 11, offset = 0 },
@@ -90,9 +90,9 @@ end
 
 
 local _All = {
-	-- Keybinds
-	{'Summon Black Ox Statue', 'keybinds(lalt)', "mouseover.ground"},
-	{ "Leg Sweep", "keybinds(lcontrol)" },
+	-- keybind
+	{'Summon Black Ox Statue', 'keybind(lalt)', "mouseover.ground"},
+	{ "Leg Sweep", "keybind(lcontrol)" },
 
 	-- Nimble Brew if pvp talent taken
 	{'137648', 'player.state.disorient'},
@@ -110,7 +110,7 @@ local _All = {
 
 local _OOC = {
 	-- TODO: Add support for (optional) automatic potion use w/pull timer
-	{'Summon Black Ox Statue', 'keybinds(lalt)', "mouseover.ground"},
+	{'Summon Black Ox Statue', 'keybind(lalt)', "mouseover.ground"},
 
 	-- Automatic res of dead party members
 	{ "%ressdead('Resuscitate')", (function() return F('auto_res') end) },
@@ -215,7 +215,7 @@ local _Melee = {
 
 NeP.Engine.registerRotation(268, '[|cff'..NeP.Interface.addonColor..'NoC|r] Monk - Brewmaster',
 	{-- In-Combat
-		{ '%pause', 'keybinds(shift)'},
+		{ '%pause', 'keybind(shift)'},
 		{_All},
 		{_Survival, 'player.health < 100'},
 		{_Interrupts, { 'target.interruptAt(55)', 'target.inMelee' }},

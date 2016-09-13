@@ -60,10 +60,10 @@ local _meta = function()
 end
 
 local _All = {
-	-- Keybinds
-	--{ 'pause', 'keybinds(shift)' },
-  { "Chaos Nova", "keybinds(lcontrol)" },
-  --{ "Darkness", "keybinds(lalt)" }, -- reserve alt for Metamorphosis instead
+	-- keybind
+	--{ 'pause', 'keybind(shift)' },
+  { "Chaos Nova", "keybind(lcontrol)" },
+  --{ "Darkness", "keybind(lalt)" }, -- reserve alt for Metamorphosis instead
 
 	{ "/stopcasting\n/stopattack\n/cleartarget\n/stopattack\n/cleartarget", { "player.combattime >= 300", (function() return F('dpstest') end) }},
 
@@ -79,10 +79,10 @@ local _Cooldowns = {
   { "Berserking" },
   { "Blood Fury" },
 
-	{ "Metamorphosis", { "keybinds(lalt)", (function() return _meta() end) }, "mouseover.ground" },
+	{ "Metamorphosis", { "keybind(lalt)", (function() return _meta() end) }, "mouseover.ground" },
 
 	-- Just cast it #YOLO
-	--{ "Metamorphosis", { "keybinds(lalt)" }, "mouseover.ground" },
+	--{ "Metamorphosis", { "keybind(lalt)" }, "mouseover.ground" },
 }
 
 local _Survival = {
@@ -202,7 +202,7 @@ local _Rotation = {
 
 NeP.Engine.registerRotation(577, '[|cff'..NeP.Interface.addonColor..'NoC|r] Demon Hunter - Havoc',
 	{ -- In-Combat
-		{ '%pause', 'keybinds(shift)'},
+		{ '%pause', 'keybind(shift)'},
 		{_All},
 		{_Survival, 'player.health < 100'},
 		{_Interrupts, 'target.interruptAt(40)'},
