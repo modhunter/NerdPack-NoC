@@ -91,7 +91,7 @@ NeP.library.register('NOC', {
 		if spell == nil or range == nil or NeP.DSL.Conditions['spell.cooldown']("player", 61304) ~= 0 then return false end
 		local spell = select(1,GetSpellInfo(spell))
 		if not IsUsableSpell(spell) then return false end
-		local enemies = NeP.OM.unitEnemie
+		local enemies = NeP.OM['unitEnemie']
 		-- randomize the enemy table so that we don't get 'stuck' on the same unit everey time in the event that it's behind us and we can't actually cast on it
 		shuffleTable( enemies )
 		for i=1,#enemies do
