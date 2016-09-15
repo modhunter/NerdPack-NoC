@@ -65,7 +65,7 @@ local _All = {
   { "Chaos Nova", "keybind(lcontrol)" },
   --{ "Darkness", "keybind(lalt)" }, -- reserve alt for Metamorphosis instead
 
-	{ "/stopcasting\n/stopattack\n/cleartarget\n/stopattack\n/cleartarget", { "player.combattime >= 300", (function() return F('dpstest') end) }},
+	{ "/stopcasting\n/stopattack\n/cleartarget\n/stopattack\n/cleartarget", { "player.combat.time >= 300", (function() return F('dpstest') end) }},
 
 	-- Vengeful Retreat backwards through the target to minimize downtime.
   --vengeful_retreat,if=(talent.prepared.enabled|talent.momentum.enabled)&buff.prepared.down&buff.momentum.down
@@ -132,7 +132,7 @@ local _Melee = {
     { "Throw Glaive", "!talent(6,1)" },
     { "Throw Glaive", "!talent(5,1)" },
     { "Throw Glaive", "player.buff(Momentum)" },
-  }, { "talent(3,3)", "toggle.multitarget", "player.area(10).enemies >= 2" }},
+  }, { "talent(3,3)", "toggle(multitarget)", "player.area(10).enemies >= 2" }},
 
   { "Fel Erruption" },
 
@@ -151,8 +151,8 @@ local _Melee = {
     { "Throw Glaive", "player.buff(Momentum)" },
   }, { "talent(3,3)" }},
 
-	{ "Eye Beam", { "!talent(7,3)", { "toggle.multitarget", "player.area(15).enemies >= 2", "or", "!player.buff(Metamorphosis)" }, { "toggle.multitarget", "player.area(15).enemies >= 2", "or", "player.level = 100" }}},
-	--{ "Eye Beam", { "!talent(7,3)", "toggle.multitarget", "player.area(15).enemies >= 2", }},
+	{ "Eye Beam", { "!talent(7,3)", { "toggle(multitarget)", "player.area(15).enemies >= 2", "or", "!player.buff(Metamorphosis)" }, { "toggle(multitarget)", "player.area(15).enemies >= 2", "or", "player.level = 100" }}},
+	--{ "Eye Beam", { "!talent(7,3)", "toggle(multitarget)", "player.area(15).enemies >= 2", }},
 	--{ "Eye Beam", { "!talent(7,3)", "!player.buff(Metamorphosis)", "player.level = 100" }},
 
   {{
@@ -161,7 +161,7 @@ local _Melee = {
     { "Demon's Bite", { "talent(7,3)", "player.spell(Eye Beam).cooldown < 3", "player.furydiff >= 45" }},
   }, { "!player.buff(Metamorphosis)" }},
 
-  { "Throw Glaive", { "!player.buff(Metamorphosis)", "toggle.multitarget", "player.area(10).enemies >= 3" }},
+  { "Throw Glaive", { "!player.buff(Metamorphosis)", "toggle(multitarget)", "player.area(10).enemies >= 3" }},
 
   { "Chaos Strike", "!talent(5,1)" },
   { "Chaos Strike", "player.buff(Momentum)" },

@@ -157,7 +157,7 @@ local _SEF = {
 
 local _Ranged = {
 	{ "116841", { "player.movingfor > 0.5", "target.alive" }}, -- Tiger's Lust
-	{ "Crackling Jade Lightning", { (function() return F('auto_cjl') end), "!player.moving", "player.combattime > 4" }},
+	{ "Crackling Jade Lightning", { (function() return F('auto_cjl') end), "!player.moving", "player.combat.time > 4" }},
 	{ "Chi Wave", { (function() return F('auto_cw') end), "target.range > 8" }},
 }
 
@@ -229,7 +229,7 @@ NeP.Engine.registerRotation(269, '[|cff'..NeP.Interface.addonColor..'NoC|r] Monk
 		{_Interrupts, { 'target.interruptAt(55)', 'target.inMelee' }},
 		{_Cooldowns, 'toggle(cooldowns)' },
 		{_SEF, { "target.range <= 5", (function() return F('SEF') end) }},
-		--{_Openner, { (function() return F('opener') end), "player.combattime < 10" }},
+		--{_Openner, { (function() return F('opener') end), "player.combat.time < 10" }},
 		{_Melee, { "target.range <= 5" }},
 		{_Ranged, { "target.range > 8", "target.range <= 40" }},
 	}, _OOC, exeOnLoad)
