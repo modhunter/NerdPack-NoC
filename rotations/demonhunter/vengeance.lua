@@ -32,7 +32,7 @@ local _All = {
   { "Infernal Strike", "keybind(lalt)" },
   { "Sigil of Flame", "keybind(lcontrol)" },
 
-	{ "/stopcasting\n/stopattack\n/cleartarget\n/stopattack\n/cleartarget", { "player.combattime >= 300", (function() return F('dpstest') end) }},
+	{ "/stopcasting\n/stopattack\n/cleartarget\n/stopattack\n/cleartarget", { "player.combat.time >= 300", (function() return F('dpstest') end) }},
 }
 
 local _Cooldowns = {
