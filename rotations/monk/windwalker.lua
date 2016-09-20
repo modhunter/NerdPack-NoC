@@ -150,11 +150,11 @@ local _SEF = {
 	{{
 		{ "Storm, Earth, and Fire", { '!toggle(AoE)', sef }},
 		{ "Storm, Earth, and Fire", "!player.buff(Storm, Earth, and Fire)" },
-	}, { "player.spell(Strike of the Windlord).cooldown < 13", "player.spell(Fists of Fury).cooldown <= 9", "player.spell(Rising Sun Kick).cooldown <= 5"  }},
-	-- {{
-	-- 	{ "Storm, Earth, and Fire", { '!toggle(AoE)', sef }},
-	-- 	{ "Storm, Earth, and Fire", "!player.buff(Storm, Earth, and Fire)" },
-	-- }, { "player.spell(Fists of Fury).cooldown <= 9", "player.spell(Rising Sun Kick).cooldown <= 5"  }},
+	}, { "player.spell(Strike of the Windlord).exists", "player.spell(Strike of the Windlord).cooldown < 13", "player.spell(Fists of Fury).cooldown <= 9", "player.spell(Rising Sun Kick).cooldown <= 5"  }},
+	{{
+		{ "Storm, Earth, and Fire", { '!toggle(AoE)', sef }},
+		{ "Storm, Earth, and Fire", "!player.buff(Storm, Earth, and Fire)" },
+	}, { "!player.spell(Strike of the Windlord).exists", "player.spell(Fists of Fury).cooldown <= 9", "player.spell(Rising Sun Kick).cooldown <= 5"  }},
 }
 
 local _Ranged = {
@@ -184,7 +184,7 @@ local _Openner = {
 	}, { "player.buff(Serenity)" }},
 
 	-- actions.opener+=/strike_of_the_windlord,if=talent.serenity.enabled|active_enemies<6
-	{ "Strike of the Windlord" { "talent(7,3)", "or", "player.area(9).enemies < 6" }},
+	{ "Strike of the Windlord", { "talent(7,3)", "or", "player.area(9).enemies < 6" }},
 
 	-- actions.opener+=/fists_of_fury
 	{ "Fists of Fury" },
@@ -287,7 +287,7 @@ local _ST = {
 local _Melee = {
 	{ _Serenity, { "player.buff(Serenity)" }},
 	{ "Energizing Elixir", { "player.energydiff > 0", "player.chi <= 1", "!player.buff(Serenity)" }},
-	{ "Strike of the Windlord" { "talent(7,3)", "or", "player.area(9).enemies < 6" }},
+	{ "Strike of the Windlord", { "talent(7,3)", "or", "player.area(9).enemies < 6" }},
 	{ "Fists of Fury" },
 	{ "@NOC.AoEMissingDebuff('Rising Sun Kick', 'Mark of the Crane', 5)", (function() return F('auto_dot') end) },
 	{ "Rising Sun Kick" },
