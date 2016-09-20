@@ -12,7 +12,6 @@ local config = {
 	config = {
 		-- General
 		{type = 'header',text = 'General', align = 'center'},
-		{type = 'checkbox', text = 'Opener', key = 'opener', default = true},
 		{type = 'checkbox', text = 'Automatic Res', key = 'auto_res', default = false},
 		--{type = 'checkbox', text = 'Automatic Pre-Pot', key = 'auto_pot', default = false},
 		{type = 'checkbox', text = '5 min DPS test', key = 'dpstest', default = false},
@@ -27,6 +26,7 @@ local config = {
 		-- Offensive
 		{type = 'spacer'},{type = 'rule'},
 		{type = 'header', text = 'Offensive', align = 'center'},
+		{type = 'checkbox', text = 'Opener', key = 'opener', default = true},
 		{type = 'checkbox', text = 'SEF usage', key = 'SEF', default = true},
 		{type = 'checkbox', text = 'Automatic CJL at range', key = 'auto_cjl', default = false},
 		{type = 'checkbox', text = 'Automatic Chi Wave at pull', key = 'auto_cw', default = true},
@@ -87,7 +87,7 @@ local _All = {
 	{ "Leg Sweep", "keybind(lcontrol)" },
   { "Touch of Karma", "keybind(lalt)" },
 
-	{ "/stopcasting\n/stopattack\n/cleartarget\n/stopattack\n/cleartarget\n/nep mt", { "player.time >= 300", (function() return F('dpstest') end) }},
+	{ "/stopcasting\n/stopattack\n/cleartarget\n/stopattack\n/cleartarget\n/nep mt", { "player.combat.time >= 300", (function() return F('dpstest') end) }},
 
 	-- Cancel CJL when we're in melee range
 	{ "!/stopcasting", { "target.range <= 5", "player.casting(Crackling Jade Lightning)" }},
