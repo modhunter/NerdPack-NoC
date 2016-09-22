@@ -1,4 +1,4 @@
--- Syncronized with simc APL as of simc commit 2d8f9afd71e21254ced2891789722ff1970f57d4
+-- Syncronized with simc APL as of simc commit a32b6ff633e8ab4f1b9d3cd2c7deb079a318cf52 (from 8c5f29f1c1df44a70b183b08b158ecc7469d77cd)
 
 local mKey = 'NoC_Monk_WW'
 local config = {
@@ -12,7 +12,6 @@ local config = {
 	config = {
 		-- General
 		{type = 'header',text = 'General', align = 'center'},
-		--{type = 'checkbox', text = 'Opener', key = 'opener', default = true},
 		{type = 'checkbox', text = 'Automatic Res', key = 'auto_res', default = false},
 		--{type = 'checkbox', text = 'Automatic Pre-Pot', key = 'auto_pot', default = false},
 		{type = 'checkbox', text = '5 min DPS test', key = 'dpstest', default = false},
@@ -27,6 +26,7 @@ local config = {
 		-- Offensive
 		{type = 'spacer'},{type = 'rule'},
 		{type = 'header', text = 'Offensive', align = 'center'},
+		{type = 'checkbox', text = 'Opener', key = 'opener', default = true},
 		{type = 'checkbox', text = 'SEF usage', key = 'SEF', default = true},
 		{type = 'checkbox', text = 'Automatic CJL at range', key = 'auto_cjl', default = false},
 		{type = 'checkbox', text = 'Automatic Chi Wave at pull', key = 'auto_cw', default = true},
@@ -87,7 +87,7 @@ local _All = {
 	{ "Leg Sweep", "keybind(lcontrol)" },
   { "Touch of Karma", "keybind(lalt)" },
 
-	{ "/stopcasting\n/stopattack\n/cleartarget\n/stopattack\n/cleartarget\n/nep mt", { "player.time >= 300", (function() return F('dpstest') end) }},
+	{ "/stopcasting\n/stopattack\n/cleartarget\n/stopattack\n/cleartarget\n/nep mt", { "player.combat.time >= 300", (function() return F('dpstest') end) }},
 
 	-- Cancel CJL when we're in melee range
 	{ "!/stopcasting", { "target.range <= 5", "player.casting(Crackling Jade Lightning)" }},
@@ -101,8 +101,10 @@ local _All = {
 
 local _Cooldowns = {
 	{{
+		{ 'Serenity', { "player.spell(Strike of the Windlord).cooldown < 14", "player.spell(Rising Sun Kick).cooldown < 7", "player.spell(Fists of Fury).cooldown <= 15" }},
+		-- TODO: add logic to handle ToD interaction with legendary item 137057
 		{ "Touch of Death", "!player.spell.usable(Gale Burst)" },
-		{ "Touch of Death", { "player.spell.usable(Gale Burst)", "player.spell(Strike of the Windlord).cooldown <= 8", "player.spell(Fists of Fury).cooldown <= 3", "player.spell(Rising Sun Kick).cooldown < 8" }},
+		{ "Touch of Death", { "player.spell.usable(Gale Burst)", "player.spell(Strike of the Windlord).cooldown <= 8", "player.spell(Fists of Fury).cooldown <= 4", "player.spell(Rising Sun Kick).cooldown < 7" }},
 	}, "target.range <= 5" },
 
 	{ "Lifeblood" },
@@ -148,11 +150,11 @@ local _SEF = {
 	{{
 		{ "Storm, Earth, and Fire", { '!toggle(AoE)', sef }},
 		{ "Storm, Earth, and Fire", "!player.buff(Storm, Earth, and Fire)" },
-	}, { "player.spell(Strike of the Windlord).cooldown <= 8", "player.spell(Fists of Fury).cooldown <= 9", "player.spell(Rising Sun Kick).cooldown <= 5"  }},
+	}, { "player.spell(Strike of the Windlord).exists", "player.spell(Strike of the Windlord).cooldown < 13", "player.spell(Fists of Fury).cooldown <= 9", "player.spell(Rising Sun Kick).cooldown <= 5"  }},
 	{{
 		{ "Storm, Earth, and Fire", { '!toggle(AoE)', sef }},
 		{ "Storm, Earth, and Fire", "!player.buff(Storm, Earth, and Fire)" },
-	}, { "player.spell(Fists of Fury).cooldown <= 9", "player.spell(Rising Sun Kick).cooldown <= 5"  }},
+	}, { "!player.spell(Strike of the Windlord).exists", "player.spell(Fists of Fury).cooldown <= 9", "player.spell(Rising Sun Kick).cooldown <= 5"  }},
 }
 
 local _Ranged = {
@@ -161,63 +163,143 @@ local _Ranged = {
 	{ "Chi Wave", { (function() return F('auto_cw') end), "target.range > 8" }},
 }
 
--- TODO: Under review
 local _Openner = {
+	{ "Invoke Xuen, the White Tiger", { "player.hashero", "or", "player.buff(156423)", "or", "player.buff(188027)" }},
+	-- actions.opener=blood_fury
+	-- actions.opener+=/berserking
+	-- actions.opener+=/energizing_elixir
+	{ "Energizing Elixir" },
+
+	-- actions.opener+=/serenity
+	{ "Serenity" },
+
+	-- actions.opener+=/storm_earth_and_fire
+	{ "Storm, Earth, and Fire", { '!toggle(AoE)', sef }},
+	{ "Storm, Earth, and Fire", "!player.buff(Storm, Earth, and Fire)" },
+
+	-- actions.opener+=/rising_sun_kick,cycle_targets=1,if=buff.serenity.up
+	{{
+		{ "@NOC.AoEMissingDebuff('Rising Sun Kick', 'Mark of the Crane', 5)", (function() return F('auto_dot') end) },
+		{ "Rising Sun Kick" },
+	}, { "player.buff(Serenity)" }},
+
+	-- actions.opener+=/strike_of_the_windlord,if=talent.serenity.enabled|active_enemies<6
+	{ "Strike of the Windlord", { "talent(7,3)", "or", "player.area(9).enemies < 6" }},
+
+	-- actions.opener+=/fists_of_fury
+	{ "Fists of Fury" },
+
+	-- actions.opener+=/rising_sun_kick,cycle_targets=1
+	{ "@NOC.AoEMissingDebuff('Rising Sun Kick', 'Mark of the Crane', 5)", (function() return F('auto_dot') end) },
+	{ "Rising Sun Kick" },
+
+	-- actions.opener+=/whirling_dragon_punch
+	{ "Whirling Dragon Punch" },
+
+	-- actions.opener+=/spinning_crane_kick,if=buff.serenity.up&cooldown.rising_sun_kick.remains>1&!prev_gcd.spinning_crane_kick
+	{ 'Spinning Crane Kick', { "player.buff(Serenity)", "player.spell(Rising Sun Kick).cooldown > 1", '!lastcast(Spinning Crane Kick)', "@NOC.hitcombo('Spinning Crane Kick')" }},
+
+	-- actions.opener+=/rushing_jade_wind,if=(buff.serenity.up|chi>1)&cooldown.rising_sun_kick.remains>1&!prev_gcd.rushing_jade_wind
+	{{
+		{ "Rushing Jade Wind", { "player.buff(Serenity)", "or", "player.chi > 1" }},
+	}, { "player.spell(Rising Sun Kick).cooldown > 1", "!lastcast(Rushing Jade Wind)", "@NOC.hitcombo('Rushing Jade Wind')" }},
+
+	-- actions.opener+=/blackout_kick,cycle_targets=1,if=chi>1&cooldown.rising_sun_kick.remains>1&!prev_gcd.blackout_kick
+	{{
+		{ "@NOC.AoEMissingDebuff('Blackout Kick', 'Mark of the Crane', 5)", { (function() return F('auto_dot') end) }},
+		{ "Blackout Kick" },
+	}, { "player.chi > 1", "player.spell(Rising Sun Kick).cooldown > 1", "!lastcast(Blackout Kick)", "@NOC.hitcombo('Blackout Kick')" }},
+
+	-- actions.opener+=/chi_wave
+	{ "Chi Wave" }, -- 40 yard range 0 energy, 0 chi
+
+	-- actions.opener+=/chi_burst
+	{ "Chi Burst", "!player.moving" },
+
+	-- actions.opener+=/tiger_palm,cycle_targets=1,if=chi.max-chi>=2&!prev_gcd.tiger_palm
+	{{
+		{ "@NOC.AoEMissingDebuff('Tiger Palm', 'Mark of the Crane', 5)"},
+		{ "Tiger Palm" },
+	}, { "player.chidiff >= 2", "!lastcast(Tiger Palm)", "@NOC.hitcombo('Tiger Palm')" }},
+
+	-- actions.opener+=/arcane_torrent,if=chi.max-chi>=1
+
+}
+
+local _Serenity = {
+	-- actions.serenity=strike_of_the_windlord
+	{ "Strike of the Windlord" },
+	-- actions.serenity+=/rising_sun_kick,cycle_targets=1
+	{ "@NOC.AoEMissingDebuff('Rising Sun Kick', 'Mark of the Crane', 5)", (function() return F('auto_dot') end) },
+	{ "Rising Sun Kick" },
+	-- actions.serenity+=/fists_of_fury
+	{ "Fists of Fury" },
+	-- actions.serenity+=/spinning_crane_kick,if=cooldown.rising_sun_kick.remains>1&!prev_gcd.spinning_crane_kick
+	{ 'Spinning Crane Kick', { "player.spell(Rising Sun Kick).cooldown > 1", '!lastcast(Spinning Crane Kick)', "@NOC.hitcombo('Spinning Crane Kick')" }},
+	-- actions.serenity+=/rushing_jade_wind,if=cooldown.rising_sun_kick.remains>1&!prev_gcd.rushing_jade_wind
+	{ "Rushing Jade Wind", { "player.spell(Rising Sun Kick).cooldown > 1", "!lastcast(Rushing Jade Wind)", "@NOC.hitcombo('Rushing Jade Wind')" }},
+	-- actions.serenity+=/blackout_kick,cycle_targets=1,if=cooldown.rising_sun_kick.remains>1&!prev_gcd.blackout_kick
+	{{
+		{ "@NOC.AoEMissingDebuff('Blackout Kick', 'Mark of the Crane', 5)", { (function() return F('auto_dot') end) }},
+		{ "Blackout Kick" },
+	}, { "player.spell(Rising Sun Kick).cooldown > 1", "!lastcast(Blackout Kick)", "@NOC.hitcombo('Blackout Kick')" }},
 }
 
 local _AoE = {
 	{ 'Spinning Crane Kick', { '!lastcast(Spinning Crane Kick)', "@NOC.hitcombo('Spinning Crane Kick')", "player.spell(Spinning Crane Kick).count >= 2" }},
-	{ "@NOC.AoEMissingDebuff('Rising Sun Kick', 'Mark of the Crane', 5)", (function() return F('auto_dot') end) },
-	{ "Rising Sun Kick" },
-	{ "Rushing Jade Wind", { "player.chi >= 1", "!lastcast(Rushing Jade Wind)", "@NOC.hitcombo('Rushing Jade Wind')" }},
-	{ 'Spinning Crane Kick', { '!lastcast(Spinning Crane Kick)', "@NOC.hitcombo('Spinning Crane Kick')", "player.spell(Spinning Crane Kick).count >= 4" }},
-	{{
-		{ "Chi Wave" }, -- 40 yard range 0 energy, 0 chi
-		{ "Chi Burst", "!player.moving" },
-	}, { "!player.buff(Serenity)", "player.timetomax > 2" }},
+	{ "Rushing Jade Wind", { "player.chi > 1", "!lastcast(Rushing Jade Wind)", "@NOC.hitcombo('Rushing Jade Wind')" }},
+	--{ 'Spinning Crane Kick', { '!lastcast(Spinning Crane Kick)', "@NOC.hitcombo('Spinning Crane Kick')", "player.spell(Spinning Crane Kick).count >= 4" }},
 	{{
 		{ "@NOC.AoEMissingDebuff('Blackout Kick', 'Mark of the Crane', 5)", { "player.buff(Blackout Kick!)", (function() return F('auto_dot') end) }},
 		{ "Blackout Kick", "player.buff(Blackout Kick!)" },
-  	{ "@NOC.AoEMissingDebuff('Blackout Kick', 'Mark of the Crane', 5)", { "player.chi > 1", (function() return F('auto_dot') end) }},
+		{ "@NOC.AoEMissingDebuff('Blackout Kick', 'Mark of the Crane', 5)", { "player.chi > 1", (function() return F('auto_dot') end) }},
 		{ "Blackout Kick", "player.chi > 1" },
 	}, { "!lastcast(Blackout Kick)", "@NOC.hitcombo('Blackout Kick')" }},
 
-	{ "@NOC.AoEMissingDebuff('Tiger Palm', 'Mark of the Crane', 5)", { "!player.buff(Serenity)", "player.chidiff > 1", (function() return F('auto_dot') end), "!lastcast(Tiger Palm)", "@NOC.hitcombo('Tiger Palm')" }},
-	{ "Tiger Palm", { "!player.buff(Serenity)", "player.chidiff > 1", "!lastcast(Tiger Palm)", "@NOC.hitcombo('Tiger Palm')" }},
-
-}
-
-local _ST = {
-	{ 'Spinning Crane Kick', { '!lastcast(Spinning Crane Kick)', "@NOC.hitcombo('Spinning Crane Kick')", { "player.spell(Spinning Crane Kick).count >= 6", "or", { "player.spell(Spinning Crane Kick).count >= 2", "player.area(8).enemies >= 2" }}}},
-	{ "Rising Sun Kick" },
-	{ "Rushing Jade Wind", { "player.chi > 1", "!lastcast(Rushing Jade Wind)", "@NOC.hitcombo('Rushing Jade Wind')" }},
-	{ 'Spinning Crane Kick', { '!lastcast(Spinning Crane Kick)', "@NOC.hitcombo('Spinning Crane Kick')", { "player.spell(Spinning Crane Kick).count >= 4", "or", "player.area(8).enemies >= 2" }}},
 	{{
 		{ "Chi Wave" }, -- 40 yard range 0 energy, 0 chi
 		{ "Chi Burst", "!player.moving" },
-	}, { "!player.buff(Serenity)" }},
+	}, { "player.timetomax > 2" }},
+	{{
+		{ "@NOC.AoEMissingDebuff('Tiger Palm', 'Mark of the Crane', 5)"},
+		{ "Tiger Palm" },
+	}, { "player.chidiff > 1", "!lastcast(Tiger Palm)", "@NOC.hitcombo('Tiger Palm')" }},
+}
+
+local _ST = {
+	--{ 'Spinning Crane Kick', { '!lastcast(Spinning Crane Kick)', "@NOC.hitcombo('Spinning Crane Kick')", { "player.spell(Spinning Crane Kick).count >= 6", "or", { "player.spell(Spinning Crane Kick).count >= 2", "player.area(8).enemies >= 2" }}}},
+	{ "Rushing Jade Wind", { "player.chi > 1", "!lastcast(Rushing Jade Wind)", "@NOC.hitcombo('Rushing Jade Wind')" }},
+	--{ 'Spinning Crane Kick', { '!lastcast(Spinning Crane Kick)', "@NOC.hitcombo('Spinning Crane Kick')", { "player.spell(Spinning Crane Kick).count >= 4", "or", "player.area(8).enemies >= 2" }}},
 	{{
   	{ "Blackout Kick", "player.buff(Blackout Kick!)" },
   	{ "Blackout Kick", "player.chi > 1" },
-	}, { "!player.buff(Serenity)", "!lastcast(Blackout Kick)", "@NOC.hitcombo('Blackout Kick')" }},
-	{ "Tiger Palm", { "!player.buff(Serenity)", "player.chi <= 2", "!lastcast(Tiger Palm)", "@NOC.hitcombo('Tiger Palm')" }},
+	}, { "!lastcast(Blackout Kick)", "@NOC.hitcombo('Blackout Kick')" }},
+	{{
+		{ "Chi Wave" }, -- 40 yard range 0 energy, 0 chi
+		{ "Chi Burst", "!player.moving" },
+	}, { "player.timetomax > 2" }},
+	{{
+		{ "@NOC.AoEMissingDebuff('Tiger Palm', 'Mark of the Crane', 5)"},
+		{ "Tiger Palm" },
+	}, { "player.chi <= 2", "!lastcast(Tiger Palm)", "@NOC.hitcombo('Tiger Palm')" }},
 }
 
 local _Melee = {
-	{ 'Serenity', { "player.spell(Strike of the Windlord).cooldown <= 8", "player.spell(Rising Sun Kick).cooldown < 8", "player.spell(Fists of Fury).cooldown <= 3" }},
-	{ 'Serenity', { "player.spell(Rising Sun Kick).cooldown < 8", "player.spell(Fists of Fury).cooldown <= 3" }},
+	{ _Serenity, { "player.buff(Serenity)" }},
 	{ "Energizing Elixir", { "player.energydiff > 0", "player.chi <= 1", "!player.buff(Serenity)" }},
-	{ "Rushing Jade Wind", { "player.buff(Serenity)", "!lastcast(Rushing Jade Wind)", "@NOC.hitcombo('Rushing Jade Wind')" }},
-	{ "Strike of the Windlord" },
-	{ 'Spinning Crane Kick', { '!lastcast(Spinning Crane Kick)', "@NOC.hitcombo('Spinning Crane Kick')", { "player.spell(Spinning Crane Kick).count >= 17" }}},
-	{ "Whirling Dragon Punch" },
-	{ 'Spinning Crane Kick', { '!lastcast(Spinning Crane Kick)', "@NOC.hitcombo('Spinning Crane Kick')", { "player.spell(Spinning Crane Kick).count >= 12" }}},
+	{ "Strike of the Windlord", { "talent(7,3)", "or", "player.area(9).enemies < 6" }},
 	{ "Fists of Fury" },
+	{ "@NOC.AoEMissingDebuff('Rising Sun Kick', 'Mark of the Crane', 5)", (function() return F('auto_dot') end) },
+	{ "Rising Sun Kick" },
+	--{ 'Spinning Crane Kick', { '!lastcast(Spinning Crane Kick)', "@NOC.hitcombo('Spinning Crane Kick')", { "player.spell(Spinning Crane Kick).count >= 17" }}},
+	{ "Whirling Dragon Punch" },
+	--{ 'Spinning Crane Kick', { '!lastcast(Spinning Crane Kick)', "@NOC.hitcombo('Spinning Crane Kick')", { "player.spell(Spinning Crane Kick).count >= 12" }}},
 
 	{ _AoE, { 'player.area(8).enemies >= 3', 'toggle(AoE)' }},
 	{ _ST },
 
 	-- CJL when we're using Hit Combo as a last resort filler, and it's toggled on
+	-- TODO: remove this or add a big energy buffer to the check since it is no longer free to cast
 	{ "Crackling Jade Lightning", { (function() return F('auto_cjl_hc') end), "!lastcast(Crackling Jade Lightning)", "@NOC.hitcombo('Crackling Jade Lightning')" }},
 }
 
@@ -227,9 +309,9 @@ NeP.Engine.registerRotation(269, '[|cff'..NeP.Interface.addonColor..'NoC|r] Monk
 		{_All},
 		{_Survival, 'player.health < 100'},
 		{_Interrupts, { 'target.interruptAt(55)', 'target.inMelee' }},
-		{_Cooldowns, 'toggle(cooldowns)' },
+		{_Openner, { (function() return F('opener') end), "player.combat.time < 15", "target.range <= 5" }},
+		{_Cooldowns, { 'toggle(cooldowns)', "target.range <= 5" }},
 		{_SEF, { "target.range <= 5", (function() return F('SEF') end) }},
-		--{_Openner, { (function() return F('opener') end), "player.combat.time < 10" }},
 		{_Melee, { "target.range <= 5" }},
 		{_Ranged, { "target.range > 8", "target.range <= 40" }},
 	}, _OOC, exeOnLoad)
