@@ -70,7 +70,7 @@ local HitComboLastCast = ''
 NeP.Timer.Sync("windwalker_sync", 0.1, function()
 	local Running = NeP.DSL.Get('toggle')(nil, 'mastertoggle')
 	if Running then
-		if NeP.Engine.SelectedCR then
+		if NeP.Interface.GetSelectedCR() then
 			if not NeP.Engine.forcePause then
 				local _, _, _, _, _, _, spellID = GetSpellInfo(NeP.Engine.lastCast)
 				if spellID then

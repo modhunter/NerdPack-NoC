@@ -159,7 +159,7 @@ local _SEF = {
 
 local _Ranged = {
 	{ "116841", { "player.movingfor > 0.5", "target.alive" }}, -- Tiger's Lust
-	{ "Crackling Jade Lightning", { (function() return F('auto_cjl') end), "!player.moving", "player.combat.time > 4" }},
+	{ "Crackling Jade Lightning", { (function() return F('auto_cjl') end), "!player.moving", "player.combat.time > 4", "!lastcast(Crackling Jade Lightning)", "@NOC.hitcombo('Crackling Jade Lightning')" }},
 	{ "Chi Wave", { (function() return F('auto_cw') end), "target.range > 8" }},
 }
 
