@@ -309,9 +309,9 @@ NeP.Engine.registerRotation(269, '[|cff'..NeP.Interface.addonColor..'NoC|r] Monk
 		{_All},
 		{_Survival, 'player.health < 100'},
 		{_Interrupts, { 'target.interruptAt(55)', 'target.inMelee' }},
-		{_Openner, { (function() return F('opener') end), "player.combat.time < 15", "target.range <= 5" }},
-		{_Cooldowns, { 'toggle(cooldowns)', "target.range <= 5" }},
-		{_SEF, { "target.range <= 5", (function() return F('SEF') end) }},
-		{_Melee, { "target.range <= 5" }},
+		{_Openner, { (function() return F('opener') end), "player.combat.time < 15", "target.range <= 5", "!player.casting(Fists of Fury)" }},
+		{_Cooldowns, { 'toggle(cooldowns)', "target.range <= 5", "!player.casting(Fists of Fury)" }},
+		{_SEF, { "target.range <= 5", (function() return F('SEF') end), "!player.casting(Fists of Fury)" }},
+		{_Melee, { "target.range <= 5", "!player.casting(Fists of Fury)" }},
 		{_Ranged, { "target.range > 8", "target.range <= 40" }},
 	}, _OOC, exeOnLoad)
