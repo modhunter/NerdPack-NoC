@@ -88,18 +88,18 @@ end, 99)
 NeP.library.register('NOC', {
 
 	AoEMissingDebuff = function(spell, debuff, range)
-		if spell == nil or range == nil or NeP.DSL.Conditions['spell.cooldown']("player", 61304) ~= 0 then return false end
+		if spell == nil or range == nil then return false end
 		local spell = select(1,GetSpellInfo(spell))
 		if not IsUsableSpell(spell) then return false end
 		local enemies = NeP.OM['unitEnemie']
 		-- randomize the enemy table so that we don't get 'stuck' on the same unit everey time in the event that it's behind us and we can't actually cast on it
-		shuffleTable( enemies )
+		--shuffleTable( enemies )
 		for i=1,#enemies do
 			local Obj = enemies[i]
-			if Obj.distance <= range and (UnitAffectingCombat(Obj.key) or Obj.is == 'dummy') then
+			if Obj.distance <= range and (UnitAffectingCombat(Obj.key) or isDummy(Obj.key)) then
 				local _,_,_,_,_,_,debuffDuration = UnitDebuff(Obj.key, debuff, nil, 'PLAYER')
 				if not debuffDuration or debuffDuration - GetTime() < 1.5 then
-					-- print("AoEMissingDebuff: ATTEMPT "..spell.." against "..Obj.name.." ("..Obj.key..")".." - TTD="..NeP.CombatTracker.TimeToDie(Obj.key));
+					--print("AoEMissingDebuff: ATTEMPT "..spell.." against "..Obj.name.." ("..Obj.key..")".." - TTD="..NeP.CombatTracker.TimeToDie(Obj.key));
 					-- if not NeP.Helpers.infront then
 					-- 	print("before check, infront is false")
 					-- end
@@ -112,14 +112,15 @@ NeP.library.register('NOC', {
 					-- 	print ("spellHasFailed["..spell.."] is true");
 					-- end
 					--if (Obj.key ~= 'target') and UnitCanAttack('player', Obj.key) and NeP.Helpers.SpellSanity(spell, Obj.key) and (NeP.CombatTracker.TimeToDie(Obj.key) > 3) then
-					if (Obj.key ~= 'target') and (NeP.CombatTracker.TimeToDie(Obj.key) > 3) then
-						--print("AoEMissingDebuff: casting "..spell.." against "..Obj.name.." ("..Obj.key.." - "..Obj.guid..") - TTD="..NeP.CombatTracker.TimeToDie(Obj.key));
+					if (Obj.key ~= 'target') and (NeP.Engine.LineOfSight('player', Obj.key)) and (NeP.Engine:Spell(spell)) then
+						--print("AoEMissingDebuff: casting "..spell.." against "..Obj.name.." ("..Obj.key.." - "..time()..") - TTD="..NeP.CombatTracker.TimeToDie(Obj.key));
 						NeP.Engine.Cast_Queue(spell, Obj.key)
 						return true
 					end
 				end
 			end
 		end
+		return false
 	end,
 
 	-- getGCD = function()
