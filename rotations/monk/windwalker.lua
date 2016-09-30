@@ -1,4 +1,4 @@
--- Syncronized with simc APL as of simc commit a32b6ff633e8ab4f1b9d3cd2c7deb079a318cf52 (from 8c5f29f1c1df44a70b183b08b158ecc7469d77cd)
+-- Syncronized with simc APL as of simc commit f5fa6c7e95dc496ec391112ccfc4821bf228897c (from a32b6ff633e8ab4f1b9d3cd2c7deb079a318cf52)
 
 local mKey = 'NoC_Monk_WW'
 local config = {
@@ -101,10 +101,9 @@ local _All = {
 
 local _Cooldowns = {
 	{{
-		{ 'Serenity', { "player.spell(Strike of the Windlord).cooldown < 14", "player.spell(Rising Sun Kick).cooldown < 7", "player.spell(Fists of Fury).cooldown <= 15" }},
 		-- TODO: add logic to handle ToD interaction with legendary item 137057
 		{ "Touch of Death", "!player.spell.usable(Gale Burst)" },
-		{ "Touch of Death", { "player.spell.usable(Gale Burst)", "player.spell(Strike of the Windlord).cooldown <= 8", "player.spell(Fists of Fury).cooldown <= 4", "player.spell(Rising Sun Kick).cooldown < 7" }},
+		{ "Touch of Death", { "player.spell.usable(Gale Burst)", "player.spell(Strike of the Windlord).cooldown < 8", "player.spell(Fists of Fury).cooldown <= 4", "player.spell(Rising Sun Kick).cooldown < 7" }},
 	}, "target.range <= 5" },
 
 	{ "Lifeblood" },
@@ -121,7 +120,6 @@ local _Survival = {
 	{ "Healing Elixir", { HealingElixir }, "player" },
 
 	-- TODO: Update for legion's equivillant to healing tonic 109223
-	-- TODO: Item usage may still be broken in NeP, consider commenting-out
 	{ "#109223", healthstn, "player" }, -- Healing Tonic
 	{ '#5512', healthstn, "player" }, -- Healthstone
 	{ "Detox", "player.dispellable(Detox)", "player" },
@@ -147,10 +145,12 @@ local _Interrupts = {
 }
 
 local _SEF = {
+	{ "Energizing Elixir" },
+	{ _Cooldowns, 'toggle(cooldowns)' },
 	{{
 		{ "Storm, Earth, and Fire", { '!toggle(AoE)', sef }},
 		{ "Storm, Earth, and Fire", "!player.buff(Storm, Earth, and Fire)" },
-	}, { "player.spell(Strike of the Windlord).exists", "player.spell(Strike of the Windlord).cooldown < 13", "player.spell(Fists of Fury).cooldown <= 9", "player.spell(Rising Sun Kick).cooldown <= 5"  }},
+	}, { "player.spell(Strike of the Windlord).exists", "player.spell(Strike of the Windlord).cooldown <= 14", "player.spell(Fists of Fury).cooldown <= 6", "player.spell(Rising Sun Kick).cooldown <= 6"  }},
 	{{
 		{ "Storm, Earth, and Fire", { '!toggle(AoE)', sef }},
 		{ "Storm, Earth, and Fire", "!player.buff(Storm, Earth, and Fire)" },
@@ -163,68 +163,31 @@ local _Ranged = {
 	{ "Chi Wave", { (function() return F('auto_cw') end), "target.range > 8" }},
 }
 
-
 local _Serenity = {
-	-- actions.serenity=strike_of_the_windlord
+	{ "Energizing Elixir" },
+	{ _Cooldowns, { 'toggle(cooldowns)', "target.range <= 5" }},
+	{ "Serenity" },
 	{ "Strike of the Windlord" },
-	-- actions.serenity+=/rising_sun_kick,cycle_targets=1
-	{ "@NOC.AoEMissingDebuff('Rising Sun Kick', 'Mark of the Crane', 5)", (function() return F('auto_dot') end) },
-	{ "Rising Sun Kick" },
-	-- actions.serenity+=/fists_of_fury
+	{{
+		{ "@NOC.AoEMissingDebuff('Rising Sun Kick', 'Mark of the Crane', 5)", (function() return F('auto_dot') end) },
+		{ "Rising Sun Kick" },
+	}, { 'player.area(5).enemies < 3' }},
 	{ "Fists of Fury" },
-	-- actions.serenity+=/spinning_crane_kick,if=cooldown.rising_sun_kick.remains>1&!prev_gcd.spinning_crane_kick
-	{ 'Spinning Crane Kick', { "player.spell(Rising Sun Kick).cooldown > 1", '!lastcast(Spinning Crane Kick)', "@NOC.hitcombo('Spinning Crane Kick')" }},
-	-- actions.serenity+=/rushing_jade_wind,if=cooldown.rising_sun_kick.remains>1&!prev_gcd.rushing_jade_wind
-	{ "Rushing Jade Wind", { "player.spell(Rising Sun Kick).cooldown > 1", "!lastcast(Rushing Jade Wind)", "@NOC.hitcombo('Rushing Jade Wind')" }},
-	-- actions.serenity+=/blackout_kick,cycle_targets=1,if=cooldown.rising_sun_kick.remains>1&!prev_gcd.blackout_kick
+	{ 'Spinning Crane Kick', { 'player.area(8).enemies >= 3', 'toggle(AoE)', '!lastcast(Spinning Crane Kick)', "@NOC.hitcombo('Spinning Crane Kick')" }},
+	{{
+		{ "@NOC.AoEMissingDebuff('Rising Sun Kick', 'Mark of the Crane', 5)", (function() return F('auto_dot') end) },
+		{ "Rising Sun Kick" },
+	}, { 'player.area(5).enemies >= 3' }},
 	{{
 		{ "@NOC.AoEMissingDebuff('Blackout Kick', 'Mark of the Crane', 5)", { (function() return F('auto_dot') end) }},
 		{ "Blackout Kick" },
-	}, { "player.spell(Rising Sun Kick).cooldown > 1", "!lastcast(Blackout Kick)", "@NOC.hitcombo('Blackout Kick')" }},
-}
-
-local _AoE = {
-	{ 'Spinning Crane Kick', { '!lastcast(Spinning Crane Kick)', "@NOC.hitcombo('Spinning Crane Kick')", "player.spell(Spinning Crane Kick).count >= 2" }},
-	{ "Rushing Jade Wind", { "player.chi > 1", "!lastcast(Rushing Jade Wind)", "@NOC.hitcombo('Rushing Jade Wind')" }},
-	--{ 'Spinning Crane Kick', { '!lastcast(Spinning Crane Kick)', "@NOC.hitcombo('Spinning Crane Kick')", "player.spell(Spinning Crane Kick).count >= 4" }},
-	{{
-		{ "@NOC.AoEMissingDebuff('Blackout Kick', 'Mark of the Crane', 5)", { "player.buff(Blackout Kick!)", (function() return F('auto_dot') end) }},
-		{ "Blackout Kick", "player.buff(Blackout Kick!)" },
-		{ "@NOC.AoEMissingDebuff('Blackout Kick', 'Mark of the Crane', 5)", { "player.chi > 1", (function() return F('auto_dot') end) }},
-		{ "Blackout Kick", "player.chi > 1" },
 	}, { "!lastcast(Blackout Kick)", "@NOC.hitcombo('Blackout Kick')" }},
-
-	{{
-		{ "Chi Wave" }, -- 40 yard range 0 energy, 0 chi
-		{ "Chi Burst", "!player.moving" },
-	}, { "player.timetomax > 2" }},
-	{{
-		{ "@NOC.AoEMissingDebuff('Tiger Palm', 'Mark of the Crane', 5)", (function() return F('auto_dot') end) },
-		{ "Tiger Palm" },
-	}, { "player.chidiff > 1", "!lastcast(Tiger Palm)", "@NOC.hitcombo('Tiger Palm')" }},
-}
-
-local _ST = {
-	--{ 'Spinning Crane Kick', { '!lastcast(Spinning Crane Kick)', "@NOC.hitcombo('Spinning Crane Kick')", { "player.spell(Spinning Crane Kick).count >= 6", "or", { "player.spell(Spinning Crane Kick).count >= 2", "player.area(8).enemies >= 2" }}}},
-	{ "Rushing Jade Wind", { "player.chi > 1", "!lastcast(Rushing Jade Wind)", "@NOC.hitcombo('Rushing Jade Wind')" }},
-	--{ 'Spinning Crane Kick', { '!lastcast(Spinning Crane Kick)', "@NOC.hitcombo('Spinning Crane Kick')", { "player.spell(Spinning Crane Kick).count >= 4", "or", "player.area(8).enemies >= 2" }}},
-	{{
-  	{ "Blackout Kick", "player.buff(Blackout Kick!)" },
-  	{ "Blackout Kick", "player.chi > 1" },
-	}, { "!lastcast(Blackout Kick)", "@NOC.hitcombo('Blackout Kick')" }},
-	{{
-		{ "Chi Wave" }, -- 40 yard range 0 energy, 0 chi
-		{ "Chi Burst", "!player.moving" },
-	}, { "player.timetomax > 2" }},
-	{{
-		{ "@NOC.AoEMissingDebuff('Tiger Palm', 'Mark of the Crane', 5)", { (function() return F('auto_dot') end) }},
-		{ "Tiger Palm" },
-	}, { "player.chi <= 2", "!lastcast(Tiger Palm)", "@NOC.hitcombo('Tiger Palm')" }},
+	{ "Rushing Jade Wind", { "!lastcast(Rushing Jade Wind)", "@NOC.hitcombo('Rushing Jade Wind')" }},
 }
 
 local _Melee = {
-	{ _Serenity, { "player.buff(Serenity)" }},
-	{ "Energizing Elixir", { "player.energydiff > 0", "player.chi <= 1", "!player.buff(Serenity)" }},
+	{ _Cooldowns, { 'toggle(cooldowns)', "target.range <= 5" }},
+	{ "Energizing Elixir", { "player.energydiff > 0", "player.chi <= 1" }},
 	{ "Strike of the Windlord", { "talent(7,3)", "or", "player.area(9).enemies < 6" }},
 	{ "Fists of Fury" },
 	{ "@NOC.AoEMissingDebuff('Rising Sun Kick', 'Mark of the Crane', 5)", { (function() return F('auto_dot') end) }},
@@ -232,75 +195,45 @@ local _Melee = {
 	--{ 'Spinning Crane Kick', { '!lastcast(Spinning Crane Kick)', "@NOC.hitcombo('Spinning Crane Kick')", { "player.spell(Spinning Crane Kick).count >= 17" }}},
 	{ "Whirling Dragon Punch" },
 	--{ 'Spinning Crane Kick', { '!lastcast(Spinning Crane Kick)', "@NOC.hitcombo('Spinning Crane Kick')", { "player.spell(Spinning Crane Kick).count >= 12" }}},
+	{ 'Spinning Crane Kick', { 'player.area(8).enemies >= 3', 'toggle(AoE)', '!lastcast(Spinning Crane Kick)', "@NOC.hitcombo('Spinning Crane Kick')" }},
+	{ "Rushing Jade Wind", { "player.chidiff > 1", "!lastcast(Rushing Jade Wind)", "@NOC.hitcombo('Rushing Jade Wind')" }},
+	{{
+  	{ "Blackout Kick", "player.buff(Blackout Kick!)" },
+  	{ "Blackout Kick", "player.chi > 1" },
+	}, { "!lastcast(Blackout Kick)", "@NOC.hitcombo('Blackout Kick')" }},
+	{{
+		{ "Chi Wave" }, -- 40 yard range 0 energy, 0 chi
+		{ "Chi Burst", "!player.moving" },
+	}, { "player.timetomax >= 2.25" }},
+	{{
+		{ "@NOC.AoEMissingDebuff('Tiger Palm', 'Mark of the Crane', 5)", { (function() return F('auto_dot') end) }},
+		{ "Tiger Palm" },
+	}, { "!lastcast(Tiger Palm)", "@NOC.hitcombo('Tiger Palm')" }},
 
-	{ _AoE, { 'player.area(8).enemies >= 3', 'toggle(AoE)' }},
-	{ _ST },
+	{{
+		{ "Crackling Jade Lightning", "talent(6,1)" },
+		{ "Crackling Jade Lightning", "!talent(6,1)" },
+	}, { "player.chidiff = 1", "player.spell(Rising Sun Kick).cooldown > 1", "player.spell(Fists of Fury).cooldown > 1", "player.spell(Strike of the Windlord).cooldown > 1", "!lastcast(Crackling Jade Lightning)", "@NOC.hitcombo('Crackling Jade Lightning')" }},
 
 	-- CJL when we're using Hit Combo as a last resort filler, and it's toggled on
 	-- TODO: remove this in 7.1 or add a big energy buffer to the check since it is no longer free to cast
 	{ "Crackling Jade Lightning", { (function() return F('auto_cjl_hc') end), "!lastcast(Crackling Jade Lightning)", "@NOC.hitcombo('Crackling Jade Lightning')" }},
+
+	-- Last resort BoK when we only have 1 chi and Hit COmbo <= 4 secs left
+	{ "Blackout Kick", { "player.chi = 1", "player.buff(Hit Combo) <= 4", "!lastcast(Blackout Kick)", "@NOC.hitcombo('Blackout Kick')" }},
+
+
 }
 
 NeP.Engine.registerRotation(269, '[|cff'..NeP.Interface.addonColor..'NoC|r] Monk - Windwalker',
 	{ -- In-Combat
-		{'%pause', 'keybind(shift)'},
-		{_All},
-		{_Survival, 'player.health < 100'},
-		{_Interrupts, { 'target.interruptAt(55)', 'target.inMelee' }},
-		{_Cooldowns, { 'toggle(cooldowns)', "target.range <= 5", "!player.casting(Fists of Fury)" }},
-		{_SEF, { "target.range <= 5", (function() return F('SEF') end), "!player.casting(Fists of Fury)" }},
-		{_Melee, { "target.range <= 5", "!player.casting(Fists of Fury)" }},
-		{_Ranged, { "target.range > 8", "target.range <= 40" }},
+		{ '%pause', 'keybind(shift)'},
+		{ _All},
+		{ _Survival, 'player.health < 100'},
+		{ _Interrupts, { 'target.interruptAt(55)', 'target.inMelee' }},
+		{ _Serenity, { "target.range <= 5", "talent(7,3)", "!player.casting(Fists of Fury)", {{ "player.spell(Strike of the Windlord).exists", "player.spell(Strike of the Windlord).cooldown <= 14", "player.spell(Rising Sun Kick).cooldown <= 4" }, "or", "player.buff(Serenity)" }}},
+		{ _Serenity, { "target.range <= 5", "talent(7,3)", "!player.casting(Fists of Fury)", {{ "!player.spell(Strike of the Windlord).exists", "player.spell(Fists of Fury).cooldown <= 15", "player.spell(Rising Sun Kick).cooldown < 7" }, "or", "player.buff(Serenity)" }}},
+		{ _SEF, { "target.range <= 5", (function() return F('SEF') end), "!talent(7,3)", "!player.casting(Fists of Fury)" }},
+		{ _Melee, { "target.range <= 9", "!player.casting(Fists of Fury)" }},
+		{ _Ranged, { "target.range > 8", "target.range <= 40" }},
 	}, _OOC, exeOnLoad)
-
-
--- 	# Executed every time the actor is available.
--- actions=auto_attack
--- actions+=/potion,name=old_war,if=buff.serenity.up|buff.storm_earth_and_fire.up|(!talent.serenity.enabled&trinket.proc.agility.react)|buff.bloodlust.react|target.time_to_die<=60
--- actions+=/call_action_list,name=serenity,if=talent.serenity.enabled&((artifact.strike_of_the_windlord.enabled&cooldown.strike_of_the_windlord.remains<=14&cooldown.rising_sun_kick.remains<=4)|buff.serenity.up)
--- actions+=/call_action_list,name=sef,if=!talent.serenity.enabled&((artifact.strike_of_the_windlord.enabled&cooldown.strike_of_the_windlord.remains<=14&cooldown.fists_of_fury.remains<=6&cooldown.rising_sun_kick.remains<=6)|buff.storm_earth_and_fire.up)
--- actions+=/call_action_list,name=serenity,if=(!artifact.strike_of_the_windlord.enabled&cooldown.strike_of_the_windlord.remains<14&cooldown.fists_of_fury.remains<=15&cooldown.rising_sun_kick.remains<7)|buff.serenity.up
--- actions+=/call_action_list,name=sef,if=!talent.serenity.enabled&((!artifact.strike_of_the_windlord.enabled&cooldown.fists_of_fury.remains<=9&cooldown.rising_sun_kick.remains<=5)|buff.storm_earth_and_fire.up)
--- actions+=/call_action_list,name=st
---
--- actions.cd=invoke_xuen
--- actions.cd+=/blood_fury
--- actions.cd+=/berserking
--- actions.cd+=/touch_of_death,cycle_targets=1,max_cycle_targets=2,if=!artifact.gale_burst.enabled&equipped.137057&!prev_gcd.touch_of_death
--- actions.cd+=/touch_of_death,if=!artifact.gale_burst.enabled&!equipped.137057
--- actions.cd+=/touch_of_death,cycle_targets=1,max_cycle_targets=2,if=artifact.gale_burst.enabled&equipped.137057&cooldown.strike_of_the_windlord.remains<8&cooldown.fists_of_fury.remains<=4&cooldown.rising_sun_kick.remains<7&!prev_gcd.touch_of_death
--- actions.cd+=/touch_of_death,if=artifact.gale_burst.enabled&!equipped.137057&cooldown.strike_of_the_windlord.remains<8&cooldown.fists_of_fury.remains<=4&cooldown.rising_sun_kick.remains<7
---
--- actions.sef=energizing_elixir
--- actions.sef+=/arcane_torrent,if=chi.max-chi>=1&energy.time_to_max>=0.5
--- actions.sef+=/call_action_list,name=cd
--- actions.sef+=/storm_earth_and_fire
--- actions.sef+=/call_action_list,name=st
---
--- actions.serenity=energizing_elixir
--- actions.serenity+=/call_action_list,name=cd
--- actions.serenity+=/serenity
--- actions.serenity+=/strike_of_the_windlord
--- actions.serenity+=/rising_sun_kick,cycle_targets=1,if=active_enemies<3
--- actions.serenity+=/fists_of_fury
--- actions.serenity+=/spinning_crane_kick,if=active_enemies>=3&!prev_gcd.spinning_crane_kick
--- actions.serenity+=/rising_sun_kick,cycle_targets=1,if=active_enemies>=3
--- actions.serenity+=/blackout_kick,cycle_targets=1,if=!prev_gcd.blackout_kick
--- actions.serenity+=/spinning_crane_kick,if=!prev_gcd.spinning_crane_kick
--- actions.serenity+=/rushing_jade_wind,if=!prev_gcd.rushing_jade_wind
---
--- actions.st=call_action_list,name=cd
--- actions.st+=/arcane_torrent,if=chi.max-chi>=1&energy.time_to_max>=0.5
--- actions.st+=/energizing_elixir,if=energy<energy.max&chi<=1
--- actions.st+=/strike_of_the_windlord,if=talent.serenity.enabled|active_enemies<6
--- actions.st+=/fists_of_fury
--- actions.st+=/rising_sun_kick,cycle_targets=1
--- actions.st+=/whirling_dragon_punch
--- actions.st+=/spinning_crane_kick,if=active_enemies>=3&!prev_gcd.spinning_crane_kick
--- actions.st+=/rushing_jade_wind,if=chi.max-chi>1&!prev_gcd.rushing_jade_wind
--- actions.st+=/blackout_kick,cycle_targets=1,if=(chi>1|buff.bok_proc.up)&!prev_gcd.blackout_kick
--- actions.st+=/chi_wave,if=energy.time_to_max>=2.25
--- actions.st+=/chi_burst,if=energy.time_to_max>=2.25
--- actions.st+=/tiger_palm,cycle_targets=1,if=!prev_gcd.tiger_palm
--- actions.st+=/crackling_jade_lightning,interrupt=1,if=talent.rushing_jade_wind.enabled&chi.max-chi=1&prev_gcd.blackout_kick&cooldown.rising_sun_kick.remains>1&cooldown.fists_of_fury.remains>1&cooldown.strike_of_the_windlord.remains>1&cooldown.rushing_jade_wind.remains>1
--- actions.st+=/crackling_jade_lightning,interrupt=1,if=!talent.rushing_jade_wind.enabled&chi.max-chi=1&prev_gcd.blackout_kick&cooldown.rising_sun_kick.remains>1&cooldown.fists_of_fury.remains>1&cooldown.strike_of_the_windlord.remains>1
