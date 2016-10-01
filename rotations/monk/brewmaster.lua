@@ -221,6 +221,6 @@ NeP.Engine.registerRotation(268, '[|cff'..NeP.Interface.addonColor..'NoC|r] Monk
 		{_Interrupts, { 'target.interruptAt(55)', 'target.inMelee' }},
 		{_Mitigation, { 'target.inMelee', { "!talent(7,2)", "or", "!player.buff(228563)", "or", "player.spell(Keg Smash).cooldown >= 2.5" }}},
 		{_Cooldowns, 'toggle(cooldowns)'},
-		{_Melee, {'target.infront'}},
+		{_Melee },
 		{_Ranged, { "target.range > 8", "target.range <= 40", "target.infront" }},
 	}, _OOC, exeOnLoad)

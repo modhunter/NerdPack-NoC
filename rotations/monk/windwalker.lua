@@ -145,13 +145,15 @@ local _Interrupts = {
 }
 
 local _SEF = {
-	{ "Energizing Elixir" },
-	{ _Cooldowns, 'toggle(cooldowns)' },
 	{{
+		{ "Energizing Elixir" },
+		{ _Cooldowns, 'toggle(cooldowns)' },
 		{ "Storm, Earth, and Fire", { '!toggle(AoE)', sef }},
 		{ "Storm, Earth, and Fire", "!player.buff(Storm, Earth, and Fire)" },
 	}, { "player.spell(Strike of the Windlord).exists", "player.spell(Strike of the Windlord).cooldown <= 14", "player.spell(Fists of Fury).cooldown <= 6", "player.spell(Rising Sun Kick).cooldown <= 6"  }},
 	{{
+		{ "Energizing Elixir" },
+		{ _Cooldowns, 'toggle(cooldowns)' },
 		{ "Storm, Earth, and Fire", { '!toggle(AoE)', sef }},
 		{ "Storm, Earth, and Fire", "!player.buff(Storm, Earth, and Fire)" },
 	}, { "!player.spell(Strike of the Windlord).exists", "player.spell(Fists of Fury).cooldown <= 9", "player.spell(Rising Sun Kick).cooldown <= 5"  }},
