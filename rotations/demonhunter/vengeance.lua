@@ -8,14 +8,10 @@ local config = {
 	width = 250,
 	height = 500,
 	config = {
-		-- General
-		{type = 'header',text = 'General', align = 'center'},
-			{type = 'checkbox', text = '5 min DPS test', key = 'dpstest', default = false},
-
 		-- Survival
 		{type = 'spacer'},{type = 'rule'},
 		{type = 'header', text = 'Survival', align = 'center'},
-			{type = 'spinner', text = 'Healthstone', key = 'Healthstone', default = 75},
+			{type = 'spinner', text = 'Healthstone', key = 'Healthstone', default = 25},
 	}
 }
 
@@ -28,30 +24,28 @@ local exeOnLoad = function()
 end
 
 local _All = {
-	-- keybind
-  { "Infernal Strike", "keybind(lalt)" },
-  { "Sigil of Flame", "keybind(lcontrol)" },
-
-	{ "/stopcasting\n/stopattack\n/cleartarget\n/stopattack\n/cleartarget", { "player.combat.time >= 300", (function() return F('dpstest') end) }},
+	-- Keybinds
+	{ "Infernal Strike", "keybind(lalt)" },
+	{ "Sigil of Flame", "keybind(lcontrol)" },
 }
 
 local _Cooldowns = {
-  { "Lifeblood" },
-  { "Berserking" },
-  { "Blood Fury" },
 }
 
 local _Survival = {
-	{ "Fracture", { "player.pain >= 80", "player.buff(Soul Fragments).count >= 5", "player.pain >= 80" }},
 	{ "Soul Cleave", "player.pain >= 80" },
-	{ "Fel Devastation", "player.health <= 75" },
-	{ "Metamorphosis", { "!player.buff(Demon Spikes)", "!target.debuff(Fiery Brand)", "!player.buff(Metamorphosis)", "player.health <= 70" }},
+	{ "Soul Barrier", "player.health <= 60" },
+	{ "Fel Devastation", "player.health <= 70" },
+	{ "Metamorphosis", { "!player.buff(Demon Spikes)", "!target.debuff(Fiery Brand)", "!player.buff(Metamorphosis)", "player.health <= 40" }},
 
-  { "#109223", "player.health < 40" }, -- Healing Tonic
-  { "#5512", "player.health < 40" }, -- Healthstone
+	-- Consumables
+	{ "#127834", "player.health < 25" }, -- Ancient Healing Potion
+	{ "#5512", "player.health < 25" }, -- Warlock conjured Healthstone
 }
 
 local _Interrupts = {
+	{ "Fel Erruption", { "player.spell(Consume Magic).cooldown > 1", "!lastcast(Consume Magic)" }},
+	{ "Arcane Torrent", { "target.range <= 8", "player.spell(Consume Magic).cooldown > 1", "!lastcast(Consume Magic)" }},
 	{ "Consume Magic" },
 }
 
@@ -61,32 +55,21 @@ local _Ranged = {
 
 local _Melee = {
 	-- Rotation
-	{{ -- infront
+	{{ -- In front
 		{ "Fiery Brand", { "!player.buff(Demon Spikes)", "!player.buff(Metamorphosis)" }},
-
 		{{
-			{ "Demon Spikes", "player.spell(Demon Spikes).charges >= 2" },
-			{ "Demon Spikes", "!player.buff(Demon Spikes)" },
+			{ "Demon Spikes", "player.spell(Demon Spikes).charges = 2" },
+			{ "Demon Spikes", { "!player.buff(Demon Spikes)", "player.health < 85" }}, -- This will prevent DS to be used unnecessarily on CD and possibly save 1 charge for better manual usage
 		}, { "!target.debuff(Fiery Brand)", "!player.buff(Metamorphosis)" }},
-
-		{ "Empower Wards", "target.casting.time < 2" },
-
-		{ "Spirit Bomb", "!target.debuff(Frailty)" },
-
+		{ "Sigil of Flame", "talent(6,1)" },
+		{ "Spirit Bomb", { "!target.debuff(Frailty)", "player.buff(Soul Fragments).count >= 1" }}, -- It will only attempt to cast Spirit Bomb if there is at least 1 Soul Fragment around
 		{ "Soul Carver", "target.debuff(Fiery Brand)" },
-
 		{ "Immolation Aura", "player.pain <= 80" },
-
 		{ "Felblade", "player.pain <= 70" },
-
 		{ "Soul Barrier" },
-
-		{ "Soul Cleave", "player.buff(Soul Fragments).count >= 5" }, -- <-- Don't use this automatically
-
-		{ "Fel Erruption" },
-
+		{ "Fracture", { "player.pain >= 60", "player.buff(Soul Fragments).count > 5" }},
+		{ "Soul Cleave", "player.buff(Soul Fragments).count >= 5" },
 		{ "Soul Cleave", "player.pain >= 80" },
-
 		{ "Shear" },
 	}, 'target.infront' },
 }
