@@ -1,62 +1,20 @@
-local mKey = 'NoC_DH_Havoc'
 local config = {
-	key = mKey,
-	profiles = true,
-	title = '|T'..NeP.Interface.Logo..':10:10|t'..NeP.Info.Nick..' Config',
-	subtitle = 'Demon Hunter Havoc Settings',
-	color = NeP.Core.classColor('player'),
-	width = 250,
-	height = 500,
-	config = {
-		-- General
-		{type = 'header',text = 'General', align = 'center'},
-		{type = 'checkbox', text = 'Automatic Throw Glaive', key = 'auto_glaive', default = true},
-		{type = 'checkbox', text = '5 min DPS test', key = 'dpstest', default = false},
+	-- General
+	{type = 'header',text = 'General', align = 'center'},
+	{type = 'checkbox', text = 'Automatic Throw Glaive', key = 'auto_glaive', default = true},
+	{type = 'checkbox', text = '5 min DPS test', key = 'dpstest', default = false},
 
-		-- Survival
-		{type = 'spacer'},{type = 'rule'},
-		{type = 'header', text = 'Survival', align = 'center'},
-		{type = 'spinner', text = 'Healthstone & Healing Tonic', key = 'Healthstone', default = 45},
-		{type = 'spinner', text = 'Blur', key = 'blur', default = 70},
-		{type = 'spinner', text = 'Desperate Instincts', key = 'desperate', default = 40},
-		{type = 'spinner', text = 'Netherwalk', key = 'netherwalk', default = 70},
-	}
+	-- Survival
+	{type = 'spacer'},{type = 'rule'},
+	{type = 'header', text = 'Survival', align = 'center'},
+	{type = 'spinner', text = 'Healthstone & Healing Tonic', key = 'Healthstone', default = 45},
+	{type = 'spinner', text = 'Blur', key = 'blur', default = 70},
+	{type = 'spinner', text = 'Desperate Instincts', key = 'desperate', default = 40},
+	{type = 'spinner', text = 'Netherwalk', key = 'netherwalk', default = 70},
 }
 
-local E = NOC.dynEval
-local F = function(key) return NeP.Interface.fetchKey(mKey, key, 100) end
-
 local exeOnLoad = function()
-	NeP.Interface.buildGUI(config)
-	NOC.ClassSetting(mKey)
-end
 
-local healthstn = function()
-	return E('player.health <= ' .. F('Healthstone'))
-end
-
-local blur_check = function()
-	return E('player.health <= ' .. F('blur'))
-end
-
-local desperate_check = function()
-	return E('player.health <= ' .. F('desperate'))
-end
-
-local netherwalk_check = function()
-	return E('player.health <= ' .. F('netherwalk'))
-end
-
-local _meta = function()
-	local result = false
-	--buff.metamorphosis.down&
-	--(!talent.demonic.enabled|!cooldown.eye_beam.ready)&
-	--(!talent.chaos_blades.enabled|cooldown.chaos_blades.ready)&
-	--(!talent.nemesis.enabled|debuff.nemesis.up|cooldown.nemesis.ready)
-	if E('!player.buff(Metamorphosis)') and (E('!talent(7,3)') or E('player.spell(Eye Beam).cooldown < 0.5')) and (E('!talent(7,1)') or E('player.spell(Chaos Blades).cooldown < 0.5')) and (E('!talent(5,3)') or E('target.debuff(Nemesis)') or E('player.spell(Nemesis).cooldown < 0.5')) then
-		result = true
-	end
-	return result
 end
 
 local _All = {
@@ -79,19 +37,19 @@ local _Cooldowns = {
   { "Berserking" },
   { "Blood Fury" },
 
-	{ "Metamorphosis", { "keybind(lalt)", (function() return _meta() end) }, "mouseover.ground" },
+	{ "Metamorphosis", 'keybind(lalt)&{!player.buff(Metamorphosis)&!talent(7,3)||player.spell(Eye Beam).cooldown < 0.5&!talent(7,1)||player.spell(Chaos Blades).cooldown < 0.5&!talent(5,3)||target.debuff(Nemesis)||player.spell(Nemesis).cooldown < 0.5}', "mouseover.ground" },
 
 	-- Just cast it #YOLO
 	--{ "Metamorphosis", { "keybind(lalt)" }, "mouseover.ground" },
 }
 
 local _Survival = {
-  { "Blur", { blur_check }},
-  { "Desperate Instincts", { desperate_check }},
-  { "Netherwalk", { netherwalk_check }},
+  { "Blur", 'player.health <= UI(blur)'},
+  { "Desperate Instincts", 'player.health <= UI(desperate)'},
+  { "Netherwalk",  'player.health <= UI(netherwalk)' },
 
-	{ "#109223", healthstn, "player" }, -- Healing Tonic
-	{ '#5512', healthstn, "player" }, -- Healthstone
+	{ "#109223", 'player.health <= UI(Healthstone)', "player" }, -- Healing Tonic
+	{ '#5512', 'player.health <= UI(Healthstone)', "player" }, -- Healthstone
 }
 
 local _Interrupts = {
@@ -109,7 +67,7 @@ local _Ranged = {
 	-- Fel Erruption: 20
 
 	-- Auto-cast Throw Glaive when outside of range
-	{ "Throw Glaive", (function() return F('auto_glaive') end), "target.range <= 30" },
+	{ "Throw Glaive", 'UI(auto_glaive)&target.range <= 30' },
 }
 
 local _Melee = {
@@ -200,13 +158,14 @@ local _Rotation = {
 	{_Cooldowns, 'toggle(cooldowns)'},
 }
 
-NeP.Engine.registerRotation(577, '[|cff'..NeP.Interface.addonColor..'NoC|r] Demon Hunter - Havoc',
-	{ -- In-Combat
-		{ '%pause', 'keybind(shift)'},
-		{_All},
-		{_Survival, 'player.health < 100'},
-		{_Interrupts, 'target.interruptAt(40)'},
-		{_Rotation},
-		{_Melee, "target.range <= 5" },
-		{_Ranged, { "target.range > 8", "target.range <= 40" }},
-	}, _All, exeOnLoad)
+local InCombat = {
+	{ '%pause', 'keybind(shift)'},
+	{_All},
+	{_Survival, 'player.health < 100'},
+	{_Interrupts, 'target.interruptAt(40)'},
+	{_Rotation},
+	{_Melee, "target.range <= 5" },
+	{_Ranged, { "target.range > 8", "target.range <= 40" }},
+}
+
+NeP.CR:Add(577, '[NoC] Demon Hunter - Havoc', InCombat, _All, exeOnLoad, config)

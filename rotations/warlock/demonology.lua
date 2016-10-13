@@ -69,7 +69,7 @@ local _ST = {
 local _Melee = {
 }
 
-NeP.Engine.registerRotation(266, '[|cff'..NeP.Interface.addonColor..'NoC|r] Warlock - Demonology',
+NeP.CR:Add(266, '[NoC] Warlock - Demonology',
 	{ -- In-Combat
 		{'pause', 'keybinds(shift)'},
 		{_All},
