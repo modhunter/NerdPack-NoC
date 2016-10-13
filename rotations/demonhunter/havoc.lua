@@ -110,13 +110,9 @@ local _Melee = {
 
 	{ "Chaos Strike", "!talent(5,1)" },
 	{ "Chaos Strike", "player.buff(Momentum)" },
-	{ "Chaos Strike", { "player.furydiff >= 30", "!player.buff(Prepared)" }},
-	{ "Chaos Strike", { "player.furydiff >= 42", "player.buff(Prepared)" }},
-
-	{{
-		{ "Fel Barrage", "player.buff(Momentum)" },
-		{ "Fel Barrage", "!talent(5,1)" },
-	}, { "player.spell(Fel Barrage).charges >= 4", "!player.buff(Metamorphosis)" }},
+	{ "Chaos Strike", "player.furydiff >= 30&!player.buff(Prepared)" },
+	{ "Chaos Strike", "player.furydiff >= 42&player.buff(Prepared)" },
+	{ "Fel Barrage", "{player.buff(Momentum)||!talent(5,1)}&player.spell(Fel Barrage).charges >= 4&!player.buff(Metamorphosis)" },
 
 	{ "Throw Glaive" },
 
@@ -124,11 +120,7 @@ local _Melee = {
 }
 
 local _Rotation = {
-	{{
-		{ "Eye Beam", "!talent(3,2)" },
-		{ "Eye Beam", "player.fury >= 80" },
-		{ "Eye Beam", "player.furydiff < 30" },
-	}, { "talent(7,3)", "!player.buff(Metamorphosis)", "target.range <= 20" }},
+	{ "Eye Beam", "{!talent(3,2)||player.fury >= 80||player.furydiff < 30}&talent(7,3)&!player.buff(Metamorphosis)&target.range <= 20" },
 
 	-- If Metamorphosis is ready, pool fury
 	{ "Demon's Bite", { "player.spell(Metamorphosis).cooldown < 0.5", "player.furydiff >= 25", "target.range <= 5" }},
@@ -138,9 +130,7 @@ local _Rotation = {
 	{ "Nemesis", { "player.area(8).enemies = 1", "target.ttd < 70", "target.range <= 5" }},
 	{ "Nemesis", { "player.spell(Metamorphosis).cooldown < 0.5", "target.range <= 5", "player.area(8).enemies = 1" }},
 
-	{ "Chaos Blades", "player.spell(Metamorphosis).cooldown > 100" },
-	{ "Chaos Blades", "player.buff(Metamorphosis)" },
-	{ "Chaos Blades", "target.ttd < 20" },
+	{ "Chaos Blades", "player.spell(Metamorphosis).cooldown > 100||player.buff(Metamorphosis)||target.ttd < 20" },
 
 	{_Cooldowns, 'toggle(cooldowns)'},
 }
