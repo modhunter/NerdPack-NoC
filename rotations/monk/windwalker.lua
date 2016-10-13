@@ -227,7 +227,7 @@ local _Melee = {
 
 }
 
-NeP.Engine.registerRotation(269, '[|cff'..NeP.Interface.addonColor..'NoC|r] Monk - Windwalker',
+NeP.CR:Add(269, '[NoC] Monk - Windwalker',
 	{ -- In-Combat
 		{ '%pause', 'keybind(shift)'},
 		{ _All},

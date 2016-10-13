@@ -69,7 +69,7 @@ local _ST = {
 local _Melee = {
 }
 
-NeP.Engine.registerRotation(265, '[|cff'..NeP.Interface.addonColor..'NoC|r] Warlock - Affliction',
+NeP.CR:Add(265, '[NoC] Warlock - Affliction',
 	{ -- In-Combat
 		{'pause', 'keybinds(shift)'},
 		{_All},
