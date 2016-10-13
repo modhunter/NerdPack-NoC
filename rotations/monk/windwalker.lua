@@ -200,7 +200,9 @@ local _Melee = {
 	{ 'Spinning Crane Kick', { 'player.area(8).enemies >= 3', 'toggle(AoE)', '!lastcast(Spinning Crane Kick)', "@NOC.hitcombo('Spinning Crane Kick')" }},
 	{ "Rushing Jade Wind", { "player.chidiff > 1", "!lastcast(Rushing Jade Wind)", "@NOC.hitcombo('Rushing Jade Wind')" }},
 	{{
+		{ "@NOC.AoEMissingDebuff('Blackout Kick', 'Mark of the Crane', 5)", { (function() return F('auto_dot') end), "player.buff(Blackout Kick!)" }},
   	{ "Blackout Kick", "player.buff(Blackout Kick!)" },
+		{ "@NOC.AoEMissingDebuff('Blackout Kick', 'Mark of the Crane', 5)", { (function() return F('auto_dot') end), "player.chi > 1" }},
   	{ "Blackout Kick", "player.chi > 1" },
 	}, { "!lastcast(Blackout Kick)", "@NOC.hitcombo('Blackout Kick')" }},
 	{{
