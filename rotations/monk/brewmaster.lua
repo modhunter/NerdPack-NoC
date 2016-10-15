@@ -33,35 +33,21 @@ local config = {
 local exeOnLoad = function()
 end
 
-local FortifyingBrew = function()
-	return E('player.health <= ' .. F('Fortifying Brew'))
-end
-
-local ExpelHarm = function()
-	return E('player.health <= ' .. F('Expel Harm'))
-end
-
-local IronskinBrew = function()
-	return E('player.health <= ' .. F('Ironskin Brew'))
-end
-
 local staggered = function()
 	local stagger = UnitStagger("player");
 	local percentOfHealth = (100/UnitHealthMax("player")*stagger);
 	-- TODO: We are targetting 4.5% stagger value - too low?  I think we used 25% or heavy stagger before as the trigger
 	--if (percentOfHealth > 4.5) or UnitDebuff("player", GetSpellInfo(124273)) then
-	if percentOfHealth > 4.5 then
-		return true
-	end
-	return false
+	return percentOfHealth > 4.5
 end
 
 local PurifyingCapped = function()
 	local MaxBrewCharges = 3;
-	if E('talent(3,1)') then
+	if NeP.DSL:Get('talent')(nil, '3,1') then
 		MaxBrewCharges = MaxBrewCharges + 1;
 	end
-	local PurifyingCapped = ( (E("player.spell(Purifying Brew).charges") == MaxBrewCharges) or ( (E("player.spell(Purifying Brew).charges") == MaxBrewCharges - 1) and E("player.spell(Purifying Brew).recharge < 3") ) ) or false;
+	local PurifyingCapped = ( 
+	(NeP.DSL:Get('spell.charges')('player', 'Purifying Brew') == MaxBrewCharges) or ((NeP.DSL:Get('spell.charges')('player', 'Purifying Brew') == MaxBrewCharges - 1) and NeP.DSL:Get('spell.recharge')('player', 'Purifying Brew') < 3 ) ) or false;
 	return PurifyingCapped
 end
 
@@ -107,7 +93,7 @@ local _Mitigation = {
 
 	-- Ironskin if we have Light / No Stagger
 	-- TODO: add check to determine if we've lost 25% health over the last 5 seconds
-	{ "Ironskin Brew", { IronskinBrew, "player.spell(Purifying Brew).charges >= 2", "!player.buff(Ironskin Brew)" }},
+	{ "Ironskin Brew", { 'player.health <= UI(Ironskin Brew)', "player.spell(Purifying Brew).charges >= 2", "!player.buff(Ironskin Brew)" }},
 
 	-- Prevent Capping
 	{ "Ironskin Brew", { PurifyingCapped, "player.health < 100", "!player.buff(Ironskin Brew)" }},
@@ -120,10 +106,10 @@ local _Survival = {
 	{ "#109223", 'player.health <= UI(Health Stone)', "player" }, -- Healing Tonic
 	{ '#5512', 'player.health <= UI(Health Stone)', "player" }, -- Healthstone
 
-	{'Fortifying Brew', { FortifyingBrew }, "player" },
+	{'Fortifying Brew', { 'player.health <= UI(Fortifying Brew)' }, "player" },
 
 	-- Cast when there is at least one orb on the ground
-	{'Expel Harm', { ExpelHarm, "player.spell(Expel Harm).count >= 1" }, "player" },
+	{'Expel Harm', { 'player.health <= UI(Expel Harm)', "player.spell(Expel Harm).count >= 1" }, "player" },
 }
 
 local _Interrupts = {
