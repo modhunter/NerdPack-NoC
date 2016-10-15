@@ -1,59 +1,36 @@
-local addonColor = '|cff'..NeP.Interface.addonColor
-
-local mKey = 'NoC_Monk_BrM'
 local config = {
-	key = mKey,
-	profiles = true,
-	title = '|T'..NeP.Interface.Logo..':10:10|t'..NeP.Info.Nick..' Config',
-	subtitle = 'Monk Brewmaster Settings',
-	color = NeP.Core.classColor('player'),
-	width = 250,
-	height = 500,
-	config = {
-		-- keybind
-		-- {type = 'header', text = addonColor..'keybind:', align = 'center'},
-		-- -- Control
-		-- {type = 'text', text = addonColor..'Control: ', align = 'left', size = 11, offset = -11},
-		-- --{type = 'text', text = 'Summon Black Ox Statue', align = 'right', size = 11, offset = 0 },
-		-- -- Shift
-		-- {type = 'text', text = addonColor..'Shift:', align = 'left', size = 11, offset = -11},
-		-- {type = 'text', text = 'Placeholder', align = 'right', size = 11, offset = 0 },
-		-- -- Alt
-		-- {type = 'text', text = addonColor..'Alt:',align = 'left', size = 11, offset = -11},
-		-- {type = 'text', text = 'Pause Rotation', align = 'right', size = 11, offset = 0 },
+	-- keybind
+	-- {type = 'header', text = addonColor..'keybind:', align = 'center'},
+	-- -- Control
+	-- {type = 'text', text = addonColor..'Control: ', align = 'left', size = 11, offset = -11},
+	-- --{type = 'text', text = 'Summon Black Ox Statue', align = 'right', size = 11, offset = 0 },
+	-- -- Shift
+	-- {type = 'text', text = addonColor..'Shift:', align = 'left', size = 11, offset = -11},
+	-- {type = 'text', text = 'Placeholder', align = 'right', size = 11, offset = 0 },
+	-- -- Alt
+	-- {type = 'text', text = addonColor..'Alt:',align = 'left', size = 11, offset = -11},
+	-- {type = 'text', text = 'Pause Rotation', align = 'right', size = 11, offset = 0 },
 
-		-- General
-		{type = 'spacer'},{type = 'rule'},
-		{type = 'header', text = addonColor..'General', align = 'center' },
-		{type = 'checkbox', text = 'Automatic Res', key = 'auto_res', default = true},
-		--{type = "checkbox", text = "Automated Taunts", key = "canTaunt", default = false },
-		{type = 'checkbox', text = 'Automatic CJL at range', key = 'auto_cjl', default = false},
+	-- General
+	{type = 'spacer'},{type = 'rule'},
+	{type = 'header', text = 'General', align = 'center' },
+	{type = 'checkbox', text = 'Automatic Res', key = 'auto_res', default = true},
+	--{type = "checkbox", text = "Automated Taunts", key = "canTaunt", default = false },
+	{type = 'checkbox', text = 'Automatic CJL at range', key = 'auto_cjl', default = false},
 
-		-- Survival
-		{type = 'spacer'},{type = 'rule'},
-		{type = 'header', text = addonColor..'Survival', align = 'center'},
-		{type = 'spinner', text = 'Healthstone or Healing Potion', key = 'Health Stone', default = 45},
-		{type = 'spinner', text = 'Healing Elixir', key = 'Healing Elixir', default = 70},
-		{type = 'spinner', text = 'Expel Harm', key = 'Expel Harm', default = 100},
-		{type = 'spinner', text = 'Fortifying Brew', key = 'Fortifying Brew', default = 20},
-		{type = 'spinner', text = 'Ironskin Brew', key = 'Ironskin Brew', default = 80},
-	}
+	-- Survival
+	{type = 'spacer'},{type = 'rule'},
+	{type = 'header', text = 'Survival', align = 'center'},
+	{type = 'spinner', text = 'Healthstone or Healing Potion', key = 'Health Stone', default = 45},
+	{type = 'spinner', text = 'Healing Elixir', key = 'Healing Elixir', default = 70},
+	{type = 'spinner', text = 'Expel Harm', key = 'Expel Harm', default = 100},
+	{type = 'spinner', text = 'Fortifying Brew', key = 'Fortifying Brew', default = 20},
+	{type = 'spinner', text = 'Ironskin Brew', key = 'Ironskin Brew', default = 80},
 }
 
-local E = NOC.dynEval
-local F = function(key) return NeP.Interface.fetchKey(mKey, key, 100) end
+
 
 local exeOnLoad = function()
-	NeP.Interface.buildGUI(config)
-	NOC.ClassSetting(mKey)
-end
-
-local HealthStone = function()
-	return E('player.health <= ' .. F('Health Stone'))
-end
-
-local HealingElixir = function()
-	return E('player.health <= ' .. F('Healing Elixir'))
 end
 
 local FortifyingBrew = function()
@@ -113,10 +90,10 @@ local _OOC = {
 	{'Summon Black Ox Statue', 'keybind(lalt)', "mouseover.ground"},
 
 	-- Automatic res of dead party members
-	{ "%ressdead('Resuscitate')", (function() return F('auto_res') end) },
+	{ "%ressdead('Resuscitate')", 'UI(auto_res)' },
 
-	-- Effuse up to 50% health
-	{ "Effuse", { "player.health < 50", "player.lastmoved >= 1" }, "player" },
+	-- 'player.health <= UI(effuse)' up to 50% health
+	{ "'player.health <= UI(effuse)'", { "player.health < 50", "player.lastmoved >= 1" }, "player" },
 }
 
 local _Cooldowns = {
@@ -137,11 +114,11 @@ local _Mitigation = {
 }
 
 local _Survival = {
-	{ "Healing Elixir", { "player.spell(Healing Elixir).charges >= 2", "or", { "player.spell(Healing Elixir).charges = 1", "player.spell(Healing Elixir).cooldown < 3" }, "!lastcast(Healing Elixir)", HealingElixir }, "player" },
+	{ "Healing Elixir", { "player.spell(Healing Elixir).charges >= 2", "or", { "player.spell(Healing Elixir).charges = 1", "player.spell(Healing Elixir).cooldown < 3" }, "!lastcast(Healing Elixir)", 'player.health <= UI(Healing Elixir)' }, "player" },
 
 	-- TODO: Update for legion's equivillant to healing tonic 109223
-	{ "#109223", HealthStone, "player" }, -- Healing Tonic
-	{ '#5512', HealthStone, "player" }, -- Healthstone
+	{ "#109223", 'player.health <= UI(Health Stone)', "player" }, -- Healing Tonic
+	{ '#5512', 'player.health <= UI(Health Stone)', "player" }, -- Healthstone
 
 	{'Fortifying Brew', { FortifyingBrew }, "player" },
 
@@ -169,7 +146,7 @@ local _Interrupts = {
 }
 
 local _Ranged = {
-	{ "Crackling Jade Lightning", { "!player.moving", (function() return F('auto_cjl') end) }},
+	{ "Crackling Jade Lightning", { "!player.moving", 'UI(auto_cjl)' }},
 }
 
 local _Taunts = {
