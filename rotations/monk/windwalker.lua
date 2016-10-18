@@ -171,9 +171,9 @@ local _Melee = {
 	{ 'Spinning Crane Kick', { 'player.area(8).enemies >= 3', 'toggle(AoE)', '!lastcast(Spinning Crane Kick)', "@NOC.hitcombo('Spinning Crane Kick')" }},
 	{ "Rushing Jade Wind", { "player.chidiff > 1", "!lastcast(Rushing Jade Wind)", "@NOC.hitcombo('Rushing Jade Wind')" }},
 	{{
-		{ "@NOC.AoEMissingDebuff('Blackout Kick', 'Mark of the Crane', 5)", { (function() return F('auto_dot') end), "player.buff(Blackout Kick!)" }},
+		{ "@NOC.AoEMissingDebuff('Blackout Kick', 'Mark of the Crane', 5)", { "UI(auto_dot)", "player.buff(Blackout Kick!)" }},
   	{ "Blackout Kick", "player.buff(Blackout Kick!)" },
-		{ "@NOC.AoEMissingDebuff('Blackout Kick', 'Mark of the Crane', 5)", { (function() return F('auto_dot') end), "player.chi > 1" }},
+		{ "@NOC.AoEMissingDebuff('Blackout Kick', 'Mark of the Crane', 5)", { "UI(auto_dot)", "player.chi > 1" }},
   	{ "Blackout Kick", "player.chi > 1" },
 	}, { "!lastcast(Blackout Kick)", "@NOC.hitcombo('Blackout Kick')" }},
 	{{
@@ -196,19 +196,18 @@ local _Melee = {
 
 	-- Last resort BoK when we only have 1 chi and Hit COmbo <= 4 secs left
 	{ "Blackout Kick", { "player.chi = 1", "player.buff(Hit Combo) <= 4", "!lastcast(Blackout Kick)", "@NOC.hitcombo('Blackout Kick')" }},
-
-
 }
 
-NeP.CR:Add(269, '[NoC] Monk - Windwalker',
-	{ -- In-Combat
-		{ '%pause', 'keybind(shift)'},
-		{ _All},
-		{ _Survival, 'player.health < 100'},
-		{ _Interrupts, { 'target.interruptAt(55)', 'target.inMelee' }},
-		{ _Serenity, { "target.range <= 5", "talent(7,3)", "!player.casting(Fists of Fury)", {{ "player.spell(Strike of the Windlord).exists", "player.spell(Strike of the Windlord).cooldown <= 14", "player.spell(Rising Sun Kick).cooldown <= 4" }, "or", "player.buff(Serenity)" }}},
-		{ _Serenity, { "target.range <= 5", "talent(7,3)", "!player.casting(Fists of Fury)", {{ "!player.spell(Strike of the Windlord).exists", "player.spell(Fists of Fury).cooldown <= 15", "player.spell(Rising Sun Kick).cooldown < 7" }, "or", "player.buff(Serenity)" }}},
-		{ _SEF, { "target.range <= 5", 'UI(SEF)', "!talent(7,3)", "!player.casting(Fists of Fury)" }},
-		{ _Melee, { "target.range <= 9", "!player.casting(Fists of Fury)" }},
-		{ _Ranged, { "target.range > 8", "target.range <= 40" }},
-	}, _OOC, exeOnLoad)
+local InCombat = {
+	{ '%pause', 'keybind(shift)'},
+	{ _All},
+	{ _Survival, 'player.health < 100'},
+	{ _Interrupts, { 'target.interruptAt(55)', 'target.inMelee' }},
+	{ _Serenity, { "target.range <= 5", "talent(7,3)", "!player.casting(Fists of Fury)", {{ "player.spell(Strike of the Windlord).exists", "player.spell(Strike of the Windlord).cooldown <= 14", "player.spell(Rising Sun Kick).cooldown <= 4" }, "or", "player.buff(Serenity)" }}},
+	{ _Serenity, { "target.range <= 5", "talent(7,3)", "!player.casting(Fists of Fury)", {{ "!player.spell(Strike of the Windlord).exists", "player.spell(Fists of Fury).cooldown <= 15", "player.spell(Rising Sun Kick).cooldown < 7" }, "or", "player.buff(Serenity)" }}},
+	{ _SEF, { "target.range <= 5", 'UI(SEF)', "!talent(7,3)", "!player.casting(Fists of Fury)" }},
+	{ _Melee, { "target.range <= 9", "!player.casting(Fists of Fury)" }},
+	{ _Ranged, { "target.range > 8", "target.range <= 40" }},
+}
+
+NeP.CR:Add(269, '[NoC] Monk - Windwalker', InCombat, _OOC, exeOnLoad, config)
