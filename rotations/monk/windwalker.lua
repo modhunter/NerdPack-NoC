@@ -48,7 +48,7 @@ local OutOfCombat = {
 	{ "Effuse", { "player.health <= 50", "player.lastmoved >= 1" }, "player" },
 
 	-- Automatic res of dead party members
-	{ "%ressdead('Resuscitate')", 'UI(auto_res)' },
+	{ "%ressdead(Resuscitate)", 'UI(auto_res)' },
 
 	-- TODO: Add support for (optional) automatic potion use w/pull timer
 }
@@ -144,17 +144,17 @@ local _Serenity = {
 	{ "Serenity" },
 	{ "Strike of the Windlord" },
 	{{
-		{ "@NOC.AoEMissingDebuff('Rising Sun Kick', 'Mark of the Crane', 5)", 'UI(auto_dot)' },
+		{ "@NOC.AoEMissingDebuff(Rising Sun Kick, Mark of the Crane, 5)", 'UI(auto_dot)' },
 		{ "Rising Sun Kick" },
 	}, { 'player.area(5).enemies < 3' }},
 	{ "Fists of Fury" },
 	{ 'Spinning Crane Kick', { 'player.area(8).enemies >= 3', 'toggle(AoE)', '!lastcast(Spinning Crane Kick)', "@NOC.hitcombo(Spinning Crane Kick)" }},
 	{{
-		{ "@NOC.AoEMissingDebuff('Rising Sun Kick', 'Mark of the Crane', 5)", 'UI(auto_dot)' },
+		{ "@NOC.AoEMissingDebuff(Rising Sun Kick, Mark of the Crane, 5)", 'UI(auto_dot)' },
 		{ "Rising Sun Kick" },
 	}, { 'player.area(5).enemies >= 3' }},
 	{{
-		{ "@NOC.AoEMissingDebuff('Blackout Kick', 'Mark of the Crane', 5)", { 'UI(auto_dot)' }},
+		{ "@NOC.AoEMissingDebuff(Blackout Kick, Mark of the Crane, 5)", { 'UI(auto_dot)' }},
 		{ "Blackout Kick" },
 	}, { "!lastcast(Blackout Kick)", "@NOC.hitcombo(Blackout Kick)" }},
 	{ "Rushing Jade Wind", { "!lastcast(Rushing Jade Wind)", "@NOC.hitcombo(Rushing Jade Wind)" }},
@@ -165,7 +165,7 @@ local _Melee = {
 	{ "Energizing Elixir", { "player.energydiff > 0", "player.chi <= 1" }},
 	{ "Strike of the Windlord", { "talent(7,3)", "or", "player.area(9).enemies < 6" }},
 	{ "Fists of Fury" },
-	{ "@NOC.AoEMissingDebuff('Rising Sun Kick', 'Mark of the Crane', 5)", { 'UI(auto_dot)' }},
+	{ "@NOC.AoEMissingDebuff(Rising Sun Kick, Mark of the Crane, 5)", { 'UI(auto_dot)' }},
 	{ "Rising Sun Kick" },
 	--{ 'Spinning Crane Kick', { '!lastcast(Spinning Crane Kick)', "@NOC.hitcombo(Spinning Crane Kick)", { "player.spell(Spinning Crane Kick).count >= 17" }}},
 	{ "Whirling Dragon Punch" },
@@ -173,9 +173,9 @@ local _Melee = {
 	{ 'Spinning Crane Kick', { 'player.area(8).enemies >= 3', 'toggle(AoE)', '!lastcast(Spinning Crane Kick)', "@NOC.hitcombo(Spinning Crane Kick)" }},
 	{ "Rushing Jade Wind", { "player.chidiff > 1", "!lastcast(Rushing Jade Wind)", "@NOC.hitcombo(Rushing Jade Wind)" }},
 	{{
-		{ "@NOC.AoEMissingDebuff('Blackout Kick', 'Mark of the Crane', 5)", { "UI(auto_dot)", "player.buff(Blackout Kick!)" }},
+		{ "@NOC.AoEMissingDebuff(Blackout Kick, Mark of the Crane, 5)", { "UI(auto_dot)", "player.buff(Blackout Kick!)" }},
   	{ "Blackout Kick", "player.buff(Blackout Kick!)" },
-		{ "@NOC.AoEMissingDebuff('Blackout Kick', 'Mark of the Crane', 5)", { "UI(auto_dot)", "player.chi > 1" }},
+		{ "@NOC.AoEMissingDebuff(Blackout Kick, Mark of the Crane, 5)", { "UI(auto_dot)", "player.chi > 1" }},
   	{ "Blackout Kick", "player.chi > 1" },
 	}, { "!lastcast(Blackout Kick)", "@NOC.hitcombo(Blackout Kick)" }},
 	{{
@@ -183,7 +183,7 @@ local _Melee = {
 		{ "Chi Burst", "!player.moving" },
 	}, { "player.timetomax >= 2.25" }},
 	{{
-		{ "@NOC.AoEMissingDebuff('Tiger Palm', 'Mark of the Crane', 5)", { 'UI(auto_dot)' }},
+		{ "@NOC.AoEMissingDebuff(Tiger Palm, Mark of the Crane, 5)", { 'UI(auto_dot)' }},
 		{ "Tiger Palm" },
 	}, { "!lastcast(Tiger Palm)", "@NOC.hitcombo(Tiger Palm)" }},
 
