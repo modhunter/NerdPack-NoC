@@ -134,7 +134,7 @@ local _SEF = {
 
 local _Ranged = {
 	{ "116841", { "player.movingfor > 0.5", "target.alive" }}, -- Tiger's Lust
-	{ "Crackling Jade Lightning", { 'UI(auto_cjl)', "!player.moving", "player.combat.time > 4", "!lastcast(Crackling Jade Lightning)", "@NOC.hitcombo('Crackling Jade Lightning')" }},
+	{ "Crackling Jade Lightning", { 'UI(auto_cjl)', "!player.moving", "player.combat.time > 4", "!lastcast(Crackling Jade Lightning)", "@NOC.hitcombo(Crackling Jade Lightning)" }},
 	{ "Chi Wave", { 'UI(auto_cw)', "target.range > 8" }},
 }
 
@@ -148,7 +148,7 @@ local _Serenity = {
 		{ "Rising Sun Kick" },
 	}, { 'player.area(5).enemies < 3' }},
 	{ "Fists of Fury" },
-	{ 'Spinning Crane Kick', { 'player.area(8).enemies >= 3', 'toggle(AoE)', '!lastcast(Spinning Crane Kick)', "@NOC.hitcombo('Spinning Crane Kick')" }},
+	{ 'Spinning Crane Kick', { 'player.area(8).enemies >= 3', 'toggle(AoE)', '!lastcast(Spinning Crane Kick)', "@NOC.hitcombo(Spinning Crane Kick)" }},
 	{{
 		{ "@NOC.AoEMissingDebuff('Rising Sun Kick', 'Mark of the Crane', 5)", 'UI(auto_dot)' },
 		{ "Rising Sun Kick" },
@@ -156,8 +156,8 @@ local _Serenity = {
 	{{
 		{ "@NOC.AoEMissingDebuff('Blackout Kick', 'Mark of the Crane', 5)", { 'UI(auto_dot)' }},
 		{ "Blackout Kick" },
-	}, { "!lastcast(Blackout Kick)", "@NOC.hitcombo('Blackout Kick')" }},
-	{ "Rushing Jade Wind", { "!lastcast(Rushing Jade Wind)", "@NOC.hitcombo('Rushing Jade Wind')" }},
+	}, { "!lastcast(Blackout Kick)", "@NOC.hitcombo(Blackout Kick)" }},
+	{ "Rushing Jade Wind", { "!lastcast(Rushing Jade Wind)", "@NOC.hitcombo(Rushing Jade Wind)" }},
 }
 
 local _Melee = {
@@ -167,17 +167,17 @@ local _Melee = {
 	{ "Fists of Fury" },
 	{ "@NOC.AoEMissingDebuff('Rising Sun Kick', 'Mark of the Crane', 5)", { 'UI(auto_dot)' }},
 	{ "Rising Sun Kick" },
-	--{ 'Spinning Crane Kick', { '!lastcast(Spinning Crane Kick)', "@NOC.hitcombo('Spinning Crane Kick')", { "player.spell(Spinning Crane Kick).count >= 17" }}},
+	--{ 'Spinning Crane Kick', { '!lastcast(Spinning Crane Kick)', "@NOC.hitcombo(Spinning Crane Kick)", { "player.spell(Spinning Crane Kick).count >= 17" }}},
 	{ "Whirling Dragon Punch" },
-	--{ 'Spinning Crane Kick', { '!lastcast(Spinning Crane Kick)', "@NOC.hitcombo('Spinning Crane Kick')", { "player.spell(Spinning Crane Kick).count >= 12" }}},
-	{ 'Spinning Crane Kick', { 'player.area(8).enemies >= 3', 'toggle(AoE)', '!lastcast(Spinning Crane Kick)', "@NOC.hitcombo('Spinning Crane Kick')" }},
-	{ "Rushing Jade Wind", { "player.chidiff > 1", "!lastcast(Rushing Jade Wind)", "@NOC.hitcombo('Rushing Jade Wind')" }},
+	--{ 'Spinning Crane Kick', { '!lastcast(Spinning Crane Kick)', "@NOC.hitcombo(Spinning Crane Kick)", { "player.spell(Spinning Crane Kick).count >= 12" }}},
+	{ 'Spinning Crane Kick', { 'player.area(8).enemies >= 3', 'toggle(AoE)', '!lastcast(Spinning Crane Kick)', "@NOC.hitcombo(Spinning Crane Kick)" }},
+	{ "Rushing Jade Wind", { "player.chidiff > 1", "!lastcast(Rushing Jade Wind)", "@NOC.hitcombo(Rushing Jade Wind)" }},
 	{{
 		{ "@NOC.AoEMissingDebuff('Blackout Kick', 'Mark of the Crane', 5)", { "UI(auto_dot)", "player.buff(Blackout Kick!)" }},
   	{ "Blackout Kick", "player.buff(Blackout Kick!)" },
 		{ "@NOC.AoEMissingDebuff('Blackout Kick', 'Mark of the Crane', 5)", { "UI(auto_dot)", "player.chi > 1" }},
   	{ "Blackout Kick", "player.chi > 1" },
-	}, { "!lastcast(Blackout Kick)", "@NOC.hitcombo('Blackout Kick')" }},
+	}, { "!lastcast(Blackout Kick)", "@NOC.hitcombo(Blackout Kick)" }},
 	{{
 		{ "Chi Wave" }, -- 40 yard range 0 energy, 0 chi
 		{ "Chi Burst", "!player.moving" },
@@ -185,19 +185,19 @@ local _Melee = {
 	{{
 		{ "@NOC.AoEMissingDebuff('Tiger Palm', 'Mark of the Crane', 5)", { 'UI(auto_dot)' }},
 		{ "Tiger Palm" },
-	}, { "!lastcast(Tiger Palm)", "@NOC.hitcombo('Tiger Palm')" }},
+	}, { "!lastcast(Tiger Palm)", "@NOC.hitcombo(Tiger Palm)" }},
 
 	{{
 		{ "Crackling Jade Lightning", "talent(6,1)" },
 		{ "Crackling Jade Lightning", "!talent(6,1)" },
-	}, { "player.chidiff = 1", "player.spell(Rising Sun Kick).cooldown > 1", "player.spell(Fists of Fury).cooldown > 1", "player.spell(Strike of the Windlord).cooldown > 1", "!lastcast(Crackling Jade Lightning)", "@NOC.hitcombo('Crackling Jade Lightning')" }},
+	}, { "player.chidiff = 1", "player.spell(Rising Sun Kick).cooldown > 1", "player.spell(Fists of Fury).cooldown > 1", "player.spell(Strike of the Windlord).cooldown > 1", "!lastcast(Crackling Jade Lightning)", "@NOC.hitcombo(Crackling Jade Lightning)" }},
 
 	-- CJL when we're using Hit Combo as a last resort filler, and it's toggled on
 	-- TODO: remove this in 7.1 or add a big energy buffer to the check since it is no longer free to cast
-	{ "Crackling Jade Lightning", { 'UI(auto_cjl_hc)', "!lastcast(Crackling Jade Lightning)", "@NOC.hitcombo('Crackling Jade Lightning')" }},
+	{ "Crackling Jade Lightning", { 'UI(auto_cjl_hc)', "!lastcast(Crackling Jade Lightning)", "@NOC.hitcombo(Crackling Jade Lightning)" }},
 
 	-- Last resort BoK when we only have 1 chi and Hit COmbo <= 4 secs left
-	{ "Blackout Kick", { "player.chi = 1", "player.buff(Hit Combo) <= 4", "!lastcast(Blackout Kick)", "@NOC.hitcombo('Blackout Kick')" }},
+	{ "Blackout Kick", { "player.chi = 1", "player.buff(Hit Combo) <= 4", "!lastcast(Blackout Kick)", "@NOC.hitcombo(Blackout Kick)" }},
 }
 
 local InCombat = {

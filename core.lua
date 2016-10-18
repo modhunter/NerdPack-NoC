@@ -22,18 +22,6 @@ function NOC.ts()
 	end
 end
 
---math.randomseed( os.time() )
-local function shuffleTable( t )
-    local rand = math.random
-    assert( t, "shuffleTable() expected a table, got nil" )
-    local iterations = #t
-    local j
-
-    for i = iterations, 2, -1 do
-        j = rand(i)
-        t[i], t[j] = t[j], t[i]
-    end
-end
 
 local MasterySpells = {
 	[100784] = '', -- Blackout Kick
@@ -52,23 +40,21 @@ local MasterySpells = {
 }
 local HitComboLastCast = ''
 
---NeP.Timer.Sync("windwalker_sync", 0.1, function()
---	if NeP.DSL:Get('toggle')(nil, 'mastertoggle') then
-		--if NeP.Interface.GetSelectedCR() then
---			--if not NeP.Engine.forcePause then
---				local LastCast = NeP.DSL:Get('lastcast')('player')
---				local _, _, _, _, _, _, spellID = GetSpellInfo(LastCast)
---				if spellID then
---					if not MasterySpells[spellID] then
---						-- If NeP.Engine.lastCast is in the MasterySpells list, set HitComboLastCast to this spellID
---						HitComboLastCast = spellID
---						--print("windwalker_sync flagging "..NeP.Engine.lastCast);
---					end
---				end
---			--end
---		--end
---	end
---end, 99)
+C_Timer.NewTicker(0.1, (function()
+	-- do something awesome
+	if NeP.DSL:Get('toggle')(nil, 'mastertoggle') then
+				local LastCast = NeP.CombatTracker:LastCast('player')
+				local _, _, _, _, _, _, spellID = GetSpellInfo(LastCast)
+				if spellID then
+					if MasterySpells[spellID] then
+						-- If NeP.Engine.lastCast is in the MasterySpells list, set HitComboLastCast to this spellID
+						HitComboLastCast = spellID
+						--print("windwalker_sync flagging "..LastCast);
+					end
+				end
+	end
+end), nil)
+
 
 NeP.Library:Add('NOC', {
 
@@ -101,15 +87,6 @@ NeP.Library:Add('NOC', {
 		return false
 	end,
 
-	-- getGCD = function()
-	-- 	local CDTime, CDValue = 0, 0;
-	--   CDTime, CDValue = GetSpellCooldown(61304);
-	--   if CDTime == 0 or module.GetTime()-module.GetLatency() >= CDTime+CDValue then
-	--     return true;
-	--   else
-	--     return false;
-	--   end
-	-- end,
 
 	hitcombo = function(spell)
 		if not spell then return true end
