@@ -17,7 +17,7 @@ local config = {
 	-- Offensive
 	{type = 'spacer'},{type = 'rule'},
 	{type = 'header', text = 'Offensive', align = 'center'},
-	{type = 'checkbox', text = 'SEF usage', key = 'SEF', default = true},
+	{type = 'checkbox', text = 'SEF usage', key = 'sef_toggle', default = true},
 	{type = 'checkbox', text = 'Automatic CJL at range', key = 'auto_cjl', default = false},
 	{type = 'checkbox', text = 'Automatic Chi Wave at pull', key = 'auto_cw', default = true},
 	{type = 'checkbox', text = 'Automatic Mark of the Crane Dotting', key = 'auto_dot', default = true},
@@ -43,9 +43,9 @@ local sef = function()
 end
 
 
-local _OOC = {
+local OutOfCombat = {
 
-	{ "'player.health <= UI(effuse)'", { "player.health < 50", "player.lastmoved >= 1" }, "player" },
+	{ "Effuse", { "player.health <= 50", "player.lastmoved >= 1" }, "player" },
 
 	-- Automatic res of dead party members
 	{ "%ressdead('Resuscitate')", 'UI(auto_res)' },
@@ -54,6 +54,8 @@ local _OOC = {
 }
 
 local _All = {
+	{ "effuse", 'UI(sef_toggle)'},
+
 	-- keybind
 	{ "Leg Sweep", "keybind(lcontrol)" },
   { "Touch of Karma", "keybind(lalt)" },
@@ -87,7 +89,7 @@ local _Cooldowns = {
 }
 
 local _Survival = {
-	{ "'player.health <= UI(effuse)'", { "player.energy >= 60", "player.lastmoved >= 0.5", 'player.health <= UI(effuse)' }, "player" },
+	{ "Effuse", { "player.energy >= 60", "player.lastmoved >= 0.5", 'player.health <= UI(effuse)' }, "player" },
 	{ "Healing Elixir", { 'player.health <= UI(Healing Elixir)' }, "player" },
 
 	-- TODO: Update for legion's equivillant to healing tonic 109223
@@ -205,9 +207,10 @@ local InCombat = {
 	{ _Interrupts, { 'target.interruptAt(55)', 'target.inMelee' }},
 	{ _Serenity, { "target.range <= 5", "talent(7,3)", "!player.casting(Fists of Fury)", {{ "player.spell(Strike of the Windlord).exists", "player.spell(Strike of the Windlord).cooldown <= 14", "player.spell(Rising Sun Kick).cooldown <= 4" }, "or", "player.buff(Serenity)" }}},
 	{ _Serenity, { "target.range <= 5", "talent(7,3)", "!player.casting(Fists of Fury)", {{ "!player.spell(Strike of the Windlord).exists", "player.spell(Fists of Fury).cooldown <= 15", "player.spell(Rising Sun Kick).cooldown < 7" }, "or", "player.buff(Serenity)" }}},
-	{ _SEF, { "target.range <= 5", 'UI(SEF)', "!talent(7,3)", "!player.casting(Fists of Fury)" }},
+	--{ _SEF, { "target.range <= 5", 'UI(sef_toggle)', "!talent(7,3)", "!player.casting(Fists of Fury)" }},
+	{ _SEF, { "target.range <= 5", "!talent(7,3)", "!player.casting(Fists of Fury)" }},
 	{ _Melee, { "target.range <= 9", "!player.casting(Fists of Fury)" }},
 	{ _Ranged, { "target.range > 8", "target.range <= 40" }},
 }
 
-NeP.CR:Add(269, '[NoC] Monk - Windwalker', InCombat, _OOC, exeOnLoad, config)
+NeP.CR:Add(269, '[NoC] Monk - Windwalker', InCombat, OutOfCombat, exeOnLoad, config)

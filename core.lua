@@ -11,13 +11,13 @@ function NOC.Splash()
 end
 
 function NOC.tt()
-	if NeP.Unlocked and UnitAffectingCombat('player') then
+	if NeP.Unlocked and UnitAffectingCombat('player') and not NeP.DSL:Get('casting')('player', 'Fists of Fury') then
 		NeP:Queue('Transcendence: Transfer', 'player')
 	end
 end
 
 function NOC.ts()
-	if NeP.Unlocked and UnitAffectingCombat('player') then
+	if NeP.Unlocked and UnitAffectingCombat('player') and not NeP.DSL:Get('casting')('player', 'Fists of Fury') then
 		NeP:Queue('Transcendence', 'player')
 	end
 end
@@ -126,15 +126,3 @@ NeP.Library:Add('NOC', {
 	end,
 
 })
-
-
-NeP.DSL:Register("castwithin", function(target, spell)
-	--local SpellID = select(7, GetSpellInfo(spell))
-	--for k, v in pairs( NeP.ActionLog.log ) do
-	--	local id = select(7, GetSpellInfo(v.description))
-	--	if (id and id == SpellID and v.event == "Spell Cast Succeed") or tonumber( k ) == 20 then
-	--		return tonumber( k )
-	--	end
-	--end
-	--return 20
-end)
