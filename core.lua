@@ -36,6 +36,18 @@ function NOC.ts()
 	end
 end
 
+-- function NOC.tt()
+-- 	if NeP.Unlocked and UnitAffectingCombat('player') and not NeP.DSL.Get('casting')('player', 'Fists of Fury') then
+-- 		NeP:Queue('Transcendence: Transfer', 'player')
+-- 	end
+-- end
+--
+-- function NOC.ts()
+-- 	if NeP.Unlocked and UnitAffectingCombat('player') and not NeP.DSL.Get('casting')('player', 'Fists of Fury') then
+-- 		NeP:Queue('Transcendence', 'player')
+-- 	end
+-- end
+
 
 --math.randomseed( os.time() )
 local function shuffleTable( t )
@@ -67,23 +79,37 @@ local MasterySpells = {
 }
 local HitComboLastCast = ''
 
-NeP.Timer.Sync("windwalker_sync", 0.1, function()
-	local Running = NeP.DSL.Get('toggle')(nil, 'mastertoggle')
-	if Running then
-		if NeP.Interface.GetSelectedCR() then
-			if not NeP.Engine.forcePause then
+-- NeP.Timer.Sync("windwalker_sync", 0.1, function()
+-- 	local Running = NeP.DSL.Get('toggle')(nil, 'mastertoggle')
+-- 	if Running then
+-- 		if NeP.Interface.GetSelectedCR() then
+-- 			if not NeP.Engine.forcePause then
+-- 				local _, _, _, _, _, _, spellID = GetSpellInfo(NeP.Engine.lastCast)
+-- 				if spellID then
+-- 					if MasterySpells[spellID] ~= nil then
+-- 						-- If NeP.Engine.lastCast is in the MasterySpells list, set HitComboLastCast to this spellID
+-- 						HitComboLastCast = spellID
+-- 						--print("windwalker_sync flagging "..NeP.Engine.lastCast);
+-- 					end
+-- 				end
+-- 			end
+-- 		end
+-- 	end
+-- end, 99)
+
+C_Timer.NewTicker(0.1, (function()
+	if NeP.DSL.Get('toggle')(nil, 'mastertoggle') then
+				--local LastCast = NeP.CombatTracker:LastCast('player')
 				local _, _, _, _, _, _, spellID = GetSpellInfo(NeP.Engine.lastCast)
 				if spellID then
-					if MasterySpells[spellID] ~= nil then
+					if MasterySpells[spellID] then
 						-- If NeP.Engine.lastCast is in the MasterySpells list, set HitComboLastCast to this spellID
 						HitComboLastCast = spellID
-						--print("windwalker_sync flagging "..NeP.Engine.lastCast);
+						--print("windwalker_sync flagging "..LastCast);
 					end
 				end
-			end
-		end
 	end
-end, 99)
+end), nil)
 
 NeP.library.register('NOC', {
 
@@ -115,46 +141,38 @@ NeP.library.register('NOC', {
 		return false
 	end,
 
-	-- getGCD = function()
-	-- 	local CDTime, CDValue = 0, 0;
-	--   CDTime, CDValue = GetSpellCooldown(61304);
-	--   if CDTime == 0 or module.GetTime()-module.GetLatency() >= CDTime+CDValue then
-	--     return true;
-	--   else
-	--     return false;
-	--   end
+	-- hitcombo = function(spell)
+	-- 	--return true
+	-- 	local spell = spell
+	-- 	if spell then
+	-- 		local _, _, _, _, _, _, spellID = GetSpellInfo(spell)
+	-- 		if Parse('player.buff(Hit Combo)') then
+	-- 			-- we're using hit combo and need to check if the spell we've passed-in is in the list
+	-- 			if HitComboLastCast == spellID then
+	-- 				-- If the passed-spell is in the list as flagged, we need to exit false
+	-- 				--print('hitcombo('..spell..') and it is was flagged ('..HitComboLastCast..'), returning false');
+	-- 				return false
+	-- 			end
+	-- 		end
+	-- 		return true
+	-- 	else
+	-- 		return true
+	-- 	end
+	-- 	return false
 	-- end,
 
 	hitcombo = function(spell)
-		--return true
-		local spell = spell
-		if spell then
-			local _, _, _, _, _, _, spellID = GetSpellInfo(spell)
-			if Parse('player.buff(Hit Combo)') then
-				-- we're using hit combo and need to check if the spell we've passed-in is in the list
-				if HitComboLastCast == spellID then
-					-- If the passed-spell is in the list as flagged, we need to exit false
-					--print('hitcombo('..spell..') and it is was flagged ('..HitComboLastCast..'), returning false');
-					return false
-				end
+		if not spell then return true end
+		local _, _, _, _, _, _, spellID = GetSpellInfo(spell)
+		if NeP.DSL.Get('buff')('player', 'Hit Combo') then
+			-- we're using hit combo and need to check if the spell we've passed-in is in the list
+			if HitComboLastCast == spellID then
+				-- If the passed-spell is in the list as flagged, we need to exit false
+				--print('hitcombo('..spell..') and it is was flagged ('..HitComboLastCast..'), returning false');
+				return false
 			end
-			return true
-		else
-			return true
 		end
-		return false
+		return true
 	end,
 
 })
-
-
-NeP.DSL.RegisterConditon("castwithin", function(target, spell)
-	local SpellID = select(7, GetSpellInfo(spell))
-	for k, v in pairs( NeP.ActionLog.log ) do
-		local id = select(7, GetSpellInfo(v.description))
-		if (id and id == SpellID and v.event == "Spell Cast Succeed") or tonumber( k ) == 20 then
-			return tonumber( k )
-		end
-	end
-	return 20
-end)
