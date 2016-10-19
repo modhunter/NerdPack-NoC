@@ -86,4 +86,19 @@ NeP.Library:Add('NOC', {
 		end
 		return true
 	end,
+
+	-- for future use, call it via {"@NOC.synclast"}, at the TOP of the combat section
+	-- synclast = function()
+	-- 	local _, LastCast = NeP.DSL:Get('lastcast')('player')
+	-- 	local _, _, _, _, _, _, spellID = GetSpellInfo(LastCast)
+	-- 	if spellID then
+	-- 		if MasterySpells[spellID] then
+	-- 			-- If NeP.Engine.lastCast is in the MasterySpells list, set HitComboLastCast to this spellID
+	-- 			HitComboLastCast = spellID
+	-- 			--print("windwalker_sync flagging "..LastCast);
+	-- 		end
+	-- 	end
+	-- 	return false
+	-- end,
+
 })
