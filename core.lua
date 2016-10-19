@@ -61,31 +61,31 @@ end), nil)
 NeP.Library:Add('NOC', {
 
 	AoEMissingDebuff = function(spell, debuff, range)
-		--if spell == nil or range == nil then return false end
-		--local spell = select(1,GetSpellInfo(spell))
-		--if not IsUsableSpell(spell) then return false end
-		--local enemies = NeP.OM['unitEnemie']
-		--for i=1,#enemies do
-		--	local Obj = enemies[i]
-		--	local isDummy = NeP.DSL:Get('isDummy')(Obj.key)
-		--	if Obj.distance <= range and (UnitAffectingCombat(Obj.key) or isDummy) then
-		--		local _,_,_,_,_,_,debuffDuration = UnitDebuff(Obj.key, debuff, nil, 'PLAYER')
-		--		if not debuffDuration or debuffDuration - GetTime() < 1.5 then
-		--			local skillType = GetSpellBookItemInfo(spell)
-		--			local isUsable, notEnoughMana = IsUsableSpell(spell)
-		--			if skillType ~= 'FUTURESPELL' and isUsable and not notEnoughMana then
-		--				local GCD = NeP.DSL:Get('gcd')()
-		--				if GetSpellCooldown(spell) <= GCD then
-		--					if NeP.Protected.LineOfSight('player', Obj.key) then
-		--						--print("AoEMissingDebuff: casting "..spell.." against "..Obj.name.." ("..Obj.key.." - "..time()..") - TTD="..NeP.CombatTracker.TimeToDie(Obj.key));
-		--						NeP_Queue(spell, Obj.key)
-		--						return true
-		--					end
-		--				end
-		--			end
-		--		end
-		--	end
-		--end
+		if spell == nil or range == nil then return false end
+		local spell = select(1,GetSpellInfo(spell))
+		if not IsUsableSpell(spell) then return false end
+		for GUID, Obj in pairs(NeP.OM:Get('Enemy')) do
+			if UnitExists(Obj.key) then
+				local cdistance = NeP.DSL:Get('distance')('Obj.key') or 0
+				if (NeP.DSL:Get('combat')(Obj.key) or Obj.isdummy) and cdistance <= tonumber(range) then
+					local _,_,_,_,_,_,debuffDuration = UnitDebuff(Obj.key, debuff, nil, 'PLAYER')
+					if not debuffDuration or debuffDuration - GetTime() < 1.5 then
+						local skillType = GetSpellBookItemInfo(spell)
+						local isUsable, notEnoughMana = IsUsableSpell(spell)
+						if skillType ~= 'FUTURESPELL' and isUsable and not notEnoughMana then
+							--local GCD = NeP.DSL:Get('gcd')()
+							--if GetSpellCooldown(spell) <= GCD then
+								if NeP.Helpers.infront(Obj.key) then
+									print("AoEMissingDebuff: casting "..spell.." against "..Obj.name.." ("..Obj.key.." - "..time()..")");
+									NeP:Queue(spell, Obj.key)
+									return true
+								end
+							--end
+						end
+					end
+				end
+			end
+		end
 		return false
 	end,
 

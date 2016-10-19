@@ -92,8 +92,8 @@ local _Survival = {
 	{ "Healing Elixir", { 'player.health <= UI(Healing Elixir)' }, "player" },
 
 	-- TODO: Update for legion's equivillant to healing tonic 109223
-	{ "#109223", 'player.health <= UI(Healthstone)', "player" }, -- Healing Tonic
 	{ '#5512', 'player.health <= UI(Healthstone)', "player" }, -- Healthstone
+	{ "#127834", 'player.health <= UI(Healthstone)', "player" }, -- Healing Tonic
 	{ "Detox", "player.dispellable(Detox)", "player" },
 }
 
