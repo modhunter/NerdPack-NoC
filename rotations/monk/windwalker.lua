@@ -184,7 +184,7 @@ local _Melee = {
 	{{
 		{ "@NOC.AoEMissingDebuff(Tiger Palm, Mark of the Crane, 5)", { 'UI(auto_dot)' }},
 		{ "Tiger Palm" },
-	}, { "!lastcast(Tiger Palm)", "@NOC.hitcombo(Tiger Palm)" }},
+	}, { "player.energy > 50", "!lastcast(Tiger Palm)", "@NOC.hitcombo(Tiger Palm)" }},
 
 	{{
 		{ "Crackling Jade Lightning", "talent(6,1)" },
