@@ -22,6 +22,21 @@ function NOC.ts()
 	end
 end
 
+NeP.FakeUnits:Add('NOC_sck', function(debuff)
+	for GUID, Obj in pairs(NeP.OM:Get('Enemy')) do
+		if UnitExists(Obj.key) then
+			if (NeP.DSL:Get('combat')(Obj.key) or Obj.isdummy) then
+				local _,_,_,_,_,_,debuffDuration = UnitDebuff(Obj.key, debuff, nil, 'PLAYER')
+				if not debuffDuration or debuffDuration - GetTime() < 1.5 then
+					--if NeP.Helpers.infront(Obj.key) then
+						--print("NOC_sck: returning "..Obj.name.." ("..Obj.key.." - "..time()..")");
+						return Obj.key
+					--end
+				end
+			end
+		end
+	end
+end)
 
 local MasterySpells = {
 	[100784] = '', -- Blackout Kick
@@ -57,57 +72,7 @@ C_Timer.NewTicker(0.1, (function()
 	end
 end), nil)
 
-NeP.FakeUnits.Add('NOC_sck', function(num, debuff)
-	local tempTable = {}
-	for i=1, #NeP.OM.unitEnemie do
-		local Obj = NeP.OM.unitEnemie[i]
-		if (not NeP.DSL.Get('debuff')(Obj.key, debuff)) and (NeP.Engine.LineOfSight('player', Obj.key)) then
-		--if not NeP.DSL.Get('debuff')(Obj.key, debuff) then
-			tempTable[#tempTable+1] = {
-				key = Obj.key,
-				--prio = prio
-			}
-		end
-	end
-	if tempTable[num] then
-		--print("NOC_NoDebuff: returning: "..tempTable[num].key.." ("..time()..")");
-		return tempTable[num].key
-	end
-	--return false
-end)
-
 NeP.Library:Add('NOC', {
-
-	AoEMissingDebuff = function(spell, debuff, range)
-		if spell == nil or range == nil then return false end
-		local spell = select(1,GetSpellInfo(spell))
-		if not IsUsableSpell(spell) then return false end
-		for GUID, Obj in pairs(NeP.OM:Get('Enemy')) do
-			if UnitExists(Obj.key) then
-				local cdistance = NeP.DSL:Get('distance')('Obj.key') or 0
-				if (NeP.DSL:Get('combat')(Obj.key) or Obj.isdummy) and cdistance <= tonumber(range) then
-					local _,_,_,_,_,_,debuffDuration = UnitDebuff(Obj.key, debuff, nil, 'PLAYER')
-					if not debuffDuration or debuffDuration - GetTime() < 1.5 then
-						local skillType = GetSpellBookItemInfo(spell)
-						local isUsable, notEnoughMana = IsUsableSpell(spell)
-						if skillType ~= 'FUTURESPELL' and isUsable and not notEnoughMana then
-							--local GCD = NeP.DSL:Get('gcd')()
-							--if GetSpellCooldown(spell) <= GCD then
-								if NeP.Helpers.infront(Obj.key) then
-									print("AoEMissingDebuff: casting "..spell.." against "..Obj.name.." ("..Obj.key.." - "..time()..")");
-									NeP:Queue(spell, Obj.key)
-									return true
-								end
-							--end
-						end
-					end
-				end
-			end
-		end
-		return false
-	end,
-
-
 	hitcombo = function(spell)
 		if not spell then return true end
 		local _, _, _, _, _, _, spellID = GetSpellInfo(spell)
@@ -121,5 +86,4 @@ NeP.Library:Add('NOC', {
 		end
 		return true
 	end,
-
 })
