@@ -41,17 +41,19 @@ local MasterySpells = {
 local HitComboLastCast = ''
 
 C_Timer.NewTicker(0.1, (function()
-	-- do something awesome
 	if NeP.DSL:Get('toggle')(nil, 'mastertoggle') then
-				local LastCast = NeP.CombatTracker:LastCast('player')
-				local _, _, _, _, _, _, spellID = GetSpellInfo(LastCast)
-				if spellID then
-					if MasterySpells[spellID] then
-						-- If NeP.Engine.lastCast is in the MasterySpells list, set HitComboLastCast to this spellID
-						HitComboLastCast = spellID
-						--print("windwalker_sync flagging "..LastCast);
-					end
+		if not UnitIsDeadOrGhost('player') and InCombatLockdown() then
+			--local LastCast = NeP.CombatTracker:LastCast('player')
+			local _, LastCast = NeP.DSL:Get('lastcast')('player')
+			local _, _, _, _, _, _, spellID = GetSpellInfo(LastCast)
+			if spellID then
+				if MasterySpells[spellID] then
+					-- If NeP.Engine.lastCast is in the MasterySpells list, set HitComboLastCast to this spellID
+					HitComboLastCast = spellID
+					--print("windwalker_sync flagging "..LastCast);
 				end
+			end
+		end
 	end
 end), nil)
 

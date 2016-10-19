@@ -44,6 +44,7 @@ end
 
 
 local OutOfCombat = {
+	--{ "effuse", 'UI(sef_toggle)'},
 
 	{ "Effuse", { "player.health <= 50", "player.lastmoved >= 1" }, "player" },
 
@@ -54,8 +55,6 @@ local OutOfCombat = {
 }
 
 local _All = {
-	{ "effuse", 'UI(sef_toggle)'},
-
 	-- keybind
 	{ "Leg Sweep", "keybind(lcontrol)" },
   { "Touch of Karma", "keybind(lalt)" },
