@@ -10,8 +10,4 @@
   <Script file="rotations\monk\windwalker.lua" />
   <Script file="rotations\monk\mistweaver.lua" />
   <Script file="rotations\monk\brewmaster.lua" />
-  <Script file="rotations\warlock\affliction.lua" />
-  <Script file="rotations\warlock\demonology.lua" />
-  <Script file="rotations\warlock\destruction.lua" />
-
 </Ui>
