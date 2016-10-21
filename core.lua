@@ -26,12 +26,12 @@ NeP.FakeUnits:Add('NOC_sck', function(debuff)
 	for GUID, Obj in pairs(NeP.OM:Get('Enemy')) do
 		if UnitExists(Obj.key) then
 			if (NeP.DSL:Get('combat')(Obj.key) or Obj.isdummy) then
-				local _,_,_,_,_,_,debuffDuration = UnitDebuff(Obj.key, debuff, nil, 'PLAYER')
-				if not debuffDuration or debuffDuration - GetTime() < 1.5 then
-					--if NeP.Helpers.infront(Obj.key) then
-						--print("NOC_sck: returning "..Obj.name.." ("..Obj.key.." - "..time()..")");
+				if (NeP.DSL:Get('infront')(Obj.key) and NeP.DSL:Get('inMelee')(Obj.key)) then
+					local _,_,_,_,_,_,debuffDuration = UnitDebuff(Obj.key, debuff, nil, 'PLAYER')
+					if not debuffDuration or debuffDuration - GetTime() < 1.5 then
+						--print("NOC_sck: returning "..Obj.name.." ("..Obj.key.." - "..Obj.guid..' :'..time()..")");
 						return Obj.key
-					--end
+					end
 				end
 			end
 		end
@@ -59,7 +59,7 @@ C_Timer.NewTicker(0.1, (function()
 	if NeP.DSL:Get('toggle')(nil, 'mastertoggle') then
 		if not UnitIsDeadOrGhost('player') and InCombatLockdown() then
 			--local LastCast = NeP.CombatTracker:LastCast('player')
-			local _, LastCast = NeP.DSL:Get('lastcast')('player')
+			local _, LastCast = NeP.DSL:Get('lastgcd')('player')
 			local _, _, _, _, _, _, spellID = GetSpellInfo(LastCast)
 			if spellID then
 				if MasterySpells[spellID] then

@@ -12,7 +12,7 @@ local config = {
 	{type = 'header', text = 'Survival', align = 'center'},
 	{type = 'spinner', text = 'Healthstone & Healing Tonic', key = 'Healthstone', default = 35},
 	{type = 'spinner', text = 'Effuse', key = 'effuse', default = 30},
-	{type = 'spinner', text = 'Healing Elixir', key = 'Healing Elixir', default = 0},
+	{type = 'spinner', text = 'Healing Elixir', key = 'Healing Elixir', default = 50},
 
 	-- Offensive
 	{type = 'spacer'},{type = 'rule'},
@@ -21,7 +21,7 @@ local config = {
 	{type = 'checkbox', text = 'Automatic CJL at range', key = 'auto_cjl', default = false},
 	{type = 'checkbox', text = 'Automatic Chi Wave at pull', key = 'auto_cw', default = true},
 	{type = 'checkbox', text = 'Automatic Mark of the Crane Dotting', key = 'auto_dot', default = true},
-	{type = 'checkbox', text = 'Automatic CJL in melee to maintain Hit Combo', key = 'auto_cjl_hc', default = true},
+	{type = 'checkbox', text = 'Automatic CJL in melee to maintain Hit Combo', key = 'auto_cjl_hc', default = false},
 }
 
 local exeOnLoad = function()
@@ -133,7 +133,7 @@ local _SEF = {
 
 local _Ranged = {
 	{ "116841", { "player.movingfor > 0.5", "target.alive" }}, -- Tiger's Lust
-	{ "Crackling Jade Lightning", { 'UI(auto_cjl)', "!player.moving", "player.combat.time > 4", "!lastcast(Crackling Jade Lightning)", "@NOC.hitcombo(Crackling Jade Lightning)" }},
+	{ "Crackling Jade Lightning", { 'UI(auto_cjl)', "!player.moving", "player.combat.time > 4", "!lastgcd(Crackling Jade Lightning)", "@NOC.hitcombo(Crackling Jade Lightning)" }},
 	{ "Chi Wave", { 'UI(auto_cw)', "target.range > 8" }},
 }
 
@@ -147,7 +147,7 @@ local _Serenity = {
 		{ "Rising Sun Kick" },
 	}, { 'player.area(5).enemies < 3' }},
 	{ "Fists of Fury" },
-	{ 'Spinning Crane Kick', { 'player.area(8).enemies >= 3', 'toggle(AoE)', '!lastcast(Spinning Crane Kick)', "@NOC.hitcombo(Spinning Crane Kick)" }},
+	{ 'Spinning Crane Kick', { 'player.area(8).enemies >= 3', 'toggle(AoE)', '!lastgcd(Spinning Crane Kick)', "@NOC.hitcombo(Spinning Crane Kick)" }},
 	{{
 		{ 'Rising Sun Kick', "UI(auto_dot)", 'NOC_sck(Mark of the Crane)'},
 		{ "Rising Sun Kick" },
@@ -155,8 +155,8 @@ local _Serenity = {
 	{{
 		{ 'Blackout Kick', "UI(auto_dot)", 'NOC_sck(Mark of the Crane)'},
 		{ "Blackout Kick" },
-	}, { "!lastcast(Blackout Kick)", "@NOC.hitcombo(Blackout Kick)" }},
-	{ "Rushing Jade Wind", { "!lastcast(Rushing Jade Wind)", "@NOC.hitcombo(Rushing Jade Wind)" }},
+	}, { "!lastgcd(Blackout Kick)", "@NOC.hitcombo(Blackout Kick)" }},
+	{ "Rushing Jade Wind", { "!lastgcd(Rushing Jade Wind)", "@NOC.hitcombo(Rushing Jade Wind)" }},
 }
 
 local _Melee = {
@@ -166,17 +166,17 @@ local _Melee = {
 	{ "Fists of Fury" },
 	{ 'Rising Sun Kick', "UI(auto_dot)", 'NOC_sck(Mark of the Crane)'},
 	{ "Rising Sun Kick" },
-	--{ 'Spinning Crane Kick', { '!lastcast(Spinning Crane Kick)', "@NOC.hitcombo(Spinning Crane Kick)", { "player.spell(Spinning Crane Kick).count >= 17" }}},
+	--{ 'Spinning Crane Kick', { '!lastgcd(Spinning Crane Kick)', "@NOC.hitcombo(Spinning Crane Kick)", { "player.spell(Spinning Crane Kick).count >= 17" }}},
 	{ "Whirling Dragon Punch" },
-	--{ 'Spinning Crane Kick', { '!lastcast(Spinning Crane Kick)', "@NOC.hitcombo(Spinning Crane Kick)", { "player.spell(Spinning Crane Kick).count >= 12" }}},
-	{ 'Spinning Crane Kick', { 'player.area(8).enemies >= 3', 'toggle(AoE)', '!lastcast(Spinning Crane Kick)', "@NOC.hitcombo(Spinning Crane Kick)" }},
-	{ "Rushing Jade Wind", { "player.chidiff > 1", "!lastcast(Rushing Jade Wind)", "@NOC.hitcombo(Rushing Jade Wind)" }},
+	--{ 'Spinning Crane Kick', { '!lastgcd(Spinning Crane Kick)', "@NOC.hitcombo(Spinning Crane Kick)", { "player.spell(Spinning Crane Kick).count >= 12" }}},
+	{ 'Spinning Crane Kick', { 'player.area(8).enemies >= 3', 'toggle(AoE)', '!lastgcd(Spinning Crane Kick)', "@NOC.hitcombo(Spinning Crane Kick)" }},
+	{ "Rushing Jade Wind", { "player.chidiff > 1", "!lastgcd(Rushing Jade Wind)", "@NOC.hitcombo(Rushing Jade Wind)" }},
 	{{
 		{'Blackout Kick', { "UI(auto_dot)", "player.buff(Blackout Kick!)", }, 'NOC_sck(Mark of the Crane)'},
   	{ "Blackout Kick", "player.buff(Blackout Kick!)" },
 		{'Blackout Kick', { "UI(auto_dot)", "player.chi > 1", }, 'NOC_sck(Mark of the Crane)'},
   	{ "Blackout Kick", "player.chi > 1" },
-	}, { "!lastcast(Blackout Kick)", "@NOC.hitcombo(Blackout Kick)" }},
+	}, { "!lastgcd(Blackout Kick)", "@NOC.hitcombo(Blackout Kick)" }},
 	{{
 		{ "Chi Wave" }, -- 40 yard range 0 energy, 0 chi
 		{ "Chi Burst", "!player.moving" },
@@ -184,19 +184,21 @@ local _Melee = {
 	{{
 		{'Tiger Palm', "UI(auto_dot)", 'NOC_sck(Mark of the Crane)'},
 		{ "Tiger Palm" },
-	}, { "player.energy > 50", "!lastcast(Tiger Palm)", "@NOC.hitcombo(Tiger Palm)" }},
+	}, { "player.energy > 50", "!lastgcd(Tiger Palm)", "@NOC.hitcombo(Tiger Palm)" }},
 
 	{{
 		{ "Crackling Jade Lightning", "talent(6,1)" },
 		{ "Crackling Jade Lightning", "!talent(6,1)" },
-	}, { "player.chidiff = 1", "player.spell(Rising Sun Kick).cooldown > 1", "player.spell(Fists of Fury).cooldown > 1", "player.spell(Strike of the Windlord).cooldown > 1", "!lastcast(Crackling Jade Lightning)", "@NOC.hitcombo(Crackling Jade Lightning)" }},
+	}, { "player.chidiff = 1", "player.spell(Rising Sun Kick).cooldown > 1", "player.spell(Fists of Fury).cooldown > 1", "player.spell(Strike of the Windlord).cooldown > 1", "!lastgcd(Crackling Jade Lightning)", "@NOC.hitcombo(Crackling Jade Lightning)" }},
 
 	-- CJL when we're using Hit Combo as a last resort filler, and it's toggled on
 	-- TODO: remove this in 7.1 or add a big energy buffer to the check since it is no longer free to cast
-	{ "Crackling Jade Lightning", { 'UI(auto_cjl_hc)', "!lastcast(Crackling Jade Lightning)", "@NOC.hitcombo(Crackling Jade Lightning)" }},
+	{ "Crackling Jade Lightning", { "UI(auto_cjl_hc)", "!lastgcd(Crackling Jade Lightning)", "@NOC.hitcombo(Crackling Jade Lightning)" }},
 
-	-- Last resort BoK when we only have 1 chi and Hit COmbo <= 4 secs left
-	{ "Blackout Kick", { "player.chi = 1", "player.buff(Hit Combo) <= 4", "!lastcast(Blackout Kick)", "@NOC.hitcombo(Blackout Kick)" }},
+	-- Last resort BoK when we only have 1 chi and no hit combo
+	{ "Blackout Kick", "player.chi = 1 & !player.buff(Hit Combo)" },
+	-- Last resort TP when we don't have hit combo up
+	{ "Tiger Palm", "!player.buff(Hit Combo)" },
 }
 
 local InCombat = {
