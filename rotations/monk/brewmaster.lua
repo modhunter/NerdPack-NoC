@@ -1,71 +1,36 @@
-local addonColor = '|cff'..NeP.Interface.addonColor
-
-local mKey = 'NoC_Monk_BrM'
 local config = {
-	key = mKey,
-	profiles = true,
-	title = '|T'..NeP.Interface.Logo..':10:10|t'..NeP.Info.Nick..' Config',
-	subtitle = 'Monk Brewmaster Settings',
-	color = NeP.Core.classColor('player'),
-	width = 250,
-	height = 500,
-	config = {
-		-- keybind
-		-- {type = 'header', text = addonColor..'keybind:', align = 'center'},
-		-- -- Control
-		-- {type = 'text', text = addonColor..'Control: ', align = 'left', size = 11, offset = -11},
-		-- --{type = 'text', text = 'Summon Black Ox Statue', align = 'right', size = 11, offset = 0 },
-		-- -- Shift
-		-- {type = 'text', text = addonColor..'Shift:', align = 'left', size = 11, offset = -11},
-		-- {type = 'text', text = 'Placeholder', align = 'right', size = 11, offset = 0 },
-		-- -- Alt
-		-- {type = 'text', text = addonColor..'Alt:',align = 'left', size = 11, offset = -11},
-		-- {type = 'text', text = 'Pause Rotation', align = 'right', size = 11, offset = 0 },
+	-- keybind
+	-- {type = 'header', text = addonColor..'keybind:', align = 'center'},
+	-- -- Control
+	-- {type = 'text', text = addonColor..'Control: ', align = 'left', size = 11, offset = -11},
+	-- --{type = 'text', text = 'Summon Black Ox Statue', align = 'right', size = 11, offset = 0 },
+	-- -- Shift
+	-- {type = 'text', text = addonColor..'Shift:', align = 'left', size = 11, offset = -11},
+	-- {type = 'text', text = 'Placeholder', align = 'right', size = 11, offset = 0 },
+	-- -- Alt
+	-- {type = 'text', text = addonColor..'Alt:',align = 'left', size = 11, offset = -11},
+	-- {type = 'text', text = 'Pause Rotation', align = 'right', size = 11, offset = 0 },
 
-		-- General
-		{type = 'spacer'},{type = 'rule'},
-		{type = 'header', text = addonColor..'General', align = 'center' },
-		{type = 'checkbox', text = 'Automatic Res', key = 'auto_res', default = true},
-		--{type = "checkbox", text = "Automated Taunts", key = "canTaunt", default = false },
-		{type = 'checkbox', text = 'Automatic CJL at range', key = 'auto_cjl', default = false},
+	-- General
+	{type = 'spacer'},{type = 'rule'},
+	{type = 'header', text = 'General', align = 'center' },
+	{type = 'checkbox', text = 'Automatic Res', key = 'auto_res', default = true},
+	--{type = "checkbox", text = "Automated Taunts", key = "canTaunt", default = false },
+	{type = 'checkbox', text = 'Automatic CJL at range', key = 'auto_cjl', default = false},
 
-		-- Survival
-		{type = 'spacer'},{type = 'rule'},
-		{type = 'header', text = addonColor..'Survival', align = 'center'},
-		{type = 'spinner', text = 'Healthstone or Healing Potion', key = 'Health Stone', default = 45},
-		{type = 'spinner', text = 'Healing Elixir', key = 'Healing Elixir', default = 70},
-		{type = 'spinner', text = 'Expel Harm', key = 'Expel Harm', default = 100},
-		{type = 'spinner', text = 'Fortifying Brew', key = 'Fortifying Brew', default = 20},
-		{type = 'spinner', text = 'Ironskin Brew', key = 'Ironskin Brew', default = 80},
-	}
+	-- Survival
+	{type = 'spacer'},{type = 'rule'},
+	{type = 'header', text = 'Survival', align = 'center'},
+	{type = 'spinner', text = 'Healthstone or Healing Potion', key = 'Health Stone', default = 45},
+	{type = 'spinner', text = 'Healing Elixir', key = 'Healing Elixir', default = 70},
+	{type = 'spinner', text = 'Expel Harm', key = 'Expel Harm', default = 100},
+	{type = 'spinner', text = 'Fortifying Brew', key = 'Fortifying Brew', default = 20},
+	{type = 'spinner', text = 'Ironskin Brew', key = 'Ironskin Brew', default = 80},
 }
 
-local E = NOC.dynEval
-local F = function(key) return NeP.Interface.fetchKey(mKey, key, 100) end
+
 
 local exeOnLoad = function()
-	NeP.Interface.buildGUI(config)
-	NOC.ClassSetting(mKey)
-end
-
-local HealthStone = function()
-	return E('player.health <= ' .. F('Health Stone'))
-end
-
-local HealingElixir = function()
-	return E('player.health <= ' .. F('Healing Elixir'))
-end
-
-local FortifyingBrew = function()
-	return E('player.health <= ' .. F('Fortifying Brew'))
-end
-
-local ExpelHarm = function()
-	return E('player.health <= ' .. F('Expel Harm'))
-end
-
-local IronskinBrew = function()
-	return E('player.health <= ' .. F('Ironskin Brew'))
 end
 
 local staggered = function()
@@ -73,18 +38,16 @@ local staggered = function()
 	local percentOfHealth = (100/UnitHealthMax("player")*stagger);
 	-- TODO: We are targetting 4.5% stagger value - too low?  I think we used 25% or heavy stagger before as the trigger
 	--if (percentOfHealth > 4.5) or UnitDebuff("player", GetSpellInfo(124273)) then
-	if percentOfHealth > 4.5 then
-		return true
-	end
-	return false
+	return percentOfHealth > 4.5
 end
 
 local PurifyingCapped = function()
 	local MaxBrewCharges = 3;
-	if E('talent(3,1)') then
+	if NeP.DSL:Get('talent')(nil, '3,1') then
 		MaxBrewCharges = MaxBrewCharges + 1;
 	end
-	local PurifyingCapped = ( (E("player.spell(Purifying Brew).charges") == MaxBrewCharges) or ( (E("player.spell(Purifying Brew).charges") == MaxBrewCharges - 1) and E("player.spell(Purifying Brew).recharge < 3") ) ) or false;
+	local PurifyingCapped = ( 
+	(NeP.DSL:Get('spell.charges')('player', 'Purifying Brew') == MaxBrewCharges) or ((NeP.DSL:Get('spell.charges')('player', 'Purifying Brew') == MaxBrewCharges - 1) and NeP.DSL:Get('spell.recharge')('player', 'Purifying Brew') < 3 ) ) or false;
 	return PurifyingCapped
 end
 
@@ -113,10 +76,10 @@ local _OOC = {
 	{'Summon Black Ox Statue', 'keybind(lalt)', "mouseover.ground"},
 
 	-- Automatic res of dead party members
-	{ "%ressdead('Resuscitate')", (function() return F('auto_res') end) },
+	{ "%ressdead('Resuscitate')", 'UI(auto_res)' },
 
-	-- Effuse up to 50% health
-	{ "Effuse", { "player.health < 50", "player.lastmoved >= 1" }, "player" },
+	-- 'player.health <= UI(effuse)' up to 50% health
+	{ "'player.health <= UI(effuse)'", { "player.health < 50", "player.lastmoved >= 1" }, "player" },
 }
 
 local _Cooldowns = {
@@ -130,23 +93,23 @@ local _Mitigation = {
 
 	-- Ironskin if we have Light / No Stagger
 	-- TODO: add check to determine if we've lost 25% health over the last 5 seconds
-	{ "Ironskin Brew", { IronskinBrew, "player.spell(Purifying Brew).charges >= 2", "!player.buff(Ironskin Brew)" }},
+	{ "Ironskin Brew", { 'player.health <= UI(Ironskin Brew)', "player.spell(Purifying Brew).charges >= 2", "!player.buff(Ironskin Brew)" }},
 
 	-- Prevent Capping
 	{ "Ironskin Brew", { PurifyingCapped, "player.health < 100", "!player.buff(Ironskin Brew)" }},
 }
 
 local _Survival = {
-	{ "Healing Elixir", { "player.spell(Healing Elixir).charges >= 2", "or", { "player.spell(Healing Elixir).charges = 1", "player.spell(Healing Elixir).cooldown < 3" }, "!lastcast(Healing Elixir)", HealingElixir }, "player" },
+	{ "Healing Elixir", { "player.spell(Healing Elixir).charges >= 2", "or", { "player.spell(Healing Elixir).charges = 1", "player.spell(Healing Elixir).cooldown < 3" }, "!lastcast(Healing Elixir)", 'player.health <= UI(Healing Elixir)' }, "player" },
 
 	-- TODO: Update for legion's equivillant to healing tonic 109223
-	{ "#109223", HealthStone, "player" }, -- Healing Tonic
-	{ '#5512', HealthStone, "player" }, -- Healthstone
+	{ "#109223", 'player.health <= UI(Health Stone)', "player" }, -- Healing Tonic
+	{ '#5512', 'player.health <= UI(Health Stone)', "player" }, -- Healthstone
 
-	{'Fortifying Brew', { FortifyingBrew }, "player" },
+	{'Fortifying Brew', { 'player.health <= UI(Fortifying Brew)' }, "player" },
 
 	-- Cast when there is at least one orb on the ground
-	{'Expel Harm', { ExpelHarm, "player.spell(Expel Harm).count >= 1" }, "player" },
+	{'Expel Harm', { 'player.health <= UI(Expel Harm)', "player.spell(Expel Harm).count >= 1" }, "player" },
 }
 
 local _Interrupts = {
@@ -169,7 +132,7 @@ local _Interrupts = {
 }
 
 local _Ranged = {
-	{ "Crackling Jade Lightning", { "!player.moving", (function() return F('auto_cjl') end) }},
+	{ "Crackling Jade Lightning", { "!player.moving", 'UI(auto_cjl)' }},
 }
 
 local _Taunts = {
@@ -213,7 +176,7 @@ local _Melee = {
 }
 
 
-NeP.Engine.registerRotation(268, '[|cff'..NeP.Interface.addonColor..'NoC|r] Monk - Brewmaster',
+NeP.CR:Add(268, '[NoC] Monk - Brewmaster',
 	{-- In-Combat
 		{ '%pause', 'keybind(shift)'},
 		{_All},
