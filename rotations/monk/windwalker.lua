@@ -44,8 +44,6 @@ end
 
 
 local OutOfCombat = {
-	--{ "effuse", 'UI(sef_toggle)'},
-
 	{ "Effuse", { "player.health <= 50", "player.lastmoved >= 1" }, "player" },
 
 	-- Automatic res of dead party members
@@ -62,7 +60,7 @@ local _All = {
 	{ "/stopcasting\n/stopattack\n/cleartarget\n/stopattack\n/cleartarget\n/nep mt", { "player.combat.time >= 300", 'UI(dpstest)' }},
 
 	-- Cancel CJL when we're in melee range
-	{ "!/stopcasting", { "target.range <= 5", "player.casting(Crackling Jade Lightning)" }},
+	{ "!/stopcasting", { "target.inMelee", "player.casting(Crackling Jade Lightning)" }},
 
 	-- FREEDOOM!
 	{ "116841", 'player.state.disorient' }, -- Tiger's Lust = 116841
@@ -76,7 +74,7 @@ local _Cooldowns = {
 		-- TODO: add logic to handle ToD interaction with legendary item 137057
 		{ "Touch of Death", "!player.spell.usable(Gale Burst)" },
 		{ "Touch of Death", { "player.spell.usable(Gale Burst)", "player.spell(Strike of the Windlord).cooldown < 8", "player.spell(Fists of Fury).cooldown <= 4", "player.spell(Rising Sun Kick).cooldown < 7" }},
-	}, "target.range <= 5" },
+	}, "target.inMelee" },
 
 	{ "Lifeblood" },
 	{ "Berserking" },
@@ -84,7 +82,7 @@ local _Cooldowns = {
 	{ "#trinket1", { "player.buff(Serenity)", "or", "player.buff(Storm, Earth, and Fire)" }},
 	{ "#trinket2", { "player.buff(Serenity)", "or", "player.buff(Storm, Earth, and Fire)" }},
 	-- Use Xuen only while hero or potion (WOD: 156423, Legion: 188027) is active
-	{ "Invoke Xuen, the White Tiger", "player.hashero", "or", "player.buff(156423)", "or", "player.buff(188027)" },
+	{ "Invoke Xuen, the White Tiger", { "player.hashero", "or", "player.buff(156423)", "or", "player.buff(188027)" }},
 }
 
 local _Survival = {
@@ -105,7 +103,7 @@ local _Interrupts = {
   }},
   { "Leg Sweep", { -- Leg Sweep when SHS is on CD
      "player.spell(Spear Hand Strike).cooldown > 1",
-     "target.range <= 5",
+     "target.inMelee",
      "!lastcast(Spear Hand Strike)"
   }},
   { "Quaking Palm", { -- Quaking Palm when SHS is on CD
@@ -134,12 +132,12 @@ local _SEF = {
 local _Ranged = {
 	{ "116841", { "player.movingfor > 0.5", "target.alive" }}, -- Tiger's Lust
 	{ "Crackling Jade Lightning", { 'UI(auto_cjl)', "!player.moving", "player.combat.time > 4", "!lastgcd(Crackling Jade Lightning)", "@NOC.hitcombo(Crackling Jade Lightning)" }},
-	{ "Chi Wave", { 'UI(auto_cw)', "target.range > 8" }},
+	{ "Chi Wave", { 'UI(auto_cw)', "target.inRanged" }},
 }
 
 local _Serenity = {
 	{ "Energizing Elixir" },
-	{ _Cooldowns, { 'toggle(cooldowns)', "target.range <= 5" }},
+	{ _Cooldowns, { 'toggle(cooldowns)', "target.inMelee" }},
 	{ "Serenity" },
 	{ "Strike of the Windlord" },
 	{{
@@ -160,15 +158,17 @@ local _Serenity = {
 }
 
 local _Melee = {
-	{ _Cooldowns, { 'toggle(cooldowns)', "target.range <= 5" }},
-	{ "Energizing Elixir", { "player.energydiff > 0", "player.chi <= 1" }},
+	{ _Cooldowns, { 'toggle(cooldowns)', "target.inMelee" }},
+	{ "Energizing Elixir", { "player.energydiff > 0", "player.chi <= 1", "target.inMelee" }},
 	{ "Strike of the Windlord", { "talent(7,3)", "or", "player.area(9).enemies < 6" }},
-	{ "Fists of Fury" },
-	{ 'Rising Sun Kick', "UI(auto_dot)", 'NOC_sck(Mark of the Crane)'},
-	{ "Rising Sun Kick" },
-	--{ 'Spinning Crane Kick', { '!lastgcd(Spinning Crane Kick)', "@NOC.hitcombo(Spinning Crane Kick)", { "player.spell(Spinning Crane Kick).count >= 17" }}},
+	{ "Fists of Fury", "target.inMelee" },
+	{{
+		{ 'Rising Sun Kick', "UI(auto_dot)", 'NOC_sck(Mark of the Crane)'},
+		{ "Rising Sun Kick" },
+	}, { "target.inMelee" }},
+	{ 'Spinning Crane Kick', { '!lastgcd(Spinning Crane Kick)', "@NOC.hitcombo(Spinning Crane Kick)", { "player.spell(Spinning Crane Kick).count >= 17" }}},
 	{ "Whirling Dragon Punch" },
-	--{ 'Spinning Crane Kick', { '!lastgcd(Spinning Crane Kick)', "@NOC.hitcombo(Spinning Crane Kick)", { "player.spell(Spinning Crane Kick).count >= 12" }}},
+	{ 'Spinning Crane Kick', { '!lastgcd(Spinning Crane Kick)', "@NOC.hitcombo(Spinning Crane Kick)", { "player.spell(Spinning Crane Kick).count >= 12" }}},
 	{ 'Spinning Crane Kick', { 'player.area(8).enemies >= 3', 'toggle(AoE)', '!lastgcd(Spinning Crane Kick)', "@NOC.hitcombo(Spinning Crane Kick)" }},
 	{ "Rushing Jade Wind", { "player.chidiff > 1", "!lastgcd(Rushing Jade Wind)", "@NOC.hitcombo(Rushing Jade Wind)" }},
 	{{
@@ -176,7 +176,7 @@ local _Melee = {
   	{ "Blackout Kick", "player.buff(Blackout Kick!)" },
 		{'Blackout Kick', { "UI(auto_dot)", "player.chi > 1", }, 'NOC_sck(Mark of the Crane)'},
   	{ "Blackout Kick", "player.chi > 1" },
-	}, { "!lastgcd(Blackout Kick)", "@NOC.hitcombo(Blackout Kick)" }},
+	}, { "!lastgcd(Blackout Kick)", "@NOC.hitcombo(Blackout Kick)", "target.inMelee" }},
 	{{
 		{ "Chi Wave" }, -- 40 yard range 0 energy, 0 chi
 		{ "Chi Burst", "!player.moving" },
@@ -184,7 +184,7 @@ local _Melee = {
 	{{
 		{'Tiger Palm', "UI(auto_dot)", 'NOC_sck(Mark of the Crane)'},
 		{ "Tiger Palm" },
-	}, { "player.energy > 50", "!lastgcd(Tiger Palm)", "@NOC.hitcombo(Tiger Palm)" }},
+	}, { "player.energy > 50", "!lastgcd(Tiger Palm)", "@NOC.hitcombo(Tiger Palm)", "target.inMelee" }},
 
 	{{
 		{ "Crackling Jade Lightning", "talent(6,1)" },
@@ -196,9 +196,9 @@ local _Melee = {
 	{ "Crackling Jade Lightning", { "UI(auto_cjl_hc)", "!lastgcd(Crackling Jade Lightning)", "@NOC.hitcombo(Crackling Jade Lightning)" }},
 
 	-- Last resort BoK when we only have 1 chi and no hit combo
-	{ "Blackout Kick", "player.chi = 1 & !player.buff(Hit Combo)" },
+	{ "Blackout Kick", "player.chi = 1 & !player.buff(Hit Combo) & target.inMelee" },
 	-- Last resort TP when we don't have hit combo up
-	{ "Tiger Palm", "!player.buff(Hit Combo)" },
+	{ "Tiger Palm", "!player.buff(Hit Combo) & target.inMelee" },
 }
 
 local InCombat = {
@@ -206,12 +206,11 @@ local InCombat = {
 	{ _All},
 	{ _Survival, 'player.health < 100'},
 	{ _Interrupts, { 'target.interruptAt(55)', 'target.inMelee' }},
-	{ _Serenity, { "target.range <= 5", "talent(7,3)", "!player.casting(Fists of Fury)", {{ "player.spell(Strike of the Windlord).exists", "player.spell(Strike of the Windlord).cooldown <= 14", "player.spell(Rising Sun Kick).cooldown <= 4" }, "or", "player.buff(Serenity)" }}},
-	{ _Serenity, { "target.range <= 5", "talent(7,3)", "!player.casting(Fists of Fury)", {{ "!player.spell(Strike of the Windlord).exists", "player.spell(Fists of Fury).cooldown <= 15", "player.spell(Rising Sun Kick).cooldown < 7" }, "or", "player.buff(Serenity)" }}},
-	--{ _SEF, { "target.range <= 5", 'UI(sef_toggle)', "!talent(7,3)", "!player.casting(Fists of Fury)" }},
-	{ _SEF, { "target.range <= 5", "!talent(7,3)", "!player.casting(Fists of Fury)" }},
+	{ _Serenity, { "target.inMelee", "talent(7,3)", "!player.casting(Fists of Fury)", {{ "player.spell(Strike of the Windlord).exists", "player.spell(Strike of the Windlord).cooldown <= 14", "player.spell(Rising Sun Kick).cooldown <= 4" }, "or", "player.buff(Serenity)" }}},
+	{ _Serenity, { "target.inMelee", "talent(7,3)", "!player.casting(Fists of Fury)", {{ "!player.spell(Strike of the Windlord).exists", "player.spell(Fists of Fury).cooldown <= 15", "player.spell(Rising Sun Kick).cooldown < 7" }, "or", "player.buff(Serenity)" }}},
+	{ _SEF, { "target.inMelee", 'UI(sef_toggle)', "!talent(7,3)", "!player.casting(Fists of Fury)" }},
 	{ _Melee, { "target.range <= 9", "!player.casting(Fists of Fury)" }},
-	{ _Ranged, { "target.range > 8", "target.range <= 40" }},
+	{ _Ranged, { "!target.inMelee", "target.inRanged" }},
 }
 
 NeP.CR:Add(269, '[NoC] Monk - Windwalker', InCombat, OutOfCombat, exeOnLoad, config)
