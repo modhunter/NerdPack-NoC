@@ -86,12 +86,12 @@ local _Cooldowns = {
 }
 
 local _Survival = {
-	{ "Effuse", { "player.energy >= 60", "player.lastmoved >= 0.5", 'player.health <= UI(effuse)' }, "player" },
 	{ "Healing Elixir", { 'player.health <= UI(Healing Elixir)' }, "player" },
 
 	-- TODO: Update for legion's equivillant to healing tonic 109223
 	{ '#5512', 'player.health <= UI(Healthstone)', "player" }, -- Healthstone
-	{ "#127834", 'player.health <= UI(Healthstone)', "player" }, -- Healing Tonic
+	{ "#109223", 'player.health <= UI(Healthstone)', "player" }, -- Healing Tonic
+	{ "Effuse", { "player.energy >= 60", "player.lastmoved >= 0.5", 'player.health <= UI(effuse)' }, "player" },
 	{ "Detox", "player.dispellable(Detox)", "player" },
 }
 
@@ -199,6 +199,11 @@ local _Melee = {
 	{ "Blackout Kick", "player.chi = 1 & !player.buff(Hit Combo) & target.inMelee" },
 	-- Last resort TP when we don't have hit combo up
 	{ "Tiger Palm", "!player.buff(Hit Combo) & target.inMelee" },
+	-- Last resrt TP when at 100 energy - doing this because it's sometimes
+	-- getting parried/missed and we're stuck thinking it was latcast and
+	-- don't do anything, so as a fallthrough we'll cast when at 100 energy
+	-- no mamtter what. May replace with CJL when @ 100 energy instead
+	{ "Tiger Palm", "player.energy >= 100 & target.inMelee" },
 }
 
 local InCombat = {
