@@ -54,6 +54,7 @@ local MasterySpells = {
 	[117952] = '', -- Crackling Jade Lightning
 }
 local HitComboLastCast = ''
+local SEF_Fixate_Casted = false
 
 C_Timer.NewTicker(0.1, (function()
 	if NeP.DSL:Get('toggle')(nil, 'mastertoggle') then
@@ -85,6 +86,20 @@ NeP.Library:Add('NOC', {
 			end
 		end
 		return true
+	end,
+
+	sef = function()
+		if NeP.DSL:Get('buff')('player', 'Storm, Earth, and Fire') then
+			if SEF_Fixate_Casted then
+				return false
+			else
+				SEF_Fixate_Casted = true
+				return true
+			end
+		else
+			SEF_Fixate_Casted = false
+		end
+		return false
 	end,
 
 	-- for future use, call it via {"@NOC.synclast"}, at the TOP of the combat section
