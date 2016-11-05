@@ -16,27 +16,7 @@ local GUI = {
 	{type = 'spinner', text = 'Ironskin Brew', key = 'Ironskin Brew', default = 80},
 }
 
-
-
 local exeOnLoad = function()
-end
-
-local staggered = function()
-	local stagger = UnitStagger("player");
-	local percentOfHealth = (100/UnitHealthMax("player")*stagger);
-	-- TODO: We are targetting 4.5% stagger value - too low?  I think we used 25% or heavy stagger before as the trigger
-	--if (percentOfHealth > 4.5) or UnitDebuff("player", GetSpellInfo(124273)) then
-	return percentOfHealth > 4.5
-end
-
-local PurifyingCapped = function()
-	local MaxBrewCharges = 3;
-	if NeP.DSL:Get('talent')(nil, '3,1') then
-		MaxBrewCharges = MaxBrewCharges + 1;
-	end
-	local PurifyingCapped = (
-	(NeP.DSL:Get('spell.charges')('player', 'Purifying Brew') == MaxBrewCharges) or ((NeP.DSL:Get('spell.charges')('player', 'Purifying Brew') == MaxBrewCharges - 1) and NeP.DSL:Get('spell.recharge')('player', 'Purifying Brew') < 3 ) ) or false;
-	return PurifyingCapped
 end
 
 
@@ -76,14 +56,14 @@ local _Mitigation = {
 	{ "Black Ox Brew", "player.spell(Purifying Brew).charges < 1 & player.spell(purifying brew).recharge > 2" },
 
 	-- Active Mitigation
-	{ "Purifying Brew", "staggered & player.spell(Purifying Brew).charges >= 1" },
+	{ "Purifying Brew", "@NOC.staggered(nil) & player.spell(Purifying Brew).charges >= 1" },
 
 	-- Ironskin if we have Light / No Stagger
 	-- TODO: add check to determine if we've lost 25% health over the last 5 seconds
 	{ "Ironskin Brew", "player.health <= UI(Ironskin Brew) & player.spell(Purifying Brew).charges >= 2 & !player.buff(Ironskin Brew)" },
 
 	-- Prevent Capping
-	{ "Ironskin Brew", "PurifyingCapped & player.health < 100 & !player.buff(Ironskin Brew)" },
+	{ "Ironskin Brew", "@NOC.purifyingCapped(nil) & player.health < 100 & !player.buff(Ironskin Brew)" },
 }
 
 local _Survival = {
@@ -121,7 +101,7 @@ local _Taunts = {
 local _Melee = {
 	-- If Blackout Combo talent enabled
 	{ "Blackout Strike", "target.inMelee & talent(7,2) & !player.buff(228563) & {player.spell(Keg Smash).cooldown > 3 || player.spell(Keg Smash).cooldown < 1.5}" },
-	{ "Keg Smash", "talent(7,2) & {player.buff(228563) || PurifyingCapped}" },
+	{ "Keg Smash", "talent(7,2) & {player.buff(228563) || @NOC.purifyingCapped(nil)}" },
 
 	{ "Keg Smash", "!talent(7,2)" },
 
@@ -147,7 +127,7 @@ local _Melee = {
 		--{ "Flaming Keg" },
 
 		{ "Tiger Palm", "target.inMelee & !talent(7,2) || { target.inMelee & player.energy >= 70 & { player.energy >= 55 || player.spell(Keg Smash).cooldown > 3}}" },
-	}, { "player.spell(Keg Smash).cooldown >= 0.5 || { !talent(7,2) & !player.buff(228563) & player.spell(Keg Smash).cooldown >= 2 & PurifyingCapped }" }},
+	}, { "player.spell(Keg Smash).cooldown >= 0.5 || { !talent(7,2) & !player.buff(228563) & player.spell(Keg Smash).cooldown >= 2 & @NOC.purifyingCapped(nil) }" }},
 }
 
 local inCombat = {

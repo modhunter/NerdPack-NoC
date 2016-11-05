@@ -56,6 +56,7 @@ local MasterySpells = {
 local HitComboLastCast = ''
 local SEF_Fixate_Casted = false
 
+
 C_Timer.NewTicker(0.1, (function()
 	if NeP.DSL:Get('toggle')(nil, 'mastertoggle') then
 		if not UnitIsDeadOrGhost('player') and InCombatLockdown() then
@@ -100,6 +101,24 @@ NeP.Library:Add('NOC', {
 			SEF_Fixate_Casted = false
 		end
 		return false
+	end,
+
+	staggered = function()
+		local stagger = UnitStagger("player");
+		local percentOfHealth = (100/UnitHealthMax("player")*stagger);
+		-- TODO: We are targetting 4.5% stagger value - too low?  I think we used 25% or heavy stagger before as the trigger
+		--if (percentOfHealth > 4.5) or UnitDebuff("player", GetSpellInfo(124273)) then
+		return percentOfHealth > 4.5
+	end,
+
+	purifyingCapped = function()
+		local MaxBrewCharges = 3;
+		if NeP.DSL:Get('talent')(nil, '3,1') then
+			MaxBrewCharges = MaxBrewCharges + 1;
+		end
+		local PurifyingCapped = (
+		(NeP.DSL:Get('spell.charges')('player', 'Purifying Brew') == MaxBrewCharges) or ((NeP.DSL:Get('spell.charges')('player', 'Purifying Brew') == MaxBrewCharges - 1) and NeP.DSL:Get('spell.recharge')('player', 'Purifying Brew') < 3 ) ) or false;
+		return PurifyingCapped
 	end,
 
 	-- for future use, call it via {"@NOC.synclast"}, at the TOP of the combat section
