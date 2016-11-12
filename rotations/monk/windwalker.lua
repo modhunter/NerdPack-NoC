@@ -61,8 +61,8 @@ local _Cooldowns = {
 	{ "Lifeblood" },
 	{ "Berserking" },
 	{ "Blood Fury" },
-	{ "#trinket1", "player.buff(Serenity) || player.buff(Storm, Earth, and Fire)" },
-	{ "#trinket2", "player.buff(Serenity) || player.buff(Storm, Earth, and Fire)" },
+	--{ "#trinket1", "player.buff(Serenity) || player.buff(Storm, Earth, and Fire)" },
+	--{ "#trinket2", "player.buff(Serenity) || player.buff(Storm, Earth, and Fire)" },
 	-- Use Xuen only while hero or potion (WOD: 156423, Legion: 188027) is active
 	{ "Invoke Xuen, the White Tiger", "player.hashero || player.buff(156423) || player.buff(188027)" },
 }
@@ -70,8 +70,8 @@ local _Cooldowns = {
 local _Survival = {
 	{ "Healing Elixir", "player.health <= UI(Healing Elixir)", "player" },
 
-	{ '#5512', 'player.health <= UI(Healthstone)', "player" }, -- Healthstone
-	{ "#109223", 'player.health <= UI(Healthstone)', "player" }, -- Healing Tonic
+	--{ '#5512', 'player.health <= UI(Healthstone)', "player" }, -- Healthstone
+	--{ "#109223", 'player.health <= UI(Healthstone)', "player" }, -- Healing Tonic
 	{ "Effuse", "player.energy >= 60 & player.lastmoved >= 0.5 & player.health <= UI(effuse)", "player" },
 	{ "Detox", "player.dispellable(Detox)", "player" },
 }
