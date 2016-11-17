@@ -56,7 +56,8 @@ local _All = {
 
 local _Cooldowns = {
 		-- TODO: add logic to handle ToD interaction with legendary item 137057
-	{ "Touch of Death", "target.inMelee & {!player.spell.usable(Gale Burst) || {player.spell.usable(Gale Burst) & player.spell(Strike of the Windlord).cooldown < 8 & player.spell(Fists of Fury).cooldown <= 4 & player.spell(Rising Sun Kick).cooldown < 7}}" },
+	--{ "Touch of Death", "target.inMelee & {!player.spell.usable(Gale Burst) || {player.spell.usable(Gale Burst) & player.spell(Strike of the Windlord).cooldown < 8 & player.spell(Fists of Fury).cooldown <= 4 & player.spell(Rising Sun Kick).cooldown < 7}}" },
+	{ "Touch of Death", "target.inMelee & {!player.spell.usable(Gale Burst) || {player.spell.usable(Gale Burst) & player.spell(Strike of the Windlord).cooldown < 8 & player.spell(Fists of Fury).cooldown <= 4}}" },
 
 	{ "Lifeblood" },
 	{ "Berserking" },
@@ -117,7 +118,7 @@ local _Serenity = {
 	{ 'Spinning Crane Kick', "player.area(8).enemies >= 3 & toggle(AoE) & !lastgcd(Spinning Crane Kick) & @NOC.hitcombo(Spinning Crane Kick)" },
 	{ 'Rising Sun Kick', "UI(auto_dot) & player.area(5).enemies >= 3", 'NOC_sck(Mark of the Crane)' },
 	{ "Rising Sun Kick", "player.area(5).enemies >= 3" },
-	{ 'Spinning Crane Kick', "{!lastgcd(Spinning Crane Kick) & @NOC.hitcombo(Spinning Crane Kick)} & {player.spell(Spinning Crane Kick).count >= 5 || {player.area(8).enemies >= 2 & toggle(AoE)}}" },	
+	{ 'Spinning Crane Kick', "{!lastgcd(Spinning Crane Kick) & @NOC.hitcombo(Spinning Crane Kick)} & {player.spell(Spinning Crane Kick).count >= 5 || {player.area(8).enemies >= 2 & toggle(AoE)}}" },
 	{ 'Blackout Kick', "UI(auto_dot) & !lastgcd(Blackout Kick) & @NOC.hitcombo(Blackout Kick)", 'NOC_sck(Mark of the Crane)' },
 	{ "Blackout Kick", "!lastgcd(Blackout Kick) & @NOC.hitcombo(Blackout Kick)" },
 	{ "Rushing Jade Wind", "!lastgcd(Rushing Jade Wind) & @NOC.hitcombo(Rushing Jade Wind)" },
