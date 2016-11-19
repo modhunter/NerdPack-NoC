@@ -57,7 +57,7 @@ local _All = {
 local _Cooldowns = {
 		-- TODO: add logic to handle ToD interaction with legendary item 137057
 	--{ "Touch of Death", "target.inMelee & {!player.spell.usable(Gale Burst) || {player.spell.usable(Gale Burst) & player.spell(Strike of the Windlord).cooldown < 8 & player.spell(Fists of Fury).cooldown <= 4 & player.spell(Rising Sun Kick).cooldown < 7}}" },
-	{ "Touch of Death", "target.inMelee & {!player.spell.usable(Gale Burst) || {player.spell.usable(Gale Burst) & player.spell(Strike of the Windlord).cooldown < 8 & player.spell(Fists of Fury).cooldown <= 4}}" },
+	{ "Touch of Death", "target.inMelee & target.deathin >= 8 & {!player.spell.usable(Gale Burst) || {player.spell.usable(Gale Burst) & player.spell(Strike of the Windlord).cooldown < 8 || player.spell(Fists of Fury).cooldown <= 4}}" },
 
 	{ "Lifeblood" },
 	{ "Berserking" },
@@ -71,8 +71,8 @@ local _Cooldowns = {
 local _Survival = {
 	{ "Healing Elixir", "player.health <= UI(Healing Elixir)", "player" },
 
-	{ '#5512', 'player.health <= UI(Healthstone)', "player" }, -- Healthstone
-	{ "#109223", 'player.health <= UI(Healthstone)', "player" }, -- Healing Tonic
+  --{ '#5512', 'player.health <= UI(Healthstone)', "player" }, -- Healthstone
+	{ "#127834", 'player.health <= UI(Healthstone)', "player" }, -- Ancient Healing Potion
 	{ "Effuse", "player.energy >= 60 & player.lastmoved >= 0.5 & player.health <= UI(effuse)", "player" },
 	{ "Detox", "player.dispellable(Detox)", "player" },
 }
@@ -89,12 +89,12 @@ local _Interrupts = {
 
 local _SEF = {
 	{{
-		{ "Energizing Elixir" },
+		{ "Energizing Elixir", "target.inMelee & {player.energydiff > 0 & player.chi <= 1}" },
 		{ _Cooldowns, 'toggle(cooldowns)' },
 		{ "Storm, Earth, and Fire", "{!toggle(AoE) & @NOC.sef(nil)} || !player.buff(Storm, Earth, and Fire)" },
 	}, "player.spell(Strike of the Windlord).exists & player.spell(Strike of the Windlord).cooldown <= 14 & player.spell(Fists of Fury).cooldown <= 6 & player.spell(Rising Sun Kick).cooldown <= 6" },
 	{{
-		{ "Energizing Elixir" },
+		{ "Energizing Elixir", "target.inMelee & {player.energydiff > 0 & player.chi <= 1}" },
 		{ _Cooldowns, 'toggle(cooldowns)' },
 		{ "Storm, Earth, and Fire", "{!toggle(AoE) & @NOC.sef(nil)} || !player.buff(Storm, Earth, and Fire)" },
 	}, "!player.spell(Strike of the Windlord).exists & player.spell(Fists of Fury).cooldown <= 9 & player.spell(Rising Sun Kick).cooldown <= 5" },
@@ -107,27 +107,27 @@ local _Ranged = {
 }
 
 local _Serenity = {
-	{ "Energizing Elixir" },
+	{ "Energizing Elixir", "target.inMelee & {player.energydiff > 0 & player.chi <= 1}" },
 	{ _Cooldowns, "toggle(cooldowns) & target.inMelee" },
-	{ "Serenity" },
-	{ "Strike of the Windlord" },
+	{ "Serenity", "target.inMelee" },
+	{ "Strike of the Windlord", "player.area(9).enemies >= 1" },
 	{ 'Spinning Crane Kick', "{!lastgcd(Spinning Crane Kick) & @NOC.hitcombo(Spinning Crane Kick)} & {player.spell(Spinning Crane Kick).count >= 8 || {player.spell(Spinning Crane Kick).count >= 3 & player.area(8).enemies >= 2 & toggle(AoE)} || {player.area(8).enemies >= 3 & toggle(AoE)}}" },
-	{ 'Rising Sun Kick', "UI(auto_dot) & player.area(5).enemies < 3", 'NOC_sck(Mark of the Crane)' },
-	{ "Rising Sun Kick", "player.area(5).enemies < 3" },
-	{ "Fists of Fury" },
+	{ 'Rising Sun Kick', "UI(auto_dot) & player.area(5).enemies < 3 & target.inMelee", 'NOC_sck(Mark of the Crane)' },
+	{ "Rising Sun Kick", "player.area(5).enemies < 3 & target.inMelee" },
+	{ "Fists of Fury", "target.inMelee" },
 	{ 'Spinning Crane Kick', "player.area(8).enemies >= 3 & toggle(AoE) & !lastgcd(Spinning Crane Kick) & @NOC.hitcombo(Spinning Crane Kick)" },
 	{ 'Rising Sun Kick', "UI(auto_dot) & player.area(5).enemies >= 3", 'NOC_sck(Mark of the Crane)' },
 	{ "Rising Sun Kick", "player.area(5).enemies >= 3" },
 	{ 'Spinning Crane Kick', "{!lastgcd(Spinning Crane Kick) & @NOC.hitcombo(Spinning Crane Kick)} & {player.spell(Spinning Crane Kick).count >= 5 || {player.area(8).enemies >= 2 & toggle(AoE)}}" },
 	{ 'Blackout Kick', "UI(auto_dot) & !lastgcd(Blackout Kick) & @NOC.hitcombo(Blackout Kick)", 'NOC_sck(Mark of the Crane)' },
-	{ "Blackout Kick", "!lastgcd(Blackout Kick) & @NOC.hitcombo(Blackout Kick)" },
+	{ "Blackout Kick", "!lastgcd(Blackout Kick) & @NOC.hitcombo(Blackout Kick) & target.inMelee" },
 	{ "Rushing Jade Wind", "!lastgcd(Rushing Jade Wind) & @NOC.hitcombo(Rushing Jade Wind)" },
 }
 
 local _Melee = {
 	{ _Cooldowns, "toggle(cooldowns) & target.inMelee" },
 	{ "Energizing Elixir", "player.energydiff > 0 & player.chi <= 1 & target.inMelee" },
-	{ "Strike of the Windlord", "talent(7,3) || player.area(9).enemies < 6" },
+	{ "Strike of the Windlord", "talent(7,3) || player.area(9).enemies < 6 & player.area(9).enemies >= 1" },
 	{ "Fists of Fury", "target.inMelee" },
 	{ 'Spinning Crane Kick', "{!lastgcd(Spinning Crane Kick) & @NOC.hitcombo(Spinning Crane Kick)} & {player.spell(Spinning Crane Kick).count >= 8 || {player.spell(Spinning Crane Kick).count >= 3 & player.area(8).enemies >= 2 & toggle(AoE)} || {player.area(8).enemies >= 3 & toggle(AoE)}}" },
 	{ 'Rising Sun Kick', "target.inMelee & UI(auto_dot)", 'NOC_sck(Mark of the Crane)'},
@@ -148,7 +148,7 @@ local _Melee = {
 	}, "player.energy > 50 & !lastgcd(Tiger Palm) & @NOC.hitcombo(Tiger Palm) & target.inMelee" },
 
 	-- CJL when we're using Hit Combo as a last resort filler, at 100 energy, and it's toggled on
-	{ "Crackling Jade Lightning", "UI(auto_cjl_hc) & !lastgcd(Crackling Jade Lightning) & @NOC.hitcombo(Crackling Jade Lightning) & player.energydiff = 0" },
+	{ "Crackling Jade Lightning", "UI(auto_cjl_hc) & target.inMelee & !lastgcd(Crackling Jade Lightning) & @NOC.hitcombo(Crackling Jade Lightning) & player.energydiff = 0" },
 
 	-- Last resort BoK when we only have 1 chi and no hit combo
 	{ "Blackout Kick", "player.chi = 1 & !player.buff(Hit Combo) & target.inMelee" },
