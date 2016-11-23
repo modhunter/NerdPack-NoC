@@ -26,15 +26,15 @@ local _All = {
 	{ "Leg Sweep", "keybind(lcontrol)" },
 
 	-- Nimble Brew if pvp talent taken
-	{'137648', 'player.state.disorient'},
-	{'137648', 'player.state.stun'},
-	{'137648', 'player.state.fear'},
-	{'137648', 'player.state.horror'},
+	{'Nimble Brew', 'player.state.disorient'},
+	{'Nimble Brew', 'player.state.stun'},
+	{'Nimble Brew', 'player.state.fear'},
+	{'Nimble Brew', 'player.state.horror'},
 
-	{ "116841", 'player.state.disorient' }, -- Tiger's Lust = 116841
-	{ "116841", 'player.state.stun' }, -- Tiger's Lust = 116841
-	{ "116841", 'player.state.root' }, -- Tiger's Lust = 116841
-	{ "116841", 'player.state.snare' }, -- Tiger's Lust = 116841
+	{ "Tiger's Lust", 'player.state.disorient' }, -- Tiger's Lust = Tiger's Lust
+	{ "Tiger's Lust", 'player.state.stun' }, -- Tiger's Lust = Tiger's Lust
+	{ "Tiger's Lust", 'player.state.root' }, -- Tiger's Lust = Tiger's Lust
+	{ "Tiger's Lust", 'player.state.snare' }, -- Tiger's Lust = Tiger's Lust
 
 
 }
@@ -69,9 +69,8 @@ local _Mitigation = {
 local _Survival = {
 	{ "Healing Elixir", "player.spell(Healing Elixir).charges >= 2 || {player.spell(Healing Elixir).charges = 1 & player.spell(Healing Elixir).cooldown < 3} & !lastcast(Healing Elixir) & player.health <= UI(Healing Elixir)", "player" },
 
-	-- TODO: Update for legion's equivillant to healing tonic 109223
-	{ "#109223", "player.health <= UI(Health Stone)", "player" }, -- Healing Tonic
-	{ '#5512', 'player.health <= UI(Health Stone)', "player" }, -- Healthstone
+	--{ '#5512', 'player.health <= UI(Health Stone)', "player" }, -- Healthstone
+	{ "#127834", 'player.health <= UI(Healthstone)', "player" }, -- Ancient Healing Potion
 
 	{'Fortifying Brew', 'player.health <= UI(Fortifying Brew)', "player" },
 
@@ -100,18 +99,18 @@ local _Taunts = {
 
 local _Melee = {
 	-- If Blackout Combo talent enabled
-	{ "Blackout Strike", "target.inMelee & talent(7,2) & !player.buff(228563) & {player.spell(Keg Smash).cooldown > 3 || player.spell(Keg Smash).cooldown < 1.5}" },
-	{ "Keg Smash", "talent(7,2) & {player.buff(228563) || @NOC.purifyingCapped(nil)}" },
+	{ "Blackout Strike", "target.inMelee & talent(7,2) & !player.buff(Blackout Combo) & {player.spell(Keg Smash).cooldown > 3 || player.spell(Keg Smash).cooldown < 1.5}" },
+	{ "Keg Smash", "talent(7,2) & {player.buff(Blackout Combo) || @NOC.purifyingCapped(nil)}" },
 
 	{ "Keg Smash", "!talent(7,2)" },
 
 	-- Keg Smash Wait - Wait longer for Blackout Combo if not capped
 	{{
-		{ "Blackout Strike", "target.inMelee & !player.buff(228563) & talent(7,2) & player.area(10).enemies >= 1" },
-		{ "Breath of Fire", "player.buff(228563) & talent(7,2) & player.area(10).enemies >= 1" },
+		{ "Blackout Strike", "target.inMelee & !player.buff(Blackout Combo) & talent(7,2) & player.area(10).enemies >= 1" },
+		{ "Breath of Fire", "player.buff(Blackout Combo) & talent(7,2) & player.area(10).enemies >= 1" },
 
-		{ "Blackout Strike", "target.inMelee & talent(7,2) & !player.buff(228563) & {player.energy >= 45 || player.spell(Keg Smash).cooldown > 3}" },
-		{ "Tiger Palm", "target.inMelee & talent(7,2) & player.buff(228563)" },
+		{ "Blackout Strike", "target.inMelee & talent(7,2) & !player.buff(Blackout Combo) & {player.energy >= 45 || player.spell(Keg Smash).cooldown > 3}" },
+		{ "Tiger Palm", "target.inMelee & talent(7,2) & player.buff(Blackout Combo)" },
 
 		{ "Blackout Strike", "target.inMelee" },
 
@@ -127,7 +126,7 @@ local _Melee = {
 		--{ "Flaming Keg" },
 
 		{ "Tiger Palm", "target.inMelee & !talent(7,2) || { target.inMelee & player.energy >= 70 & { player.energy >= 55 || player.spell(Keg Smash).cooldown > 3}}" },
-	}, { "player.spell(Keg Smash).cooldown >= 0.5 || { !talent(7,2) & !player.buff(228563) & player.spell(Keg Smash).cooldown >= 2 & @NOC.purifyingCapped(nil) }" }},
+	}, { "player.spell(Keg Smash).cooldown >= 0.5 || { !talent(7,2) & !player.buff(Blackout Combo) & player.spell(Keg Smash).cooldown >= 2 & @NOC.purifyingCapped(nil) }" }},
 }
 
 local inCombat = {
@@ -135,7 +134,7 @@ local inCombat = {
 	{_All},
 	{_Survival, 'player.health < 100' },
 	{_Interrupts, 'target.interruptAt(55) & target.inMelee' },
-	{_Mitigation, 'target.inMelee & {!talent(7,2) || !player.buff(228563) || player.spell(Keg Smash).cooldown >=2.5}' },
+	{_Mitigation, 'target.inMelee & {!talent(7,2) || !player.buff(Blackout Combo) || player.spell(Keg Smash).cooldown >=2.5}' },
 	{_Cooldowns, 'toggle(cooldowns)' },
 	{_Melee },
 	{_Ranged, "!target.inMelee & target.inRanged" },

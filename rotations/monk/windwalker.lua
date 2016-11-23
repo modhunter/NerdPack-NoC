@@ -48,15 +48,14 @@ local _All = {
 	{ "!/stopcasting", "target.inMelee & player.casting(Crackling Jade Lightning)" },
 
 	-- FREEDOOM!
-	{ "116841", 'player.state.disorient' }, -- Tiger's Lust = 116841
-	{ "116841", 'player.state.stun' }, -- Tiger's Lust = 116841
-	{ "116841", 'player.state.root' }, -- Tiger's Lust = 116841
-	{ "116841", 'player.state.snare' }, -- Tiger's Lust = 116841
+	{ "Tiger's Lust", 'player.state.disorient' }, -- Tiger's Lust = Tiger's Lust
+	{ "Tiger's Lust", 'player.state.stun' }, -- Tiger's Lust = Tiger's Lust
+	{ "Tiger's Lust", 'player.state.root' }, -- Tiger's Lust = Tiger's Lust
+	{ "Tiger's Lust", 'player.state.snare' }, -- Tiger's Lust = Tiger's Lust
 }
 
 local _Cooldowns = {
 		-- TODO: add logic to handle ToD interaction with legendary item 137057
-	--{ "Touch of Death", "target.inMelee & {!player.spell.usable(Gale Burst) || {player.spell.usable(Gale Burst) & player.spell(Strike of the Windlord).cooldown < 8 & player.spell(Fists of Fury).cooldown <= 4 & player.spell(Rising Sun Kick).cooldown < 7}}" },
 	{ "Touch of Death", "target.inMelee & target.deathin >= 8 & {!player.spell.usable(Gale Burst) || {player.spell.usable(Gale Burst) & player.spell(Strike of the Windlord).cooldown < 8 || player.spell(Fists of Fury).cooldown <= 4}}" },
 
 	{ "Lifeblood" },
@@ -65,7 +64,7 @@ local _Cooldowns = {
 	{ "#trinket1", "player.buff(Serenity) || player.buff(Storm, Earth, and Fire)" },
 	{ "#trinket2", "player.buff(Serenity) || player.buff(Storm, Earth, and Fire)" },
 	-- Use Xuen only while hero or potion (WOD: 156423, Legion: 188027) is active
-	{ "Invoke Xuen, the White Tiger", "player.hashero || player.buff(156423) || player.buff(188027)" },
+	{ "Invoke Xuen, the White Tiger", "player.hashero" },
 }
 
 local _Survival = {
@@ -101,7 +100,7 @@ local _SEF = {
 }
 
 local _Ranged = {
-	{ "116841", "player.movingfor > 0.5 & target.alive" }, -- Tiger's Lust
+	{ "Tiger's Lust", "player.movingfor > 0.5 & target.alive" }, -- Tiger's Lust
 	{ "Crackling Jade Lightning", "UI(auto_cjl) & !player.moving & player.combat.time > 4 & !lastgcd(Crackling Jade Lightning) & @NOC.hitcombo(Crackling Jade Lightning)" },
 	{ "Chi Wave", "UI(auto_cw) & target.inRanged" },
 }
@@ -110,7 +109,7 @@ local _Serenity = {
 	{ "Energizing Elixir", "target.inMelee & {player.energydiff > 0 & player.chi <= 1}" },
 	{ _Cooldowns, "toggle(cooldowns) & target.inMelee" },
 	{ "Serenity", "target.inMelee" },
-	{ "Strike of the Windlord", "player.area(9).enemies >= 1" },
+	{ "Strike of the Windlord", "player.area(9).enemies >= 1", "target" },
 	{ 'Spinning Crane Kick', "{!lastgcd(Spinning Crane Kick) & @NOC.hitcombo(Spinning Crane Kick)} & {player.spell(Spinning Crane Kick).count >= 8 || {player.spell(Spinning Crane Kick).count >= 3 & player.area(8).enemies >= 2 & toggle(AoE)} || {player.area(8).enemies >= 3 & toggle(AoE)}}" },
 	{ 'Rising Sun Kick', "UI(auto_dot) & player.area(5).enemies < 3 & target.inMelee", 'NOC_sck(Mark of the Crane)' },
 	{ "Rising Sun Kick", "player.area(5).enemies < 3 & target.inMelee" },
@@ -127,7 +126,7 @@ local _Serenity = {
 local _Melee = {
 	{ _Cooldowns, "toggle(cooldowns) & target.inMelee" },
 	{ "Energizing Elixir", "player.energydiff > 0 & player.chi <= 1 & target.inMelee" },
-	{ "Strike of the Windlord", "talent(7,3) || player.area(9).enemies < 6 & player.area(9).enemies >= 1" },
+	{ "Strike of the Windlord", "talent(7,3) || player.area(9).enemies < 6 & player.area(9).enemies >= 1", "target" },
 	{ "Fists of Fury", "target.inMelee" },
 	{ 'Spinning Crane Kick', "{!lastgcd(Spinning Crane Kick) & @NOC.hitcombo(Spinning Crane Kick)} & {player.spell(Spinning Crane Kick).count >= 8 || {player.spell(Spinning Crane Kick).count >= 3 & player.area(8).enemies >= 2 & toggle(AoE)} || {player.area(8).enemies >= 3 & toggle(AoE)}}" },
 	{ 'Rising Sun Kick', "target.inMelee & UI(auto_dot)", 'NOC_sck(Mark of the Crane)'},
