@@ -1,4 +1,4 @@
--- Syncronized with simc APL as of simc commit e92debcb8f23510e221d61351ab9914d38b85373 (from f5fa6c7e95dc496ec391112ccfc4821bf228897c)
+-- Syncronized with simc APL as of simc commit 2b2fc107fccdbe83b5736a30a0f8524592f594f7 (from e92debcb8f23510e221d61351ab9914d38b85373)
 
 local GUI = {
 	-- General
@@ -101,8 +101,8 @@ local _SEF = {
 
 local _Ranged = {
 	{ "Tiger's Lust", "player.movingfor > 0.5 & target.alive" }, -- Tiger's Lust
-	{ "Crackling Jade Lightning", "UI(auto_cjl) & !player.moving & player.combat.time > 4 & !lastgcd(Crackling Jade Lightning) & @NOC.hitcombo(Crackling Jade Lightning)" },
-	{ "Chi Wave", "UI(auto_cw) & target.inRanged" },
+	{ "Crackling Jade Lightning", "UI(auto_cjl) & !player.moving & player.combat.time > 4 & target.combat & !lastgcd(Crackling Jade Lightning) & @NOC.hitcombo(Crackling Jade Lightning)" },
+	{ "Chi Wave", "UI(auto_cw) & target.inRanged & target.combat" },
 }
 
 local _Serenity = {
@@ -139,7 +139,7 @@ local _Melee = {
 		{ 'Blackout Kick', "UI(auto_dot) & {player.chi > 1 || player.buff(Blackout Kick!)}", 'NOC_sck(Mark of the Crane)' },
   	{ "Blackout Kick", "player.buff(Blackout Kick!) || player.chi > 1" },
 	}, "!lastgcd(Blackout Kick) & @NOC.hitcombo(Blackout Kick) & target.inMelee" },
-	{ "Chi Wave", "player.timetomax >= 2.25" }, -- 40 yard range 0 energy, 0 chi
+	{ "Chi Wave", "player.timetomax >= 2.25 & target.combat" }, -- 40 yard range 0 energy, 0 chi
 	{ "Chi Burst", "!player.moving & player.timetomax >= 2.25" },
 	{{
 		{ 'Tiger Palm', "UI(auto_dot)", 'NOC_sck(Mark of the Crane)' },
@@ -165,11 +165,11 @@ local inCombat = {
 	{ _All},
 	{ _Survival, 'player.health < 100'},
 	{ _Interrupts, 'target.interruptAt(55) & target.inMelee' },
-	{ _Serenity, "toggle(cooldowns) & target.inMelee & talent(7,3) & !player.casting(Fists of Fury) & {player.spell(Strike of the Windlord).exists & player.spell(Strike of the Windlord).cooldown <= 14 & player.spell(Rising Sun Kick).cooldown <= 4} || player.buff(Serenity)" },
-	{ _Serenity, "toggle(cooldowns) & target.inMelee & talent(7,3) & !player.casting(Fists of Fury) & {!player.spell(Strike of the Windlord).exists & player.spell(Fists of Fury).cooldown <= 15 & player.spell(Rising Sun Kick).cooldown < 7} || player.buff(Serenity)" },
+	{ _Serenity, "toggle(cooldowns) & target.inMelee & talent(7,3) & !player.casting(Fists of Fury) & {player.spell(Strike of the Windlord).exists & player.spell(Strike of the Windlord).cooldown <= 15 & player.spell(Fists of Fury).cooldown < 8 & player.spell(Rising Sun Kick).cooldown <= 4} || player.buff(Serenity)" },
+	{ _Serenity, "toggle(cooldowns) & target.inMelee & talent(7,3) & !player.casting(Fists of Fury) & {!player.spell(Strike of the Windlord).exists & player.spell(Fists of Fury).cooldown < 14 & player.spell(Fists of Fury).cooldown <= 15 & player.spell(Rising Sun Kick).cooldown < 7} || player.buff(Serenity)" },
 	{ _SEF, "target.inMelee & UI(sef_toggle) & !talent(7,3) & !player.casting(Fists of Fury)" },
 	{ _Melee, "!player.casting(Fists of Fury)" },
-	{ _Ranged, "!target.inMelee & target.inRanged" },
+	{ _Ranged, "!target.inMelee & target.inRanged & target.combat" },
 }
 
 NeP.CR:Add(269, {
