@@ -57,8 +57,6 @@ local _All = {
 local _Cooldowns = {
   { "Tiger Palm", "player.combat.time < 4 & player.energydiff = 0 & player.chi <= 1 & !lastgcd(Tiger Palm) & @NOC.hitcombo(Tiger Palm) & target.inMelee" },
   -- TODO: add logic to handle ToD interaction with legendary item 137057 (Hidden Masters Forbidden Touch)
-  -- Old way
-  --{ "Touch of Death", "target.inMelee & target.deathin >= 8 & {!player.spell.usable(Gale Burst) || {player.spell.usable(Gale Burst) & player.spell(Strike of the Windlord).cooldown < 8 || player.spell(Fists of Fury).cooldown <= 4}}" },
   -- No Serenity
   { "Touch of Death", "target.inMelee & target.deathin >= 8 & {!player.spell.usable(Gale Burst) || {player.spell.usable(Gale Burst) & !talent(7,3) & player.spell(Strike of the Windlord).cooldown < 8 & player.spell(Fists of Fury).cooldown <= 4 & player.spell(Rising Sun Kick).cooldown < 7 & player.chi >= 2}}" },
   -- Serenity
@@ -172,8 +170,6 @@ local inCombat = {
 	{ _Interrupts, 'target.interruptAt(55) & target.inMelee' },
   { _Cooldowns, "toggle(cooldowns) & target.inMelee" },
   { _Serenity, "toggle(cooldowns) & target.inMelee & talent(7,3) & !player.casting(Fists of Fury) & {player.spell(Serenity).cooldown = 0 || player.buff(Serenity)}" },
-	--{ _Serenity, "toggle(cooldowns) & target.inMelee & talent(7,3) & !player.casting(Fists of Fury) & {player.spell(Strike of the Windlord).exists & player.spell(Strike of the Windlord).cooldown <= 15 & player.spell(Fists of Fury).cooldown < 8 & player.spell(Rising Sun Kick).cooldown <= 4} || player.buff(Serenity)" },
-	--{ _Serenity, "toggle(cooldowns) & target.inMelee & talent(7,3) & !player.casting(Fists of Fury) & {!player.spell(Strike of the Windlord).exists & player.spell(Fists of Fury).cooldown < 14 & player.spell(Fists of Fury).cooldown <= 15 & player.spell(Rising Sun Kick).cooldown < 7} || player.buff(Serenity)" },
   -- TODO: handle legendary Drinking Horn Cover
 	{ _SEF, "target.inMelee & UI(sef_toggle) & !talent(7,3) & !player.casting(Fists of Fury) & {player.spell(Strike of the Windlord).exists & player.spell(Strike of the Windlord).cooldown <= 14 & player.spell(Fists of Fury).cooldown <= 6 & player.spell(Rising Sun Kick).cooldown <= 6}" },
 	{ _Melee, "!player.casting(Fists of Fury)" },
