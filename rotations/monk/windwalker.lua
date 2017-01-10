@@ -1,4 +1,4 @@
--- Syncronized with simc APL as of simc commit 2b2fc107fccdbe83b5736a30a0f8524592f594f7 (from e92debcb8f23510e221d61351ab9914d38b85373)
+-- Syncronized with simc APL as of simc commit 416d9945271c23d7fbe7769b94724f2c604b2f66 (from 2b2fc107fccdbe83b5736a30a0f8524592f594f7)
 
 local GUI = {
 	-- General
@@ -55,8 +55,14 @@ local _All = {
 }
 
 local _Cooldowns = {
-		-- TODO: add logic to handle ToD interaction with legendary item 137057
-	{ "Touch of Death", "target.inMelee & target.deathin >= 8 & {!player.spell.usable(Gale Burst) || {player.spell.usable(Gale Burst) & player.spell(Strike of the Windlord).cooldown < 8 || player.spell(Fists of Fury).cooldown <= 4}}" },
+  { "Tiger Palm", "player.combat.time < 4 & player.energydiff = 0 & player.chi <= 1 & !lastgcd(Tiger Palm) & @NOC.hitcombo(Tiger Palm) & target.inMelee" },
+  -- TODO: add logic to handle ToD interaction with legendary item 137057 (Hidden Masters Forbidden Touch)
+  -- Old way
+  --{ "Touch of Death", "target.inMelee & target.deathin >= 8 & {!player.spell.usable(Gale Burst) || {player.spell.usable(Gale Burst) & player.spell(Strike of the Windlord).cooldown < 8 || player.spell(Fists of Fury).cooldown <= 4}}" },
+  -- No Serenity
+  { "Touch of Death", "target.inMelee & target.deathin >= 8 & {!player.spell.usable(Gale Burst) || {player.spell.usable(Gale Burst) & !talent(7,3) & player.spell(Strike of the Windlord).cooldown < 8 & player.spell(Fists of Fury).cooldown <= 4 & player.spell(Rising Sun Kick).cooldown < 7 & player.chi >= 2}}" },
+  -- Serenity
+  { "Touch of Death", "target.inMelee & target.deathin >= 8 & {!player.spell.usable(Gale Burst) || {player.spell.usable(Gale Burst) & talent(7,3) & player.spell(Strike of the Windlord).cooldown < 8 & player.spell(Fists of Fury).cooldown <= 4 & player.spell(Rising Sun Kick).cooldown < 7}}" },
 
 	{ "Lifeblood" },
 	{ "Berserking" },
@@ -87,16 +93,12 @@ local _Interrupts = {
 }
 
 local _SEF = {
-	{{
-		{ "Energizing Elixir", "target.inMelee & {player.energydiff > 0 & player.chi <= 1}" },
-		{ _Cooldowns, 'toggle(cooldowns)' },
-		{ "Storm, Earth, and Fire", "{!toggle(AoE) & @NOC.sef(nil)} || !player.buff(Storm, Earth, and Fire)" },
-	}, "player.spell(Strike of the Windlord).exists & player.spell(Strike of the Windlord).cooldown <= 14 & player.spell(Fists of Fury).cooldown <= 6 & player.spell(Rising Sun Kick).cooldown <= 6" },
-	{{
-		{ "Energizing Elixir", "target.inMelee & {player.energydiff > 0 & player.chi <= 1}" },
-		{ _Cooldowns, 'toggle(cooldowns)' },
-		{ "Storm, Earth, and Fire", "{!toggle(AoE) & @NOC.sef(nil)} || !player.buff(Storm, Earth, and Fire)" },
-	}, "!player.spell(Strike of the Windlord).exists & player.spell(Fists of Fury).cooldown <= 9 & player.spell(Rising Sun Kick).cooldown <= 5" },
+  { "Tiger Palm", "player.energydiff = 0 & player.chi <= 1 & !lastgcd(Tiger Palm) & @NOC.hitcombo(Tiger Palm) & target.inMelee" },
+  { "Storm, Earth, and Fire", "{{!toggle(AoE) & @NOC.sef(nil)} || !player.buff(Storm, Earth, and Fire)} & {player.spell(Touch of Death).cooldown <= 8 || player.spell(Touch of Death).cooldown > 85}" },
+  { "Storm, Earth, and Fire", "{{!toggle(AoE) & @NOC.sef(nil)} || !player.buff(Storm, Earth, and Fire)} & target.deathin <= 25" },
+  { "Storm, Earth, and Fire", "{{!toggle(AoE) & @NOC.sef(nil)} || !player.buff(Storm, Earth, and Fire)} & {player.spell(Fists of Fury).cooldown <= 1 & player.chi >= 3}" },
+  { "Fists of Fury", "target.inMelee & player.buff(Storm, Earth, and Fire)" },
+  { "Rising Sun Kick", "target.inMelee & player.buff(Storm, Earth, and Fire) & player.chi = 2 & player.energydiff > 0" }
 }
 
 local _Ranged = {
@@ -106,8 +108,6 @@ local _Ranged = {
 }
 
 local _Serenity = {
-	{ "Energizing Elixir", "target.inMelee & {player.energydiff > 0 & player.chi <= 1}" },
-	{ _Cooldowns, "toggle(cooldowns) & target.inMelee" },
 	{ "Serenity", "target.inMelee" },
 	{ "Strike of the Windlord", "player.area(9).enemies >= 1", "target" },
 	{ 'Spinning Crane Kick', "{!lastgcd(Spinning Crane Kick) & @NOC.hitcombo(Spinning Crane Kick)} & {player.spell(Spinning Crane Kick).count >= 8 || {player.spell(Spinning Crane Kick).count >= 3 & player.area(8).enemies >= 2 & toggle(AoE)} || {player.area(8).enemies >= 3 & toggle(AoE)}}" },
@@ -124,15 +124,20 @@ local _Serenity = {
 }
 
 local _Melee = {
-	{ _Cooldowns, "toggle(cooldowns) & target.inMelee" },
 	{ "Energizing Elixir", "player.energydiff > 0 & player.chi <= 1 & target.inMelee" },
-	{ "Strike of the Windlord", "talent(7,3) || player.area(9).enemies < 6 & player.area(9).enemies >= 1", "target" },
+  -- TODO: add support for convergence of fates legendry
+	{ "Strike of the Windlord", "player.area(9).enemies >= 1", "target" },
 	{ "Fists of Fury", "target.inMelee" },
+  {{
+		{ 'Tiger Palm', "UI(auto_dot)", 'NOC_sck(Mark of the Crane)' },
+		{ "Tiger Palm" },
+	}, "player.energydiff = 0 & player.chi <= 3 & player.buff(Storm, Earth, and Fire) & !lastgcd(Tiger Palm) & @NOC.hitcombo(Tiger Palm) & target.inMelee" },
 	{ 'Spinning Crane Kick', "{!lastgcd(Spinning Crane Kick) & @NOC.hitcombo(Spinning Crane Kick)} & {player.spell(Spinning Crane Kick).count >= 8 || {player.spell(Spinning Crane Kick).count >= 3 & player.area(8).enemies >= 2 & toggle(AoE)} || {player.area(8).enemies >= 3 & toggle(AoE)}}" },
 	{ 'Rising Sun Kick', "target.inMelee & UI(auto_dot)", 'NOC_sck(Mark of the Crane)'},
 	{ "Rising Sun Kick", "target.inMelee" },
 	{ 'Spinning Crane Kick', "!lastgcd(Spinning Crane Kick) & @NOC.hitcombo(Spinning Crane Kick) & player.spell(Spinning Crane Kick).count >= 16" },
 	{ "Whirling Dragon Punch" },
+  -- TODO: add support for CJL with legenadry Emperors Capcitor
 	{ 'Spinning Crane Kick', "{!lastgcd(Spinning Crane Kick) & @NOC.hitcombo(Spinning Crane Kick)} & {player.spell(Spinning Crane Kick).count >= 5 || {player.area(8).enemies >= 2 & toggle(AoE)}}" },
 	{ "Rushing Jade Wind", "player.chidiff > 1 & !lastgcd(Rushing Jade Wind) & @NOC.hitcombo(Rushing Jade Wind)" },
 	{{
@@ -165,9 +170,12 @@ local inCombat = {
 	{ _All},
 	{ _Survival, 'player.health < 100'},
 	{ _Interrupts, 'target.interruptAt(55) & target.inMelee' },
-	{ _Serenity, "toggle(cooldowns) & target.inMelee & talent(7,3) & !player.casting(Fists of Fury) & {player.spell(Strike of the Windlord).exists & player.spell(Strike of the Windlord).cooldown <= 15 & player.spell(Fists of Fury).cooldown < 8 & player.spell(Rising Sun Kick).cooldown <= 4} || player.buff(Serenity)" },
-	{ _Serenity, "toggle(cooldowns) & target.inMelee & talent(7,3) & !player.casting(Fists of Fury) & {!player.spell(Strike of the Windlord).exists & player.spell(Fists of Fury).cooldown < 14 & player.spell(Fists of Fury).cooldown <= 15 & player.spell(Rising Sun Kick).cooldown < 7} || player.buff(Serenity)" },
-	{ _SEF, "target.inMelee & UI(sef_toggle) & !talent(7,3) & !player.casting(Fists of Fury)" },
+  { _Cooldowns, "toggle(cooldowns) & target.inMelee" },
+  { _Serenity, "toggle(cooldowns) & target.inMelee & talent(7,3) & !player.casting(Fists of Fury) & {player.spell(Serenity).cooldown = 0 || player.buff(Serenity)}" },
+	--{ _Serenity, "toggle(cooldowns) & target.inMelee & talent(7,3) & !player.casting(Fists of Fury) & {player.spell(Strike of the Windlord).exists & player.spell(Strike of the Windlord).cooldown <= 15 & player.spell(Fists of Fury).cooldown < 8 & player.spell(Rising Sun Kick).cooldown <= 4} || player.buff(Serenity)" },
+	--{ _Serenity, "toggle(cooldowns) & target.inMelee & talent(7,3) & !player.casting(Fists of Fury) & {!player.spell(Strike of the Windlord).exists & player.spell(Fists of Fury).cooldown < 14 & player.spell(Fists of Fury).cooldown <= 15 & player.spell(Rising Sun Kick).cooldown < 7} || player.buff(Serenity)" },
+  -- TODO: handle legendary Drinking Horn Cover
+	{ _SEF, "target.inMelee & UI(sef_toggle) & !talent(7,3) & !player.casting(Fists of Fury) & {player.spell(Strike of the Windlord).exists & player.spell(Strike of the Windlord).cooldown <= 14 & player.spell(Fists of Fury).cooldown <= 6 & player.spell(Rising Sun Kick).cooldown <= 6}" },
 	{ _Melee, "!player.casting(Fists of Fury)" },
 	{ _Ranged, "!target.inMelee & target.inRanged & target.combat" },
 }
